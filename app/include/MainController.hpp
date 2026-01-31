@@ -14,7 +14,13 @@ namespace app {
 
         void update() override;
 
+        void begin_draw() override;
+
         void draw() override;
+
+        void end_draw() override;
+
+        void draw_floatPlane();
 
     public:
         std::string_view name() const override {
