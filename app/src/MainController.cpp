@@ -23,6 +23,29 @@ namespace app {
     }
 
     void MainController::update() {
+        auto platform  = engine::core::Controller::get<engine::platform::PlatformController>();
+        auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto camera    = graphics->camera();
+        auto deltaTime = platform->dt();
+
+        if (platform->key(engine::platform::KeyId::KEY_W).is_down()) {
+            camera->move_camera(engine::graphics::Camera::FORWARD, deltaTime);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_S).is_down()) {
+            camera->move_camera(engine::graphics::Camera::BACKWARD, deltaTime);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_A).is_down()) {
+            camera->move_camera(engine::graphics::Camera::LEFT, deltaTime);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_D).is_down()) {
+            camera->move_camera(engine::graphics::Camera::RIGHT, deltaTime);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_E).is_down()) {
+            camera->move_camera(engine::graphics::Camera::UP, deltaTime);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_Q).is_down()) {
+            camera->move_camera(engine::graphics::Camera::DOWN, deltaTime);
+        }
     }
 
     void MainController::begin_draw() {
