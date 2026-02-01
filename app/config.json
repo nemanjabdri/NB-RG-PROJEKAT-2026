@@ -3,6 +3,12 @@
     "models": {
       "floatplane": {
         "path": "floatplane/floatplane.obj"
+      },
+      "house": {
+        "path": "house/HouseWithDriveway.obj"
+      },
+      "convertible": {
+        "path": "convertible/Convertible.obj"
       }
     }
   },

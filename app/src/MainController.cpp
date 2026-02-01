@@ -75,7 +75,8 @@ namespace app {
     }
 
     void MainController::draw() {
-        draw_floatPlane();
+        draw_model("house", "shader_house", glm::vec3(0.0f, -4.0f, -15.0f), glm::vec3(0.7f));
+        draw_model("convertible", "shader_convertible", glm::vec3(-5.0f, -4.0f, -8.0f), glm::vec3(0.7f));
     }
 
     void MainController::end_draw() {
@@ -83,20 +84,21 @@ namespace app {
         platform->swap_buffers();
     }
 
-    void MainController::draw_floatPlane() {
+    void MainController::draw_model(std::string modelName, std::string shaderName, glm::vec3 translateModel,
+                                    glm::vec3 scaleModel) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        engine::resources::Model *modelFloatPlane = resources->model("floatplane");
-        engine::resources::Shader *shader         = resources->shader("shader_floatPlane");
+        engine::resources::Model *model   = resources->model(modelName);
+        engine::resources::Shader *shader = resources->shader(shaderName);
 
         shader->use();
         shader->set_mat4("projection", graphics->projection_matrix());
         shader->set_mat4("view", graphics->camera()->view_matrix());
-        glm::mat4 model = glm::mat4(1.0f);
-        model           = glm::translate(model, glm::vec3(0.0f, -2.0f, -36.0f));
-        model           = glm::scale(model, glm::vec3(0.2f));
-        shader->set_mat4("model", model);
-        modelFloatPlane->draw(shader);
+        glm::mat4 modelTransform = glm::mat4(1.0f);
+        modelTransform           = glm::translate(modelTransform, translateModel);
+        modelTransform           = glm::scale(modelTransform, scaleModel);
+        shader->set_mat4("model", modelTransform);
+        model->draw(shader);
     }
 } // app

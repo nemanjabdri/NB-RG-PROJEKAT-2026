@@ -5,6 +5,7 @@
 #ifndef MATF_RG_PROJECT_MAINCONTROLLER_HPP
 #define MATF_RG_PROJECT_MAINCONTROLLER_HPP
 #include <engine/core/Controller.hpp>
+#include <glm/vec3.hpp>
 
 namespace app {
     class MainController : public engine::core::Controller {
@@ -20,7 +21,7 @@ namespace app {
 
         void end_draw() override;
 
-        void draw_floatPlane();
+        void draw_model(std::string modelName, std::string shaderName, glm::vec3 translateModel, glm::vec3 scaleModel);
 
     public:
         std::string_view name() const override {
