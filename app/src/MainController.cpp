@@ -8,6 +8,7 @@
 #include <engine/graphics/OpenGL.hpp>
 #include <engine/platform/PlatformController.hpp>
 #include <engine/resources/ResourcesController.hpp>
+#include <GL/gl.h>
 
 namespace app {
     class MainPlatformEventObserver : public engine::platform::PlatformEventObserver {
@@ -77,6 +78,7 @@ namespace app {
     void MainController::draw() {
         draw_model("house", "shader_house", glm::vec3(0.0f, -4.0f, -15.0f), glm::vec3(0.7f));
         draw_model("convertible", "shader_convertible", glm::vec3(-5.0f, -4.0f, -8.0f), glm::vec3(0.7f));
+        draw_skybox();
     }
 
     void MainController::end_draw() {
@@ -100,5 +102,13 @@ namespace app {
         modelTransform           = glm::scale(modelTransform, scaleModel);
         shader->set_mat4("model", modelTransform);
         model->draw(shader);
+    }
+
+    void MainController::draw_skybox() {
+        auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
+        auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto skybox    = resources->skybox("skybox");
+        auto shader    = resources->shader("shader_skybox");
+        graphics->draw_skybox(shader, skybox);
     }
 } // app

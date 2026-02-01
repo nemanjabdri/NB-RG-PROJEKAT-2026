@@ -21,6 +21,8 @@ namespace app {
 
         void end_draw() override;
 
+        void draw_skybox();
+
         void draw_model(std::string modelName, std::string shaderName, glm::vec3 translateModel, glm::vec3 scaleModel);
 
     public:
