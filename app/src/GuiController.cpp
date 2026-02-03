@@ -34,14 +34,18 @@ namespace app {
         auto camera   = graphics->camera();
         graphics->begin_gui();
 
-        glm::vec3 currentUFOLightPos = mainCtrl->getUfoLightPos();
+        glm::vec3 currentRedPoliceLightPos  = mainCtrl->getPoliceRedLightPos();
+        glm::vec3 currentBluePoliceLightPos = mainCtrl->getPoliceBlueLightPos();
 
         ImGui::Begin("Camera info. ");
 
         ImGui::Text("Camera position: (%f %f %f)", camera->Position.x, camera->Position.y, camera->Position.z);
 
-        if (ImGui::SliderFloat3("UFO Light Pos", &currentUFOLightPos.x, -20.0f, 20.0f)) {
-            mainCtrl->setUfoLightPos(currentUFOLightPos);
+        if (ImGui::SliderFloat3("RED Light Pos", &currentRedPoliceLightPos.x, -20.0f, 20.0f)) {
+            mainCtrl->setPoliceRedLightPos(currentRedPoliceLightPos);
+        }
+        if (ImGui::SliderFloat3("BLUE Light Pos", &currentBluePoliceLightPos.x, -20.0f, 20.0f)) {
+            mainCtrl->setPoliceBlueLightPos(currentBluePoliceLightPos);
         }
 
         ImGui::End();

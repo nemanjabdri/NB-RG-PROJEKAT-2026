@@ -101,7 +101,8 @@ namespace app {
         draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
         draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 17.0f), glm::vec3(0.8f), 180.0f);
         draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
-        draw_model("farm_house", "shader_model_universal", m_ufoLightPos, glm::vec3(0.008f));
+        draw_model("farm_house", "shader_model_universal", m_policeRedLightPos, glm::vec3(0.008f));
+        draw_model("farm_house", "shader_model_universal", m_policeBlueLightPos, glm::vec3(0.008f));
 
         draw_skybox();
     }
@@ -122,14 +123,25 @@ namespace app {
 
         shader->use();
         shader->set_vec3("viewPos", graphics->camera()->Position);
-        shader->set_vec3("pointLight.position", m_ufoLightPos);
-        shader->set_vec3("pointLight.ambient", glm::vec3(0.3f));
-        shader->set_vec3("pointLight.diffuse", glm::vec3(1.0f, 0.3f, 0.3f)); // Plavičasto svetlo
-        shader->set_vec3("pointLight.specular", glm::vec3(1.0f));
+        //POLICE RED LIGHT
+        shader->set_vec3("pointLights[0].position", m_policeRedLightPos);
+        shader->set_vec3("pointLights[0].ambient", glm::vec3(0.2f));
+        shader->set_vec3("pointLights[0].diffuse", glm::vec3(1.0f, 0.0f, 0.0f)); // Plavičasto svetlo
+        shader->set_vec3("pointLights[0].specular", glm::vec3(1.0f));
 
-        shader->set_float("pointLight.constant", 1.0f);
-        shader->set_float("pointLight.linear", 0.0009f);
-        shader->set_float("pointLight.quadratic", 0.00032f);
+        shader->set_float("pointLights[0].constant", 1.0f);
+        shader->set_float("pointLights[0].linear", 0.009f);
+        shader->set_float("pointLights[0].quadratic", 0.0032f);
+
+        //POLICE BLUE LIGHT
+        shader->set_vec3("pointLights[1].position", m_policeBlueLightPos);
+        shader->set_vec3("pointLights[1].ambient", glm::vec3(0.2f));
+        shader->set_vec3("pointLights[1].diffuse", glm::vec3(0.0f, 0.0f, 1.0f)); // Plavičasto svetlo
+        shader->set_vec3("pointLights[1].specular", glm::vec3(1.0f));
+
+        shader->set_float("pointLights[1].constant", 1.0f);
+        shader->set_float("pointLights[1].linear", 0.009f);
+        shader->set_float("pointLights[1].quadratic", 0.0032f);
 
         shader->set_mat4("projection", graphics->projection_matrix());
         shader->set_mat4("view", graphics->camera()->view_matrix());

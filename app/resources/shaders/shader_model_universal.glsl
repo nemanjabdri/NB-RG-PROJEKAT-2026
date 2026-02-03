@@ -22,6 +22,7 @@ void main() {
 
 //#shader fragment
 #version 330 core
+#define NR_POINT_LIGHTS 2
 
 out vec4 FragColor;
 
@@ -37,32 +38,47 @@ struct PointLight {
     vec3 specular;
 };
 
+
 in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
 uniform sampler2D texture_diffuse1;
 uniform vec3 viewPos;
-uniform PointLight pointLight;
+uniform PointLight pointLights[NR_POINT_LIGHTS];
+
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 texColor) {
+    vec3 lightDir = normalize(light.position - fragPos);
+
+    // Diffuse
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    // Specular (Blinn-Phong)
+    vec3 halfwayDir = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+
+    // Attenuation
+    float distance = length(light.position - fragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance +
+    light.quadratic * (distance * distance));
+
+    vec3 ambient = light.ambient * texColor;
+    vec3 diffuse = light.diffuse * diff * texColor;
+    vec3 specular = light.specular * spec * texColor;
+
+    return (ambient + diffuse + specular) * attenuation;
+}
 
 void main() {
     vec3 color = texture(texture_diffuse1, TexCoords).rgb;
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    vec3 ambient = pointLight.ambient * color;
+    vec3 result = vec3(0.0);
 
-    vec3 lightDir = normalize(pointLight.position - FragPos);
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 diffuse = pointLight.diffuse * diff * color;
+    for (int i = 0; i < NR_POINT_LIGHTS; i++) {
+        result += CalcPointLight(pointLights[i], normal, FragPos, viewDir, color);
+    }
 
-    vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
-    vec3 specular = pointLight.specular * spec * color;
-
-    float distance = length(pointLight.position - FragPos);
-    float attenuation = 1.0 / (pointLight.constant + pointLight.linear * distance +
-    pointLight.quadratic * (distance * distance));
-
-    FragColor = vec4((ambient + diffuse + specular) * attenuation, 1.0);
+    FragColor = vec4(result, 1.0);
 }

@@ -10,8 +10,9 @@
 namespace app {
     class MainController : public engine::core::Controller {
     private:
-        glm::vec3 m_ufoLightPos = glm::vec3(5.0f, 5.0f, 0.0f);
-        bool m_cursorEnabled    = false;
+        glm::vec3 m_policeRedLightPos  = glm::vec3(-17.67f, -0.4f, -1.6f);
+        glm::vec3 m_policeBlueLightPos = glm::vec3(-18.6f, -0.4f, -0.2f);
+        bool m_cursorEnabled           = false;
 
         void initialize() override;
 
@@ -35,12 +36,20 @@ namespace app {
             return m_cursorEnabled;
         }
 
-        glm::vec3 getUfoLightPos() const {
-            return m_ufoLightPos;
+        glm::vec3 getPoliceRedLightPos() const {
+            return m_policeRedLightPos;
         }
 
-        void setUfoLightPos(const glm::vec3 &pos) {
-            m_ufoLightPos = pos;
+        void setPoliceRedLightPos(const glm::vec3 &pos) {
+            m_policeRedLightPos = pos;
+        }
+
+        glm::vec3 getPoliceBlueLightPos() const {
+            return m_policeBlueLightPos;
+        }
+
+        void setPoliceBlueLightPos(const glm::vec3 &pos) {
+            m_policeBlueLightPos = pos;
         }
 
         std::string_view name() const override {
