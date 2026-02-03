@@ -1,14 +1,32 @@
 {
   "resources": {
     "models": {
-      "floatplane": {
-        "path": "floatplane/floatplane.obj"
-      },
       "house": {
         "path": "house/HouseWithDriveway.obj"
       },
       "convertible": {
         "path": "convertible/Convertible.obj"
+      },
+      "road": {
+        "path": "road/Road.obj"
+      },
+      "caravan": {
+        "path": "caravan/Caravan.obj"
+      },
+      "billboard": {
+        "path": "billboard/Billboard.obj"
+      },
+      "police_car": {
+        "path": "police_car/PoliceCar.obj"
+      },
+      "ufo": {
+        "path": "ufo/UFO.obj"
+      },
+      "farm_house": {
+        "path": "farm_house/FarmHouse.obj"
+      },
+      "tennis_court": {
+        "path": "tennis_court/TennisCourt.obj"
       }
     }
   },

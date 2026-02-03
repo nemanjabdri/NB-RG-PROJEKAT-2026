@@ -76,8 +76,16 @@ namespace app {
     }
 
     void MainController::draw() {
-        draw_model("house", "shader_house", glm::vec3(0.0f, -4.0f, -15.0f), glm::vec3(0.7f));
-        draw_model("convertible", "shader_convertible", glm::vec3(-5.0f, -4.0f, -8.0f), glm::vec3(0.7f));
+        draw_model("house", "shader_house", glm::vec3(0.0f, -4.0f, -25.0f), glm::vec3(1.0f));
+        draw_model("convertible", "shader_convertible", glm::vec3(-6.0f, -4.0f, -17.0f), glm::vec3(1.0f));
+        draw_model("road", "shader_road", glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
+        draw_model("caravan", "shader_caravan", glm::vec3(4.0f, -1.0f, -15.0f), glm::vec3(0.04f));
+        draw_model("billboard", "shader_billboard", glm::vec3(24.0f, -4.5f, 8.0f), glm::vec3(0.016f));
+        draw_model("police_car", "shader_police_car", glm::vec3(-10.0f, -4.0f, 0.0f), glm::vec3(0.09f));
+        draw_model("ufo", "shader_ufo", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
+        draw_model("farm_house", "shader_farm_house", glm::vec3(0.0f, -4.5f, 15.0f), glm::vec3(0.8f));
+        draw_model("tennis_court", "shader_tennis_court", glm::vec3(30.0f, -3.5f, -21.0f), glm::vec3(1.6f));
+
         draw_skybox();
     }
 
@@ -86,7 +94,8 @@ namespace app {
         platform->swap_buffers();
     }
 
-    void MainController::draw_model(std::string modelName, std::string shaderName, glm::vec3 translateModel,
+    void MainController::draw_model(std::string modelName, std::string shaderName,
+                                    glm::vec3 translateModel,
                                     glm::vec3 scaleModel) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
