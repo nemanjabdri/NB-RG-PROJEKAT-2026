@@ -99,7 +99,7 @@ namespace app {
         draw_model("caravan", "shader_model_universal", glm::vec3(-25.0f, -1.0f, -22.0f), glm::vec3(0.04f), 20.0f);
         draw_model("billboard", "shader_model_universal", glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
         draw_model("police_car", "shader_model_universal", glm::vec3(-17.0f, -4.0f, 0.0f), glm::vec3(0.09f), 55.0f);
-        draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
+        //draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
         draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
         draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
         draw_model("street_light", "shader_model_universal", glm::vec3(18.0f, -4.0f, 8.0f), glm::vec3(1.5f), 90.0f);
@@ -145,49 +145,49 @@ namespace app {
 
         //POLICE RED LIGHT
         shader->set_vec3("pointLights[0].position", m_policeRedLightPos);
-        shader->set_vec3("pointLights[0].ambient", glm::vec3(0.1f) * ambientLightsActive);
+        shader->set_vec3("pointLights[0].ambient", glm::vec3(0.03f) * ambientLightsActive);
         shader->set_vec3("pointLights[0].diffuse", glm::vec3(1.0f, 0.0f, 0.0f) * m_redIntensity);
         shader->set_vec3("pointLights[0].specular", glm::vec3(0.0f));
 
-        shader->set_float("pointLights[0].linear", 0.009f);
-        shader->set_float("pointLights[0].quadratic", 0.0032f);
+        shader->set_float("pointLights[0].linear", 0.0009f);
+        shader->set_float("pointLights[0].quadratic", 0.00032f);
 
         //POLICE BLUE LIGHT
         shader->set_vec3("pointLights[1].position", m_policeBlueLightPos);
-        shader->set_vec3("pointLights[1].ambient", glm::vec3(0.1f) * ambientLightsActive);
+        shader->set_vec3("pointLights[1].ambient", glm::vec3(0.03f) * ambientLightsActive);
         shader->set_vec3("pointLights[1].diffuse", glm::vec3(0.0f, 0.0f, 1.0f) * m_blueIntensity);
         shader->set_vec3("pointLights[1].specular", glm::vec3(0.0f));
 
-        shader->set_float("pointLights[1].linear", 0.009f);
-        shader->set_float("pointLights[1].quadratic", 0.0032f);
+        shader->set_float("pointLights[1].linear", 0.0009f);
+        shader->set_float("pointLights[1].quadratic", 0.00032f);
 
         // Far 1 (Levi)
         shader->set_vec3("spotLights[0].position", m_policeCarLightLeftPos);
         shader->set_vec3("spotLights[0].direction", m_policeCarLightDirection); // Prilagodi smeru auta
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(17.5f)));
-        shader->set_vec3("spotLights[0].ambient", glm::vec3(0.1f) * policeHeadLightsActive);
+        shader->set_vec3("spotLights[0].ambient", glm::vec3(0.03f) * policeHeadLightsActive);
         shader->set_vec3("spotLights[0].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * policeHeadLightsActive);
         shader->set_vec3("spotLights[0].specular", glm::vec3(0.2f) * policeHeadLightsActive);
-        shader->set_float("spotLights[0].linear", 0.009f);
-        shader->set_float("spotLights[0].quadratic", 0.0032f);
+        shader->set_float("spotLights[0].linear", 0.0009f);
+        shader->set_float("spotLights[0].quadratic", 0.00032f);
 
         // Far 2 (Desni)
         shader->set_vec3("spotLights[1].position", m_policeCarLightRightPos);
         shader->set_vec3("spotLights[1].direction", m_policeCarLightDirection);
         shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[1].outerCutOff", glm::cos(glm::radians(17.5f)));
-        shader->set_vec3("spotLights[1].ambient", glm::vec3(0.1f) * policeHeadLightsActive);
+        shader->set_vec3("spotLights[1].ambient", glm::vec3(0.03f) * policeHeadLightsActive);
         shader->set_vec3("spotLights[1].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * policeHeadLightsActive);
         shader->set_vec3("spotLights[1].specular", glm::vec3(0.2f) * policeHeadLightsActive);
         shader->set_float("spotLights[1].linear", 0.009f);
-        shader->set_float("spotLights[1].quadratic", 0.0032f);
+        shader->set_float("spotLights[1].quadratic", 0.00032f);
 
         //street-light 1
         shader->set_vec3("spotLights[2].position", m_streetLight1Pos);
         shader->set_vec3("spotLights[2].direction", m_streetLightDirection);
         shader->set_float("spotLights[2].cutOff", glm::cos(glm::radians(12.5f)));
-        shader->set_float("spotLights[2].outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader->set_float("spotLights[2].outerCutOff", glm::cos(glm::radians(25.5f)));
         shader->set_vec3("spotLights[2].ambient", glm::vec3(0.1f));
         shader->set_vec3("spotLights[2].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
         shader->set_vec3("spotLights[2].specular", glm::vec3(0.2f));
@@ -197,7 +197,7 @@ namespace app {
         shader->set_vec3("spotLights[3].position", m_streetLight2Pos);
         shader->set_vec3("spotLights[3].direction", m_streetLightDirection);
         shader->set_float("spotLights[3].cutOff", glm::cos(glm::radians(12.5f)));
-        shader->set_float("spotLights[3].outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader->set_float("spotLights[3].outerCutOff", glm::cos(glm::radians(25.5f)));
         shader->set_vec3("spotLights[3].ambient", glm::vec3(0.1f));
         shader->set_vec3("spotLights[3].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
         shader->set_vec3("spotLights[3].specular", glm::vec3(0.2f));
@@ -208,7 +208,7 @@ namespace app {
         shader->set_vec3("spotLights[4].position", m_streetLight3Pos);
         shader->set_vec3("spotLights[4].direction", m_streetLightDirection);
         shader->set_float("spotLights[4].cutOff", glm::cos(glm::radians(12.5f)));
-        shader->set_float("spotLights[4].outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader->set_float("spotLights[4].outerCutOff", glm::cos(glm::radians(25.5f)));
         shader->set_vec3("spotLights[4].ambient", glm::vec3(0.1f));
         shader->set_vec3("spotLights[4].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
         shader->set_vec3("spotLights[4].specular", glm::vec3(0.2f));
