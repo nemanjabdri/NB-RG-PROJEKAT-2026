@@ -30,6 +30,9 @@
       },
       "terrain": {
         "path": "terrain/terrain.obj"
+      },
+      "street_light": {
+        "path": "street_light/Street_light.obj"
       }
     }
   },

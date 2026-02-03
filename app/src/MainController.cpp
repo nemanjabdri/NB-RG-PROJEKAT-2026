@@ -100,8 +100,13 @@ namespace app {
         draw_model("billboard", "shader_model_universal", glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
         draw_model("police_car", "shader_model_universal", glm::vec3(-17.0f, -4.0f, 0.0f), glm::vec3(0.09f), 55.0f);
         draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
-        draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 17.0f), glm::vec3(0.8f), 180.0f);
+        draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
         draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
+        draw_model("street_light", "shader_model_universal", glm::vec3(18.0f, -3.9f, 8.0f), glm::vec3(1.5f), 90.0f);
+        draw_model("street_light", "shader_model_universal", glm::vec3(-46.0f, -3.9f, 8.0f), glm::vec3(1.5f),
+                   90.0f);
+        draw_model("street_light", "shader_model_universal", glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
+                   90.0f);
         draw_model("farm_house", "shader_model_universal", m_policeCarLightLeft, glm::vec3(0.008f));
         draw_model("farm_house", "shader_model_universal", m_policeCarLightRight, glm::vec3(0.008f));
 
