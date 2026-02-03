@@ -77,15 +77,19 @@ namespace app {
     }
 
     void MainController::draw() {
+        draw_model("terrain", "shader_model_universal", glm::vec3(0.0f, -0.55f, -80.0f),
+                   glm::vec3(0.0005f, 0.0008f, 0.0008f));
+        draw_model("terrain", "shader_model_universal", glm::vec3(0.0f, -0.55f, 60.0f),
+                   glm::vec3(0.0005f, 0.0008f, 0.0008f), 180.0f);
         draw_model("house", "shader_model_universal", glm::vec3(0.0f, -4.0f, -25.0f));
         draw_model("convertible", "shader_model_universal", glm::vec3(-6.0f, -4.0f, -17.0f));
         draw_model("road", "shader_model_universal", glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
-        draw_model("caravan", "shader_model_universal", glm::vec3(5.0f, -1.0f, -16.0f), glm::vec3(0.04f), 15.0f);
-        draw_model("billboard", "shader_model_universal", glm::vec3(32.0f, -4.5f, 8.0f), glm::vec3(0.016f));
+        draw_model("caravan", "shader_model_universal", glm::vec3(-25.0f, -1.0f, -22.0f), glm::vec3(0.04f), 20.0f);
+        draw_model("billboard", "shader_model_universal", glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
         draw_model("police_car", "shader_model_universal", glm::vec3(-17.0f, -4.0f, 0.0f), glm::vec3(0.09f), 55.0f);
         draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
-        draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.5f, 17.0f), glm::vec3(0.8f), 180.0f);
-        draw_model("tennis_court", "shader_model_universal", glm::vec3(30.0f, -4.0f, -22.0f), glm::vec3(1.6f));
+        draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 17.0f), glm::vec3(0.8f), 180.0f);
+        draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
 
         draw_skybox();
     }

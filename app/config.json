@@ -27,6 +27,9 @@
       },
       "tennis_court": {
         "path": "tennis_court/TennisCourt.obj"
+      },
+      "terrain": {
+        "path": "terrain/terrain.obj"
       }
     }
   },
