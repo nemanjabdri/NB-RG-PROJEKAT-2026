@@ -9,6 +9,7 @@
 #include <engine/platform/PlatformController.hpp>
 #include <engine/resources/ResourcesController.hpp>
 #include <GL/gl.h>
+#include <glm/glm.hpp>
 
 namespace app {
     class MainPlatformEventObserver : public engine::platform::PlatformEventObserver {
@@ -76,15 +77,15 @@ namespace app {
     }
 
     void MainController::draw() {
-        draw_model("house", "shader_house", glm::vec3(0.0f, -4.0f, -25.0f), glm::vec3(1.0f));
-        draw_model("convertible", "shader_convertible", glm::vec3(-6.0f, -4.0f, -17.0f), glm::vec3(1.0f));
-        draw_model("road", "shader_road", glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
-        draw_model("caravan", "shader_caravan", glm::vec3(4.0f, -1.0f, -15.0f), glm::vec3(0.04f));
-        draw_model("billboard", "shader_billboard", glm::vec3(24.0f, -4.5f, 8.0f), glm::vec3(0.016f));
-        draw_model("police_car", "shader_police_car", glm::vec3(-10.0f, -4.0f, 0.0f), glm::vec3(0.09f));
-        draw_model("ufo", "shader_ufo", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
-        draw_model("farm_house", "shader_farm_house", glm::vec3(0.0f, -4.5f, 15.0f), glm::vec3(0.8f));
-        draw_model("tennis_court", "shader_tennis_court", glm::vec3(30.0f, -3.5f, -21.0f), glm::vec3(1.6f));
+        draw_model("house", "shader_model_universal", glm::vec3(0.0f, -4.0f, -25.0f));
+        draw_model("convertible", "shader_model_universal", glm::vec3(-6.0f, -4.0f, -17.0f));
+        draw_model("road", "shader_model_universal", glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
+        draw_model("caravan", "shader_model_universal", glm::vec3(5.0f, -1.0f, -16.0f), glm::vec3(0.04f), 15.0f);
+        draw_model("billboard", "shader_model_universal", glm::vec3(32.0f, -4.5f, 8.0f), glm::vec3(0.016f));
+        draw_model("police_car", "shader_model_universal", glm::vec3(-17.0f, -4.0f, 0.0f), glm::vec3(0.09f), 55.0f);
+        draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
+        draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.5f, 17.0f), glm::vec3(0.8f), 180.0f);
+        draw_model("tennis_court", "shader_model_universal", glm::vec3(30.0f, -4.0f, -22.0f), glm::vec3(1.6f));
 
         draw_skybox();
     }
@@ -96,7 +97,7 @@ namespace app {
 
     void MainController::draw_model(std::string modelName, std::string shaderName,
                                     glm::vec3 translateModel,
-                                    glm::vec3 scaleModel) {
+                                    glm::vec3 scaleModel, float rotateModelAngle) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
@@ -107,8 +108,9 @@ namespace app {
         shader->set_mat4("projection", graphics->projection_matrix());
         shader->set_mat4("view", graphics->camera()->view_matrix());
         glm::mat4 modelTransform = glm::mat4(1.0f);
-        modelTransform           = glm::translate(modelTransform, translateModel);
-        modelTransform           = glm::scale(modelTransform, scaleModel);
+        modelTransform = glm::translate(modelTransform, translateModel);
+        modelTransform = glm::rotate(modelTransform, glm::radians(rotateModelAngle), glm::vec3(0.0f, 1.0f, 0.0f));
+        modelTransform = glm::scale(modelTransform, scaleModel);
         shader->set_mat4("model", modelTransform);
         model->draw(shader);
     }

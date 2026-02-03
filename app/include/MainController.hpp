@@ -24,7 +24,7 @@ namespace app {
         void draw_skybox();
 
         void draw_model(std::string modelName, std::string shaderName, glm::vec3 translateModel,
-                        glm::vec3 scaleModel);
+                        glm::vec3 scaleModel = glm::vec3(1.0f), float rotateModelAngle = 0.0f);
 
     public:
         std::string_view name() const override {
