@@ -18,6 +18,7 @@ namespace app {
         glm::vec3 m_policeCarLightDirection = glm::vec3(20.0f, 1.66f, 12.33f);
         bool m_cursorEnabled                = false;
         bool m_policeEmergencyLightsActive  = false;
+        bool m_policeHeadLightsActive       = false;
 
         void initialize() override;
 
@@ -87,6 +88,14 @@ namespace app {
 
         void setPoliceEmergencyLightsActive(const bool active) {
             m_policeEmergencyLightsActive = active;
+        }
+
+        bool isPoliceHeadLightsActive() {
+            return m_policeHeadLightsActive;
+        }
+
+        void setPoliceHeadLightsActive(const bool active) {
+            m_policeHeadLightsActive = active;
         }
 
         std::string_view name() const override {

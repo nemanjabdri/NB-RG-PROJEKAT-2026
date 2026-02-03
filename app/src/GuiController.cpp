@@ -38,6 +38,7 @@ namespace app {
         glm::vec3 currentPoliceLightRight     = mainCtrl->getPoliceCarLightRight();
         glm::vec3 currentPoliceLightDirection = mainCtrl->getPoliceCarLightDirection();
         bool isPoliceEmergencyLightsActive    = mainCtrl->isPoliceEmergencyLightsActive();
+        bool isPoliceHeadLightsActive         = mainCtrl->isPoliceHeadLightsActive();
 
         ImGui::Begin("Camera info. ");
 
@@ -53,8 +54,11 @@ namespace app {
             mainCtrl->setPoliceCarLightDirection(currentPoliceLightDirection);
         }
 
-        if (ImGui::Checkbox("Police Emergency Lights:", &isPoliceEmergencyLightsActive)) {
+        if (ImGui::Checkbox("Police Emergency Lights", &isPoliceEmergencyLightsActive)) {
             mainCtrl->setPoliceEmergencyLightsActive(isPoliceEmergencyLightsActive);
+        }
+        if (ImGui::Checkbox("Police Head Lights", &isPoliceHeadLightsActive)) {
+            mainCtrl->setPoliceHeadLightsActive(isPoliceHeadLightsActive);
         }
 
         ImGui::End();
