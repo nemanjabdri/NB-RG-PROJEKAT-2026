@@ -9,6 +9,10 @@
 
 namespace app {
     class MainController : public engine::core::Controller {
+    private:
+        glm::vec3 m_ufoLightPos = glm::vec3(5.0f, 5.0f, 0.0f);
+        bool m_cursorEnabled    = false;
+
         void initialize() override;
 
         bool loop() override;
@@ -27,6 +31,18 @@ namespace app {
                         glm::vec3 scaleModel = glm::vec3(1.0f), float rotateModelAngle = 0.0f);
 
     public:
+        bool isCursorEnabled() const {
+            return m_cursorEnabled;
+        }
+
+        glm::vec3 getUfoLightPos() const {
+            return m_ufoLightPos;
+        }
+
+        void setUfoLightPos(const glm::vec3 &pos) {
+            m_ufoLightPos = pos;
+        }
+
         std::string_view name() const override {
             return "MainController";
         }

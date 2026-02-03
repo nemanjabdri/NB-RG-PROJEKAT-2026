@@ -10,6 +10,7 @@
 #include <engine/resources/ResourcesController.hpp>
 #include <GL/gl.h>
 #include <glm/glm.hpp>
+#include <spdlog/spdlog.h>
 
 namespace app {
     class MainPlatformEventObserver : public engine::platform::PlatformEventObserver {
@@ -18,7 +19,12 @@ namespace app {
     };
 
     void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition position) {
-        auto camera = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
+        auto camera   = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
+        auto mainCtrl = engine::core::Controller::get<app::MainController>();
+
+        if (mainCtrl->isCursorEnabled()) {
+            return;
+        }
 
         float mouse_sensitivity = 0.04f;
 
@@ -31,7 +37,8 @@ namespace app {
     void MainController::initialize() {
         auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
 
-        platform->set_enable_cursor(false);
+        m_cursorEnabled = false;
+        platform->set_enable_cursor(m_cursorEnabled);
 
         platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
 
@@ -52,22 +59,26 @@ namespace app {
         auto camera    = graphics->camera();
         auto deltaTime = platform->dt();
 
-        if (platform->key(engine::platform::KeyId::KEY_W).is_down()) {
+        if (platform->key(engine::platform::KeyId::KEY_F2).state() == engine::platform::Key::State::JustPressed) {
+            m_cursorEnabled = !m_cursorEnabled;
+            platform->set_enable_cursor(m_cursorEnabled);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_W).is_down() && !m_cursorEnabled) {
             camera->move_camera(engine::graphics::Camera::FORWARD, deltaTime);
         }
-        if (platform->key(engine::platform::KeyId::KEY_S).is_down()) {
+        if (platform->key(engine::platform::KeyId::KEY_S).is_down() && !m_cursorEnabled) {
             camera->move_camera(engine::graphics::Camera::BACKWARD, deltaTime);
         }
-        if (platform->key(engine::platform::KeyId::KEY_A).is_down()) {
+        if (platform->key(engine::platform::KeyId::KEY_A).is_down() && !m_cursorEnabled) {
             camera->move_camera(engine::graphics::Camera::LEFT, deltaTime);
         }
-        if (platform->key(engine::platform::KeyId::KEY_D).is_down()) {
+        if (platform->key(engine::platform::KeyId::KEY_D).is_down() && !m_cursorEnabled) {
             camera->move_camera(engine::graphics::Camera::RIGHT, deltaTime);
         }
-        if (platform->key(engine::platform::KeyId::KEY_E).is_down()) {
+        if (platform->key(engine::platform::KeyId::KEY_E).is_down() && !m_cursorEnabled) {
             camera->move_camera(engine::graphics::Camera::UP, deltaTime);
         }
-        if (platform->key(engine::platform::KeyId::KEY_Q).is_down()) {
+        if (platform->key(engine::platform::KeyId::KEY_Q).is_down() && !m_cursorEnabled) {
             camera->move_camera(engine::graphics::Camera::DOWN, deltaTime);
         }
     }
@@ -90,6 +101,7 @@ namespace app {
         draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
         draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 17.0f), glm::vec3(0.8f), 180.0f);
         draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
+        draw_model("farm_house", "shader_model_universal", m_ufoLightPos, glm::vec3(0.008f));
 
         draw_skybox();
     }
@@ -109,6 +121,16 @@ namespace app {
         engine::resources::Shader *shader = resources->shader(shaderName);
 
         shader->use();
+        shader->set_vec3("viewPos", graphics->camera()->Position);
+        shader->set_vec3("pointLight.position", m_ufoLightPos);
+        shader->set_vec3("pointLight.ambient", glm::vec3(0.3f));
+        shader->set_vec3("pointLight.diffuse", glm::vec3(1.0f, 0.3f, 0.3f)); // Plavičasto svetlo
+        shader->set_vec3("pointLight.specular", glm::vec3(1.0f));
+
+        shader->set_float("pointLight.constant", 1.0f);
+        shader->set_float("pointLight.linear", 0.0009f);
+        shader->set_float("pointLight.quadratic", 0.00032f);
+
         shader->set_mat4("projection", graphics->projection_matrix());
         shader->set_mat4("view", graphics->camera()->view_matrix());
         glm::mat4 modelTransform = glm::mat4(1.0f);
