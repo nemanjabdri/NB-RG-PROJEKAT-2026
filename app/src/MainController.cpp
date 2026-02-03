@@ -58,6 +58,7 @@ namespace app {
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
         auto camera    = graphics->camera();
         auto deltaTime = platform->dt();
+        m_totalTime    += deltaTime;
 
         if (platform->key(engine::platform::KeyId::KEY_F2).state() == engine::platform::Key::State::JustPressed) {
             m_cursorEnabled = !m_cursorEnabled;
@@ -101,8 +102,8 @@ namespace app {
         draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
         draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 17.0f), glm::vec3(0.8f), 180.0f);
         draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
-        draw_model("farm_house", "shader_model_universal", m_policeRedLightPos, glm::vec3(0.008f));
-        draw_model("farm_house", "shader_model_universal", m_policeBlueLightPos, glm::vec3(0.008f));
+        draw_model("farm_house", "shader_model_universal", m_policeCarLightLeft, glm::vec3(0.008f));
+        draw_model("farm_house", "shader_model_universal", m_policeCarLightRight, glm::vec3(0.008f));
 
         draw_skybox();
     }
@@ -117,31 +118,65 @@ namespace app {
                                     glm::vec3 scaleModel, float rotateModelAngle) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto platform  = engine::core::Controller::get<engine::platform::PlatformController>();
 
         engine::resources::Model *model   = resources->model(modelName);
         engine::resources::Shader *shader = resources->shader(shaderName);
 
+        float speed = 5.0f;
+        float m_redIntensity;
+        float m_blueIntensity;
+
+        if (m_policeEmergencyLightsActive) {
+            m_redIntensity  = (sin(m_totalTime * speed) + 1.0f) / 2.0f;
+            m_blueIntensity = (cos(m_totalTime * speed) + 1.0f) / 2.0f;
+        } else {
+            m_redIntensity  = 0.0f;
+            m_blueIntensity = 0.0f;
+        }
+        float ambientIntensity = m_policeEmergencyLightsActive ? 1.0f : 0.0f;
         shader->use();
         shader->set_vec3("viewPos", graphics->camera()->Position);
+
         //POLICE RED LIGHT
         shader->set_vec3("pointLights[0].position", m_policeRedLightPos);
-        shader->set_vec3("pointLights[0].ambient", glm::vec3(0.2f));
-        shader->set_vec3("pointLights[0].diffuse", glm::vec3(1.0f, 0.0f, 0.0f)); // Plavičasto svetlo
-        shader->set_vec3("pointLights[0].specular", glm::vec3(1.0f));
+        shader->set_vec3("pointLights[0].ambient", glm::vec3(0.1f) * ambientIntensity);
+        shader->set_vec3("pointLights[0].diffuse", glm::vec3(1.0f, 0.0f, 0.0f) * m_redIntensity);
+        shader->set_vec3("pointLights[0].specular", glm::vec3(0.0f));
 
-        shader->set_float("pointLights[0].constant", 1.0f);
         shader->set_float("pointLights[0].linear", 0.009f);
         shader->set_float("pointLights[0].quadratic", 0.0032f);
 
         //POLICE BLUE LIGHT
         shader->set_vec3("pointLights[1].position", m_policeBlueLightPos);
-        shader->set_vec3("pointLights[1].ambient", glm::vec3(0.2f));
-        shader->set_vec3("pointLights[1].diffuse", glm::vec3(0.0f, 0.0f, 1.0f)); // Plavičasto svetlo
-        shader->set_vec3("pointLights[1].specular", glm::vec3(1.0f));
+        shader->set_vec3("pointLights[1].ambient", glm::vec3(0.1f) * ambientIntensity);
+        shader->set_vec3("pointLights[1].diffuse", glm::vec3(0.0f, 0.0f, 1.0f) * m_blueIntensity);
+        shader->set_vec3("pointLights[1].specular", glm::vec3(0.0f));
 
-        shader->set_float("pointLights[1].constant", 1.0f);
         shader->set_float("pointLights[1].linear", 0.009f);
         shader->set_float("pointLights[1].quadratic", 0.0032f);
+
+        // Far 1 (Levi)
+        shader->set_vec3("spotLights[0].position", m_policeCarLightLeft);
+        shader->set_vec3("spotLights[0].direction", m_policeCarLightDirection); // Prilagodi smeru auta
+        shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
+        shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader->set_vec3("spotLights[0].ambient", glm::vec3(0.1f));
+        shader->set_vec3("spotLights[0].diffuse", glm::vec3(1.0f, 1.0f, 0.4f));
+        shader->set_vec3("spotLights[0].specular", glm::vec3(0.2f));
+        shader->set_float("spotLights[0].linear", 0.009f);
+        shader->set_float("spotLights[0].quadratic", 0.0032f);
+
+        // Far 2 (Desni)
+        shader->set_vec3("spotLights[1].position", m_policeCarLightRight);
+        shader->set_vec3("spotLights[1].direction", m_policeCarLightDirection);
+        shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
+        shader->set_float("spotLights[1].outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader->set_vec3("spotLights[1].ambient", glm::vec3(0.1f));
+        shader->set_vec3("spotLights[1].diffuse", glm::vec3(1.0f, 1.0f, 0.4f));
+        shader->set_vec3("spotLights[1].specular", glm::vec3(0.2f));
+        shader->set_float("spotLights[1].linear", 0.009f);
+        shader->set_float("spotLights[1].quadratic", 0.0032f);
 
         shader->set_mat4("projection", graphics->projection_matrix());
         shader->set_mat4("view", graphics->camera()->view_matrix());
