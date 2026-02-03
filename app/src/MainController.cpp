@@ -102,13 +102,12 @@ namespace app {
         draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
         draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
         draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
-        draw_model("street_light", "shader_model_universal", glm::vec3(18.0f, -3.9f, 8.0f), glm::vec3(1.5f), 90.0f);
-        draw_model("street_light", "shader_model_universal", glm::vec3(-46.0f, -3.9f, 8.0f), glm::vec3(1.5f),
+        draw_model("street_light", "shader_model_universal", glm::vec3(18.0f, -4.0f, 8.0f), glm::vec3(1.5f), 90.0f);
+        draw_model("street_light", "shader_model_universal", glm::vec3(-46.0f, -4.0f, 8.0f), glm::vec3(1.5f),
                    90.0f);
         draw_model("street_light", "shader_model_universal", glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
                    90.0f);
-        draw_model("farm_house", "shader_model_universal", m_policeCarLightLeft, glm::vec3(0.008f));
-        draw_model("farm_house", "shader_model_universal", m_policeCarLightRight, glm::vec3(0.008f));
+        draw_model("farm_house", "shader_model_universal", m_policeCarLightLeftPos, glm::vec3(0.008f));
 
         draw_skybox();
     }
@@ -163,7 +162,7 @@ namespace app {
         shader->set_float("pointLights[1].quadratic", 0.0032f);
 
         // Far 1 (Levi)
-        shader->set_vec3("spotLights[0].position", m_policeCarLightLeft);
+        shader->set_vec3("spotLights[0].position", m_policeCarLightLeftPos);
         shader->set_vec3("spotLights[0].direction", m_policeCarLightDirection); // Prilagodi smeru auta
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(17.5f)));
@@ -174,7 +173,7 @@ namespace app {
         shader->set_float("spotLights[0].quadratic", 0.0032f);
 
         // Far 2 (Desni)
-        shader->set_vec3("spotLights[1].position", m_policeCarLightRight);
+        shader->set_vec3("spotLights[1].position", m_policeCarLightRightPos);
         shader->set_vec3("spotLights[1].direction", m_policeCarLightDirection);
         shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[1].outerCutOff", glm::cos(glm::radians(17.5f)));
@@ -183,6 +182,38 @@ namespace app {
         shader->set_vec3("spotLights[1].specular", glm::vec3(0.2f) * policeHeadLightsActive);
         shader->set_float("spotLights[1].linear", 0.009f);
         shader->set_float("spotLights[1].quadratic", 0.0032f);
+
+        //street-light 1
+        shader->set_vec3("spotLights[2].position", m_streetLight1Pos);
+        shader->set_vec3("spotLights[2].direction", m_streetLightDirection);
+        shader->set_float("spotLights[2].cutOff", glm::cos(glm::radians(12.5f)));
+        shader->set_float("spotLights[2].outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader->set_vec3("spotLights[2].ambient", glm::vec3(0.1f));
+        shader->set_vec3("spotLights[2].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+        shader->set_vec3("spotLights[2].specular", glm::vec3(0.2f));
+        shader->set_float("spotLights[2].linear", 0.009f);
+        shader->set_float("spotLights[2].quadratic", 0.0032f);
+        //street-light 2
+        shader->set_vec3("spotLights[3].position", m_streetLight2Pos);
+        shader->set_vec3("spotLights[3].direction", m_streetLightDirection);
+        shader->set_float("spotLights[3].cutOff", glm::cos(glm::radians(12.5f)));
+        shader->set_float("spotLights[3].outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader->set_vec3("spotLights[3].ambient", glm::vec3(0.1f));
+        shader->set_vec3("spotLights[3].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+        shader->set_vec3("spotLights[3].specular", glm::vec3(0.2f));
+        shader->set_float("spotLights[3].linear", 0.009f);
+        shader->set_float("spotLights[3].quadratic", 0.0032f);
+
+        //street-light 3
+        shader->set_vec3("spotLights[4].position", m_streetLight3Pos);
+        shader->set_vec3("spotLights[4].direction", m_streetLightDirection);
+        shader->set_float("spotLights[4].cutOff", glm::cos(glm::radians(12.5f)));
+        shader->set_float("spotLights[4].outerCutOff", glm::cos(glm::radians(17.5f)));
+        shader->set_vec3("spotLights[4].ambient", glm::vec3(0.1f));
+        shader->set_vec3("spotLights[4].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+        shader->set_vec3("spotLights[4].specular", glm::vec3(0.2f));
+        shader->set_float("spotLights[4].linear", 0.009f);
+        shader->set_float("spotLights[4].quadratic", 0.0032f);
 
         shader->set_mat4("projection", graphics->projection_matrix());
         shader->set_mat4("view", graphics->camera()->view_matrix());

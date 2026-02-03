@@ -34,24 +34,25 @@ namespace app {
         auto camera   = graphics->camera();
         graphics->begin_gui();
 
-        glm::vec3 currentPoliceLightLeft      = mainCtrl->getPoliceCarLightLeft();
-        glm::vec3 currentPoliceLightRight     = mainCtrl->getPoliceCarLightRight();
-        glm::vec3 currentPoliceLightDirection = mainCtrl->getPoliceCarLightDirection();
-        bool isPoliceEmergencyLightsActive    = mainCtrl->isPoliceEmergencyLightsActive();
-        bool isPoliceHeadLightsActive         = mainCtrl->isPoliceHeadLightsActive();
+        glm::vec3 currentLightDir1 = mainCtrl->getStreetLight1Pos();
+        glm::vec3 currentLightDir2 = mainCtrl->getStreetLight2Pos();
+        glm::vec3 currentLightDir3 = mainCtrl->getStreetLight3Pos();
+
+        bool isPoliceEmergencyLightsActive = mainCtrl->isPoliceEmergencyLightsActive();
+        bool isPoliceHeadLightsActive      = mainCtrl->isPoliceHeadLightsActive();
 
         ImGui::Begin("Camera info. ");
 
         ImGui::Text("Camera position: (%f %f %f)", camera->Position.x, camera->Position.y, camera->Position.z);
 
-        if (ImGui::SliderFloat3("Police Head Light LEFT Pos", &currentPoliceLightLeft.x, -20.0f, 20.0f)) {
-            mainCtrl->setPoliceCarLightLeft(currentPoliceLightLeft);
+        if (ImGui::SliderFloat3("Street light 1", &currentLightDir1.x, -20.0f, 20.0f)) {
+            mainCtrl->setStreetLight1Pos(currentLightDir1);
         }
-        if (ImGui::SliderFloat3("Police Head Light RIGHT Pos", &currentPoliceLightRight.x, -20.0f, 20.0f)) {
-            mainCtrl->setPoliceCarLightRight(currentPoliceLightRight);
+        if (ImGui::SliderFloat3("Street light 1", &currentLightDir2.x, -20.0f, 20.0f)) {
+            mainCtrl->setStreetLight2Pos(currentLightDir2);
         }
-        if (ImGui::SliderFloat3("Police Head Light Direction", &currentPoliceLightDirection.x, -20.0f, 20.0f)) {
-            mainCtrl->setPoliceCarLightDirection(currentPoliceLightDirection);
+        if (ImGui::SliderFloat3("Street light 1", &currentLightDir3.x, -20.0f, 20.0f)) {
+            mainCtrl->setStreetLight3Pos(currentLightDir3);
         }
 
         if (ImGui::Checkbox("Police Emergency Lights", &isPoliceEmergencyLightsActive)) {

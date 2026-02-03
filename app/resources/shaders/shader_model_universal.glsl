@@ -47,7 +47,7 @@ struct SpotLight {
 };
 
 #define NR_POINT_LIGHTS 2
-#define NR_SPOT_LIGHTS 2
+#define NR_SPOT_LIGHTS 5
 
 
 in vec2 TexCoords;
