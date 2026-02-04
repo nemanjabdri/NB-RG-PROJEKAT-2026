@@ -37,21 +37,22 @@ namespace app {
         bool isPoliceEmergencyLightsActive = mainCtrl->isPoliceEmergencyLightsActive();
         bool isPoliceHeadLightsActive      = mainCtrl->isPoliceHeadLightsActive();
         bool isDrivingModeActive           = mainCtrl->isDrivingMode();
-        glm::vec3 localCarLightLeft        = mainCtrl->getLocalFarLeft();
-        glm::vec3 localCarLightRight       = mainCtrl->getLocalFarRight();
+        glm::vec3 localRedPos              = mainCtrl->get_m_local_red_pos();
+        glm::vec3 localBluePos             = mainCtrl->get_m_local_blue_pos();
 
         ImGui::Begin("Camera info. ");
 
         ImGui::Text("Camera position: (%f %f %f)", camera->Position.x, camera->Position.y, camera->Position.z);
 
-        if (ImGui::SliderFloat3("Car light offset Left", &localCarLightLeft.x, -20.0f, 20.0f)) {
-            mainCtrl->setLocalFarLeft(localCarLightLeft);
+        if (ImGui::SliderFloat3("Car Red light offset", &localRedPos.x, -20.0f, 20.0f)) {
+            mainCtrl->set_m_local_red_pos(localRedPos);
         }
-        if (ImGui::SliderFloat3("Car light offset Right", &localCarLightRight.x, -20.0f, 20.0f)) {
-            mainCtrl->setLocalFarRight(localCarLightRight);
+        if (ImGui::SliderFloat3("Car Blue light offset", &localBluePos.x, -20.0f, 20.0f)) {
+            mainCtrl->set_m_local_blue_pos(localBluePos);
         }
 
-        if (ImGui::Checkbox("Police Emergency Lights", &isPoliceEmergencyLightsActive)) {
+        if (ImGui::Checkbox("Police Emergency Lights ('G' key while Driving Mode is Active)",
+                            &isPoliceEmergencyLightsActive)) {
             mainCtrl->setPoliceEmergencyLightsActive(isPoliceEmergencyLightsActive);
         }
         if (ImGui::Checkbox("Police Head Lights ('F' key while Driving Mode is Active)", &isPoliceHeadLightsActive)) {

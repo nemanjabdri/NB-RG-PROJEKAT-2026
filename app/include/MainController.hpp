@@ -10,26 +10,26 @@
 namespace app {
     class MainController : public engine::core::Controller {
     private:
-        float m_totalTime                   = 0.0f;
-        glm::vec3 m_policeRedLightPos       = glm::vec3(-17.67f, -0.4f, -1.6f);
-        glm::vec3 m_policeBlueLightPos      = glm::vec3(-18.6f, -0.4f, -0.2f);
-        glm::vec3 m_policeCarLightLeftPos   = glm::vec3(-14.418f, -2.647f, 3.478f);
-        glm::vec3 m_policeCarLightRightPos  = glm::vec3(-13.023f, -2.790f, 1.149f);
-        glm::vec3 m_policeCarLightDirection = glm::vec3(20.0f, 1.66f, 12.33f);
-        glm::vec3 m_streetLight1Pos         = glm::vec3(18.0f, 20.0, 4.0f);
-        glm::vec3 m_streetLight2Pos         = glm::vec3(-46.0f, 20.0, 4.0f);
-        glm::vec3 m_streetLight3Pos         = glm::vec3(55.0f, 20.0, 4.0f);
-        glm::vec3 m_streetLightDirection    = glm::vec3(0.0f, -1.0f, -0.1f);
-        glm::vec3 m_localCarLightLeft       = glm::vec3(-1.395f, 1.395f, 2.8);
-        glm::vec3 m_localCarLightRight      = glm::vec3(1.395f, 1.395f, 2.8);
-        glm::vec3 worldFarLPos              = glm::vec3(-1.395f, 1.395f, 2.8);
-        glm::vec3 worldFarRPos              = glm::vec3(1.395f, 1.395f, 2.8);
-        bool m_cursorEnabled                = false;
-        bool m_policeEmergencyLightsActive  = false;
-        bool m_policeHeadLightsActive       = false;
-        bool m_drivingMode                  = false;
-        glm::vec3 m_carPos                  = glm::vec3(-17.0f, -4.0f, 0.0f);
-        float m_carAngle                    = 55.0f;
+        float m_totalTime                  = 0.0f;
+        glm::vec3 m_streetLight1Pos        = glm::vec3(18.0f, 20.0, 4.0f);
+        glm::vec3 m_streetLight2Pos        = glm::vec3(-46.0f, 20.0, 4.0f);
+        glm::vec3 m_streetLight3Pos        = glm::vec3(55.0f, 20.0, 4.0f);
+        glm::vec3 m_streetLightDirection   = glm::vec3(0.0f, -1.0f, -0.1f);
+        glm::vec3 m_localCarLightLeft      = glm::vec3(-1.395f, 1.395f, 2.8);
+        glm::vec3 m_localCarLightRight     = glm::vec3(1.395f, 1.395f, 2.8);
+        glm::vec3 m_localRedPos            = glm::vec3(0.765f, 3.6f, -1.48f);
+        glm::vec3 m_localBluePos           = glm::vec3(-0.765f, 3.6f, -1.48f);
+        glm::vec3 m_localSpotDir           = glm::vec3(0.0f, -0.2f, 1.0f);
+        glm::vec3 m_worldFarLPos           = glm::vec3(-1.395f, 1.395f, 2.8);
+        glm::vec3 m_worldFarRPos           = glm::vec3(1.395f, 1.395f, 2.8);
+        glm::vec3 m_worldRedPos            = glm::vec3(0.765f, 3.6f, -1.48f);
+        glm::vec3 m_worldBluePos           = glm::vec3(-0.765f, 3.6f, -1.48f);
+        bool m_cursorEnabled               = false;
+        bool m_policeEmergencyLightsActive = false;
+        bool m_policeHeadLightsActive      = false;
+        bool m_drivingMode                 = false;
+        glm::vec3 m_carPos                 = glm::vec3(-17.0f, -4.0f, 0.0f);
+        float m_carAngle                   = 55.0f;
 
         void initialize() override;
 
@@ -51,46 +51,6 @@ namespace app {
     public:
         bool isCursorEnabled() const {
             return m_cursorEnabled;
-        }
-
-        glm::vec3 getPoliceRedLightPos() const {
-            return m_policeRedLightPos;
-        }
-
-        void setPoliceRedLightPos(const glm::vec3 &pos) {
-            m_policeRedLightPos = pos;
-        }
-
-        glm::vec3 getPoliceBlueLightPos() const {
-            return m_policeBlueLightPos;
-        }
-
-        void setPoliceBlueLightPos(const glm::vec3 &pos) {
-            m_policeBlueLightPos = pos;
-        }
-
-        glm::vec3 getPoliceCarLightLeft() const {
-            return m_policeCarLightLeftPos;
-        }
-
-        void setPoliceCarLightLeft(const glm::vec3 &pos) {
-            m_policeCarLightLeftPos = pos;
-        }
-
-        glm::vec3 getPoliceCarLightRight() const {
-            return m_policeCarLightRightPos;
-        }
-
-        void setPoliceCarLightRight(const glm::vec3 &pos) {
-            m_policeCarLightRightPos = pos;
-        }
-
-        glm::vec3 getPoliceCarLightDirection() const {
-            return m_policeCarLightDirection;
-        }
-
-        void setPoliceCarLightDirection(const glm::vec3 &pos) {
-            m_policeCarLightDirection = pos;
         }
 
         bool isPoliceEmergencyLightsActive() {
@@ -159,6 +119,22 @@ namespace app {
 
         void setLocalFarRight(const glm::vec3 &pos) {
             m_localCarLightRight = pos;
+        }
+
+        glm::vec3 get_m_local_red_pos() const {
+            return m_localRedPos;
+        }
+
+        void set_m_local_red_pos(const glm::vec3 &m_local_red_pos) {
+            m_localRedPos = m_local_red_pos;
+        }
+
+        glm::vec3 get_m_local_blue_pos() const {
+            return m_localBluePos;
+        }
+
+        void set_m_local_blue_pos(const glm::vec3 &m_local_blue_pos) {
+            m_localBluePos = m_local_blue_pos;
         }
     };
 } // app

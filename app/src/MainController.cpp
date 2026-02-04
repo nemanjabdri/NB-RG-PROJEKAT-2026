@@ -111,6 +111,9 @@ namespace app {
             if (platform->key(engine::platform::KeyId::KEY_F).state() == engine::platform::Key::State::JustPressed) {
                 setPoliceHeadLightsActive(!m_policeHeadLightsActive);
             }
+            if (platform->key(engine::platform::KeyId::KEY_G).state() == engine::platform::Key::State::JustPressed) {
+                setPoliceEmergencyLightsActive(!m_policeEmergencyLightsActive);
+            }
         } else {
             if (platform->key(engine::platform::KeyId::KEY_W).is_down() && !m_cursorEnabled) {
                 camera->move_camera(engine::graphics::Camera::FORWARD, deltaTime);
@@ -156,7 +159,7 @@ namespace app {
                    90.0f);
         draw_model("street_light", "shader_model_universal", glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
                    90.0f);
-        draw_model("farm_house", "shader_model_universal", worldFarRPos, glm::vec3(0.008f));
+        draw_model("farm_house", "shader_model_universal", m_worldBluePos, glm::vec3(0.008f));
 
         draw_skybox();
     }
@@ -175,20 +178,16 @@ namespace app {
         engine::resources::Model *model   = resources->model(modelName);
         engine::resources::Shader *shader = resources->shader(shaderName);
 
-        glm::vec3 localRedPos  = glm::vec3(-0.3f, 0.8f, -0.1f);
-        glm::vec3 localBluePos = glm::vec3(0.3f, 0.8f, -0.1f);
-        glm::vec3 localSpotDir = glm::normalize(glm::vec3(0.0f, -0.2f, 1.0f));
-
         glm::mat4 carRot = glm::rotate(glm::mat4(1.0f), glm::radians(m_carAngle), glm::vec3(0, 1, 0));
 
         // Sada će rotacija i translacija raditi savršeno
-        glm::vec3 worldRedPos  = glm::vec3(carRot * glm::vec4(localRedPos, 1.0f)) + m_carPos;
-        glm::vec3 worldBluePos = glm::vec3(carRot * glm::vec4(localBluePos, 1.0f)) + m_carPos;
-        worldFarLPos           = glm::vec3(carRot * glm::vec4(m_localCarLightLeft, 1.0f)) + m_carPos;
-        worldFarRPos           = glm::vec3(carRot * glm::vec4(m_localCarLightRight, 1.0f)) + m_carPos;
+        m_worldRedPos  = glm::vec3(carRot * glm::vec4(m_localRedPos, 1.0f)) + m_carPos;
+        m_worldBluePos = glm::vec3(carRot * glm::vec4(m_localBluePos, 1.0f)) + m_carPos;
+        m_worldFarLPos = glm::vec3(carRot * glm::vec4(m_localCarLightLeft, 1.0f)) + m_carPos;
+        m_worldFarRPos = glm::vec3(carRot * glm::vec4(m_localCarLightRight, 1.0f)) + m_carPos;
 
         // Smer rotiramo bez dodavanja m_carPos (jer je vektor)
-        glm::vec3 worldSpotDir = glm::vec3(carRot * glm::vec4(localSpotDir, 0.0f));
+        glm::vec3 worldSpotDir = glm::vec3(carRot * glm::vec4(m_localSpotDir, 0.0f));
 
         float speed = 5.0f;
         float m_redIntensity;
@@ -207,7 +206,7 @@ namespace app {
         shader->set_vec3("viewPos", graphics->camera()->Position);
 
         //POLICE RED LIGHT
-        shader->set_vec3("pointLights[0].position", worldBluePos);
+        shader->set_vec3("pointLights[0].position", m_worldRedPos);
         shader->set_vec3("pointLights[0].ambient", glm::vec3(0.03f) * ambientLightsActive);
         shader->set_vec3("pointLights[0].diffuse", glm::vec3(1.0f, 0.0f, 0.0f) * m_redIntensity);
         shader->set_vec3("pointLights[0].specular", glm::vec3(0.0f));
@@ -215,7 +214,7 @@ namespace app {
         shader->set_float("pointLights[0].quadratic", 0.00032f);
 
         //POLICE BLUE LIGHT
-        shader->set_vec3("pointLights[1].position", worldRedPos);
+        shader->set_vec3("pointLights[1].position", m_worldBluePos);
         shader->set_vec3("pointLights[1].ambient", glm::vec3(0.03f) * ambientLightsActive);
         shader->set_vec3("pointLights[1].diffuse", glm::vec3(0.0f, 0.0f, 1.0f) * m_blueIntensity);
         shader->set_vec3("pointLights[1].specular", glm::vec3(0.0f));
@@ -223,7 +222,7 @@ namespace app {
         shader->set_float("pointLights[1].quadratic", 0.00032f);
 
         // Far 1 (Levi)
-        shader->set_vec3("spotLights[0].position", worldFarLPos);
+        shader->set_vec3("spotLights[0].position", m_worldFarLPos);
         shader->set_vec3("spotLights[0].direction", worldSpotDir); // Prilagodi smeru auta
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(22.5f)));
@@ -234,7 +233,7 @@ namespace app {
         shader->set_float("spotLights[0].quadratic", 0.00032f);
 
         // Far 2 (Desni)
-        shader->set_vec3("spotLights[1].position", worldFarRPos);
+        shader->set_vec3("spotLights[1].position", m_worldFarRPos);
         shader->set_vec3("spotLights[1].direction", worldSpotDir);
         shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[1].outerCutOff", glm::cos(glm::radians(22.5f)));
