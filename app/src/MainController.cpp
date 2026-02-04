@@ -106,6 +106,16 @@ namespace app {
             float xOffset = targetYaw - camera->Yaw;
             float yOffset = targetPitch - camera->Pitch;
 
+            while (xOffset <= -180.0f)
+                xOffset += 360.0f;
+            while (xOffset > 180.0f)
+                xOffset -= 360.0f;
+
+            if (m_carAngle >= 360.0f)
+                m_carAngle -= 360.0f;
+            if (m_carAngle < 0.0f)
+                m_carAngle += 360.0f;
+
             camera->rotate_camera(xOffset, yOffset + 10.0f);
 
             if (platform->key(engine::platform::KeyId::KEY_F).state() == engine::platform::Key::State::JustPressed) {
