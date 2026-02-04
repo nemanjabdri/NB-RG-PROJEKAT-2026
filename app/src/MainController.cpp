@@ -161,7 +161,6 @@ namespace app {
         draw_model("caravan", "shader_model_universal", glm::vec3(-25.0f, -1.0f, -22.0f), glm::vec3(0.04f), 20.0f);
         draw_model("billboard", "shader_model_universal", glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
         draw_model("police_car", "shader_model_universal", m_carPos, glm::vec3(0.09f), m_carAngle);
-        //draw_model("ufo", "shader_model_universal", glm::vec3(5.0f, -4.0f, 0.0f), glm::vec3(0.1f));
         draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
         draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
         draw_model("street_light", "shader_model_universal", glm::vec3(18.0f, -4.0f, 8.0f), glm::vec3(1.5f), 90.0f);
@@ -169,7 +168,7 @@ namespace app {
                    90.0f);
         draw_model("street_light", "shader_model_universal", glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
                    90.0f);
-        draw_model("farm_house", "shader_model_universal", m_worldBluePos, glm::vec3(0.008f));
+        //draw_model("farm_house", "shader_model_universal", m_worldBluePos, glm::vec3(0.008f));
 
         draw_skybox();
     }
