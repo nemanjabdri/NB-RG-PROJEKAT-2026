@@ -20,9 +20,16 @@ namespace app {
         glm::vec3 m_streetLight2Pos         = glm::vec3(-46.0f, 20.0, 4.0f);
         glm::vec3 m_streetLight3Pos         = glm::vec3(55.0f, 20.0, 4.0f);
         glm::vec3 m_streetLightDirection    = glm::vec3(0.0f, -1.0f, -0.1f);
+        glm::vec3 m_localCarLightLeft       = glm::vec3(-1.395f, 1.395f, 2.8);
+        glm::vec3 m_localCarLightRight      = glm::vec3(1.395f, 1.395f, 2.8);
+        glm::vec3 worldFarLPos              = glm::vec3(-1.395f, 1.395f, 2.8);
+        glm::vec3 worldFarRPos              = glm::vec3(1.395f, 1.395f, 2.8);
         bool m_cursorEnabled                = false;
         bool m_policeEmergencyLightsActive  = false;
         bool m_policeHeadLightsActive       = false;
+        bool m_drivingMode                  = false;
+        glm::vec3 m_carPos                  = glm::vec3(-17.0f, -4.0f, 0.0f);
+        float m_carAngle                    = 55.0f;
 
         void initialize() override;
 
@@ -128,6 +135,30 @@ namespace app {
 
         std::string_view name() const override {
             return "MainController";
+        }
+
+        bool isDrivingMode() const {
+            return m_drivingMode;
+        }
+
+        void setDrivingMode(bool mode) {
+            m_drivingMode = mode;
+        }
+
+        glm::vec3 &getLocalFarLeft() {
+            return m_localCarLightLeft;
+        }
+
+        void setLocalFarLeft(const glm::vec3 &pos) {
+            m_localCarLightLeft = pos;
+        }
+
+        glm::vec3 &getLocalFarRight() {
+            return m_localCarLightRight;
+        }
+
+        void setLocalFarRight(const glm::vec3 &pos) {
+            m_localCarLightRight = pos;
         }
     };
 } // app

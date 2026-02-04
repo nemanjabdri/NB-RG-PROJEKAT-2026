@@ -34,32 +34,31 @@ namespace app {
         auto camera   = graphics->camera();
         graphics->begin_gui();
 
-        glm::vec3 currentLightDir1 = mainCtrl->getStreetLight1Pos();
-        glm::vec3 currentLightDir2 = mainCtrl->getStreetLight2Pos();
-        glm::vec3 currentLightDir3 = mainCtrl->getStreetLight3Pos();
-
         bool isPoliceEmergencyLightsActive = mainCtrl->isPoliceEmergencyLightsActive();
         bool isPoliceHeadLightsActive      = mainCtrl->isPoliceHeadLightsActive();
+        bool isDrivingModeActive           = mainCtrl->isDrivingMode();
+        glm::vec3 localCarLightLeft        = mainCtrl->getLocalFarLeft();
+        glm::vec3 localCarLightRight       = mainCtrl->getLocalFarRight();
 
         ImGui::Begin("Camera info. ");
 
         ImGui::Text("Camera position: (%f %f %f)", camera->Position.x, camera->Position.y, camera->Position.z);
 
-        if (ImGui::SliderFloat3("Street light 1", &currentLightDir1.x, -20.0f, 20.0f)) {
-            mainCtrl->setStreetLight1Pos(currentLightDir1);
+        if (ImGui::SliderFloat3("Car light offset Left", &localCarLightLeft.x, -20.0f, 20.0f)) {
+            mainCtrl->setLocalFarLeft(localCarLightLeft);
         }
-        if (ImGui::SliderFloat3("Street light 1", &currentLightDir2.x, -20.0f, 20.0f)) {
-            mainCtrl->setStreetLight2Pos(currentLightDir2);
-        }
-        if (ImGui::SliderFloat3("Street light 1", &currentLightDir3.x, -20.0f, 20.0f)) {
-            mainCtrl->setStreetLight3Pos(currentLightDir3);
+        if (ImGui::SliderFloat3("Car light offset Right", &localCarLightRight.x, -20.0f, 20.0f)) {
+            mainCtrl->setLocalFarRight(localCarLightRight);
         }
 
         if (ImGui::Checkbox("Police Emergency Lights", &isPoliceEmergencyLightsActive)) {
             mainCtrl->setPoliceEmergencyLightsActive(isPoliceEmergencyLightsActive);
         }
-        if (ImGui::Checkbox("Police Head Lights", &isPoliceHeadLightsActive)) {
+        if (ImGui::Checkbox("Police Head Lights ('F' key while Driving Mode is Active)", &isPoliceHeadLightsActive)) {
             mainCtrl->setPoliceHeadLightsActive(isPoliceHeadLightsActive);
+        }
+        if (ImGui::Checkbox("Third Person Driving Mode", &isDrivingModeActive)) {
+            mainCtrl->setDrivingMode(isDrivingModeActive);
         }
 
         ImGui::End();
