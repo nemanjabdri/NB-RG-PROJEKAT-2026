@@ -37,6 +37,7 @@ namespace app {
         bool isPoliceEmergencyLightsActive = mainCtrl->isPoliceEmergencyLightsActive();
         bool isPoliceHeadLightsActive      = mainCtrl->isPoliceHeadLightsActive();
         bool isDrivingModeActive           = mainCtrl->isDrivingMode();
+        bool isNightVisionModeActive       = mainCtrl->m_night_vision_mode();
         glm::vec3 localRedPos              = mainCtrl->get_m_local_red_pos();
         glm::vec3 localBluePos             = mainCtrl->get_m_local_blue_pos();
 
@@ -60,6 +61,9 @@ namespace app {
         }
         if (ImGui::Checkbox("Third Person Driving Mode", &isDrivingModeActive)) {
             mainCtrl->setDrivingMode(isDrivingModeActive);
+        }
+        if (ImGui::Checkbox("Night Vision Mode", &isNightVisionModeActive)) {
+            mainCtrl->set_m_night_vision_mode(isNightVisionModeActive);
         }
 
         ImGui::End();

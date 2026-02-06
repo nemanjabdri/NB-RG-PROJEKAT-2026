@@ -28,14 +28,14 @@ void main() {
 
     vec3 col = texture(screenTexture, TexCoords).rgb;
 
-    // 1. Night Vision algoritam
+    // 1. Night Vision
     float luminance = dot(col, vec3(0.299, 0.587, 0.114));
-    vec3 visionColor = vec3(0.0, luminance * 1.5, 0.0); // *1.5 da posvetlimo mrak
+    vec3 visionColor = vec3(0.0, luminance * 2.0, 0.0);
 
-    // 2. Vinjeta
+    // 2. vignette
     vec2 center = TexCoords - 0.5;
     float dist = length(center);
-    float vignette = smoothstep(0.5, 0.2, dist); // Krug vidljivosti
+    float vignette = smoothstep(0.7, 0.2, dist);
 
     // 3. Noise
     float noise = random(TexCoords) * 0.1;

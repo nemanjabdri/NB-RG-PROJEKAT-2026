@@ -28,8 +28,10 @@ namespace app {
         bool m_policeEmergencyLightsActive = false;
         bool m_policeHeadLightsActive      = false;
         bool m_drivingMode                 = false;
-        glm::vec3 m_carPos                 = glm::vec3(-17.0f, -4.0f, 0.0f);
-        float m_carAngle                   = 55.0f;
+        bool m_nightVisionMode             = false;
+
+        glm::vec3 m_carPos = glm::vec3(-17.0f, -4.0f, 0.0f);
+        float m_carAngle   = 55.0f;
 
         void initialize() override;
 
@@ -135,6 +137,14 @@ namespace app {
 
         void set_m_local_blue_pos(const glm::vec3 &m_local_blue_pos) {
             m_localBluePos = m_local_blue_pos;
+        }
+
+        bool m_night_vision_mode() const {
+            return m_nightVisionMode;
+        }
+
+        void set_m_night_vision_mode(bool m_night_vision_mode) {
+            m_nightVisionMode = m_night_vision_mode;
         }
     };
 } // app
