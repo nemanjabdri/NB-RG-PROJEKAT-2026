@@ -147,10 +147,14 @@ namespace app {
     }
 
     void MainController::begin_draw() {
+        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        graphics->bind_frameBuffer(); //pre aktivacije moramo da kreirano framebuffer, da mu prosledimo shader
         engine::graphics::OpenGL::clear_buffers();
     }
 
     void MainController::draw() {
+        auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         draw_model("terrain", "shader_model_universal", glm::vec3(0.0f, -0.55f, -80.0f),
                    glm::vec3(0.0005f, 0.0008f, 0.0008f));
         draw_model("terrain", "shader_model_universal", glm::vec3(0.0f, -0.55f, 60.0f),
@@ -170,7 +174,12 @@ namespace app {
                    90.0f);
         //draw_model("farm_house", "shader_model_universal", m_worldBluePos, glm::vec3(0.008f));
 
-        draw_skybox();
+        graphics->unbind_frameBuffer();
+
+        auto shader = resources->shader("night_vision_framebuffer_effect");
+        graphics->draw_using_framebuffer(shader);
+
+        //draw_skybox();
     }
 
     void MainController::end_draw() {
@@ -291,6 +300,7 @@ namespace app {
         modelTransform = glm::rotate(modelTransform, glm::radians(rotateModelAngle), glm::vec3(0.0f, 1.0f, 0.0f));
         modelTransform = glm::scale(modelTransform, scaleModel);
         shader->set_mat4("model", modelTransform);
+
         model->draw(shader);
     }
 
