@@ -149,7 +149,7 @@ namespace app {
     void MainController::begin_draw() {
         auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        if (m_nightVisionMode) {
+        if (m_nightVisionMode || m_greyscaleMode) {
             graphics->bind_frameBuffer();
         }
 
@@ -180,9 +180,12 @@ namespace app {
         //draw_model("farm_house", "shader_model_universal", m_worldBluePos, glm::vec3(0.008f));
         draw_skybox();
 
-        if (m_nightVisionMode) {
+        if (m_nightVisionMode || m_greyscaleMode) {
             graphics->unbind_frameBuffer();
-            auto shader = resources->shader("night_vision_framebuffer_effect");
+            auto shader = m_nightVisionMode
+                              ? resources->shader("night_vision_framebuffer_effect")
+                              : resources->shader("grayscale _framebuffer_effect");
+
             graphics->draw_using_framebuffer(shader);
         }
     }

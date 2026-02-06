@@ -38,6 +38,7 @@ namespace app {
         bool isPoliceHeadLightsActive      = mainCtrl->isPoliceHeadLightsActive();
         bool isDrivingModeActive           = mainCtrl->isDrivingMode();
         bool isNightVisionModeActive       = mainCtrl->m_night_vision_mode();
+        bool isGreyscaleModeActive         = mainCtrl->m_greyscale_mode();
         glm::vec3 localRedPos              = mainCtrl->get_m_local_red_pos();
         glm::vec3 localBluePos             = mainCtrl->get_m_local_blue_pos();
 
@@ -63,7 +64,16 @@ namespace app {
             mainCtrl->setDrivingMode(isDrivingModeActive);
         }
         if (ImGui::Checkbox("Night Vision Mode", &isNightVisionModeActive)) {
+            if (isGreyscaleModeActive) {
+                mainCtrl->set_m_greyscale_mode(false);
+            }
             mainCtrl->set_m_night_vision_mode(isNightVisionModeActive);
+        }
+        if (ImGui::Checkbox("Greyscale vision Mode", &isGreyscaleModeActive)) {
+            if (isNightVisionModeActive) {
+                mainCtrl->set_m_night_vision_mode(false);
+            }
+            mainCtrl->set_m_greyscale_mode(isGreyscaleModeActive);
         }
 
         ImGui::End();

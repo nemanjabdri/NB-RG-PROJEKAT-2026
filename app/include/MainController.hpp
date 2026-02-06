@@ -29,6 +29,7 @@ namespace app {
         bool m_policeHeadLightsActive      = false;
         bool m_drivingMode                 = false;
         bool m_nightVisionMode             = false;
+        bool m_greyscaleMode               = false;
 
         glm::vec3 m_carPos = glm::vec3(-17.0f, -4.0f, 0.0f);
         float m_carAngle   = 55.0f;
@@ -145,6 +146,14 @@ namespace app {
 
         void set_m_night_vision_mode(bool m_night_vision_mode) {
             m_nightVisionMode = m_night_vision_mode;
+        }
+
+        bool m_greyscale_mode() const {
+            return m_greyscaleMode;
+        }
+
+        void set_m_greyscale_mode(bool m_greyscale_mode) {
+            m_greyscaleMode = m_greyscale_mode;
         }
     };
 } // app
