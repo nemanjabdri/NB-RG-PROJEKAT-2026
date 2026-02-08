@@ -24,6 +24,7 @@ namespace engine::resources {
 } // namespace engine::resources
 
 namespace engine::graphics {
+    class PointShadow;
     /**
     * @brief Parameters used to define a perspective projection matrix.
     */
@@ -96,6 +97,10 @@ namespace engine::graphics {
         void unbind_frameBuffer();
 
         void draw_using_framebuffer(const resources::Shader *shader);
+
+        void bind_PointShadow(const resources::Shader *shader);
+
+        void unbind_PointShadow();
 
         Camera *camera() {
             return &m_camera;
@@ -174,6 +179,7 @@ namespace engine::graphics {
 
         std::unique_ptr<Framebuffer> m_framebuffer;
         unsigned int m_quadVAO = 0, m_quadVBO = 0;
+        std::unique_ptr<PointShadow> m_pointShadow;
 
         PerspectiveMatrixParams m_perspective_params{};
         OrthographicMatrixParams m_ortho_params{};

@@ -7,6 +7,10 @@
 #include <engine/core/Controller.hpp>
 #include <glm/vec3.hpp>
 
+namespace engine::resources {
+    class Shader;
+}
+
 namespace app {
     class MainController : public engine::core::Controller {
     private:
@@ -50,6 +54,8 @@ namespace app {
 
         void draw_model(std::string modelName, std::string shaderName, glm::vec3 translateModel,
                         glm::vec3 scaleModel = glm::vec3(1.0f), float rotateModelAngle = 0.0f);
+
+        void draw_models(const std::string shaderModel);
 
     public:
         bool isCursorEnabled() const {

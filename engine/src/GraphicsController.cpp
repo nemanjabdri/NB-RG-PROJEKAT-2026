@@ -10,6 +10,7 @@
 #include <engine/resources/Skybox.hpp>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <engine/graphics/PointShadow.hpp>
 
 namespace engine::graphics {
     void GraphicsController::initialize() {
@@ -41,6 +42,7 @@ namespace engine::graphics {
         RG_GUARANTEE(ImGui_ImplOpenGL3_Init("#version 330 core"), "ImGUI failed to initialize for OpenGL");
 
         m_framebuffer = std::make_unique<Framebuffer>();
+        m_pointShadow = std::make_unique<PointShadow>();
     }
 
     void GraphicsController::terminate() {
@@ -50,6 +52,7 @@ namespace engine::graphics {
             ImGui::DestroyContext();
         }
         m_framebuffer.reset();
+        m_pointShadow.reset();
     }
 
     void GraphicsPlatformEventObserver::on_window_resize(int width, int height) {
@@ -139,5 +142,45 @@ namespace engine::graphics {
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
         glEnable(GL_DEPTH_TEST);
+    }
+
+    void GraphicsController::bind_PointShadow(const resources::Shader *shader) {
+        if (m_pointShadow) {
+            m_pointShadow->bind();
+
+            float near_plane = 1.0f;
+            float far_plane  = 25.0f;
+
+            glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
+                                                    near_plane, far_plane);
+
+            std::vector<glm::mat4> shadowTransforms;
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
+                                                                glm::vec3(0.0f, -1.0f, 0.0f)));
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
+                                                                glm::vec3(0.0f, -1.0f, 0.0f)));
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
+                                                                glm::vec3(0.0f, 0.0f, 1.0f)));
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
+                                                                glm::vec3(0.0f, 0.0f, -1.0f)));
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
+                                                                glm::vec3(0.0f, -1.0f, 0.0f)));
+            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
+                                                                glm::vec3(0.0f, -1.0f, 0.0f)));
+
+            shader->use();
+            for (unsigned int i = 0; i < 6; ++i) {
+                shader->set_mat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+            }
+            shader->set_float("far_plane", far_plane);
+            shader->set_vec3("lightPos", lightPos);
+            // render_scene();
+        }
+    }
+
+    void GraphicsController::unbind_PointShadow() {
+        if (m_pointShadow) {
+            m_pointShadow->unbind();
+        }
     }
 } // namespace engine::graphics

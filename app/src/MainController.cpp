@@ -147,7 +147,13 @@ namespace app {
     }
 
     void MainController::begin_draw() {
-        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto graphics     = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto resources    = engine::core::Controller::get<engine::resources::ResourcesController>();
+        auto shader_depth = resources->shader("shader_point_shadow_depth");
+
+        graphics->bind_PointShadow(shader_depth);
+        draw_models("shader_point_shadow_depth");
+        graphics->unbind_PointShadow();
 
         if (m_nightVisionMode || m_greyscaleMode) {
             graphics->bind_frameBuffer();
@@ -160,24 +166,7 @@ namespace app {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        draw_model("terrain", "shader_model_universal", glm::vec3(0.0f, -0.55f, -80.0f),
-                   glm::vec3(0.0005f, 0.0008f, 0.0008f));
-        draw_model("terrain", "shader_model_universal", glm::vec3(0.0f, -0.55f, 60.0f),
-                   glm::vec3(0.0005f, 0.0008f, 0.0008f), 180.0f);
-        draw_model("house", "shader_model_universal", glm::vec3(0.0f, -4.0f, -25.0f));
-        draw_model("convertible", "shader_model_universal", glm::vec3(-6.0f, -4.0f, -17.0f));
-        draw_model("road", "shader_model_universal", glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
-        draw_model("caravan", "shader_model_universal", glm::vec3(-25.0f, -1.0f, -22.0f), glm::vec3(0.04f), 20.0f);
-        draw_model("billboard", "shader_model_universal", glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
-        draw_model("police_car", "shader_model_universal", m_carPos, glm::vec3(0.09f), m_carAngle);
-        draw_model("farm_house", "shader_model_universal", glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
-        draw_model("tennis_court", "shader_model_universal", glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
-        draw_model("street_light", "shader_model_universal", glm::vec3(18.0f, -4.0f, 8.0f), glm::vec3(1.5f), 90.0f);
-        draw_model("street_light", "shader_model_universal", glm::vec3(-46.0f, -4.0f, 8.0f), glm::vec3(1.5f),
-                   90.0f);
-        draw_model("street_light", "shader_model_universal", glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
-                   90.0f);
-        //draw_model("farm_house", "shader_model_universal", m_worldBluePos, glm::vec3(0.008f));
+        draw_models("shader_model_universal");
         draw_skybox();
 
         if (m_nightVisionMode || m_greyscaleMode) {
@@ -196,6 +185,27 @@ namespace app {
         platform->swap_buffers();
     }
 
+    void MainController::draw_models(const std::string shader) {
+        draw_model("terrain", shader, glm::vec3(0.0f, -0.55f, -80.0f),
+                   glm::vec3(0.0005f, 0.0008f, 0.0008f));
+        draw_model("terrain", shader, glm::vec3(0.0f, -0.55f, 60.0f),
+                   glm::vec3(0.0005f, 0.0008f, 0.0008f), 180.0f);
+        draw_model("house", shader, glm::vec3(0.0f, -4.0f, -25.0f));
+        draw_model("convertible", shader, glm::vec3(-6.0f, -4.0f, -17.0f));
+        draw_model("road", shader, glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
+        draw_model("caravan", shader, glm::vec3(-25.0f, -1.0f, -22.0f), glm::vec3(0.04f), 20.0f);
+        draw_model("billboard", shader, glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
+        draw_model("police_car", shader, m_carPos, glm::vec3(0.09f), m_carAngle);
+        draw_model("farm_house", shader, glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
+        draw_model("tennis_court", shader, glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
+        draw_model("street_light", shader, glm::vec3(18.0f, -4.0f, 8.0f), glm::vec3(1.5f), 90.0f);
+        draw_model("street_light", shader, glm::vec3(-46.0f, -4.0f, 8.0f), glm::vec3(1.5f),
+                   90.0f);
+        draw_model("street_light", shader, glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
+                   90.0f);
+        //draw_model("farm_house", shader, m_worldBluePos, glm::vec3(0.008f));
+    }
+
     void MainController::draw_model(std::string modelName, std::string shaderName,
                                     glm::vec3 translateModel,
                                     glm::vec3 scaleModel, float rotateModelAngle) {
@@ -207,13 +217,11 @@ namespace app {
 
         glm::mat4 carRot = glm::rotate(glm::mat4(1.0f), glm::radians(m_carAngle), glm::vec3(0, 1, 0));
 
-        // Sada će rotacija i translacija raditi savršeno
         m_worldRedPos  = glm::vec3(carRot * glm::vec4(m_localRedPos, 1.0f)) + m_carPos;
         m_worldBluePos = glm::vec3(carRot * glm::vec4(m_localBluePos, 1.0f)) + m_carPos;
         m_worldFarLPos = glm::vec3(carRot * glm::vec4(m_localCarLightLeft, 1.0f)) + m_carPos;
         m_worldFarRPos = glm::vec3(carRot * glm::vec4(m_localCarLightRight, 1.0f)) + m_carPos;
 
-        // Smer rotiramo bez dodavanja m_carPos (jer je vektor)
         glm::vec3 worldSpotDir = glm::vec3(carRot * glm::vec4(m_localSpotDir, 0.0f));
 
         float speed = 5.0f;
@@ -248,7 +256,7 @@ namespace app {
         shader->set_float("pointLights[1].linear", 0.0009f);
         shader->set_float("pointLights[1].quadratic", 0.00032f);
 
-        // Far 1 (Levi)
+        // Far Levi
         shader->set_vec3("spotLights[0].position", m_worldFarLPos);
         shader->set_vec3("spotLights[0].direction", worldSpotDir); // Prilagodi smeru auta
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(14.5f)));
@@ -259,7 +267,7 @@ namespace app {
         shader->set_float("spotLights[0].linear", 0.0009f);
         shader->set_float("spotLights[0].quadratic", 0.00032f);
 
-        // Far 2 (Desni)
+        // Far Desni
         shader->set_vec3("spotLights[1].position", m_worldFarRPos);
         shader->set_vec3("spotLights[1].direction", worldSpotDir);
         shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(14.5f)));

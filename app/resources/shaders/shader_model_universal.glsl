@@ -55,21 +55,38 @@ in vec3 Normal;
 in vec3 FragPos;
 
 uniform sampler2D texture_diffuse1;
+uniform samplerCube depthMap;
 uniform vec3 viewPos;
+uniform float far_plane;
+uniform bool shadows;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
+
+float ShadowCalculation(vec3 fragPos) {
+
+    vec3 fragToLight = fragPos - light.position;
+
+    float closestDepth = texture(depthMap, fragToLight).r;
+    closestDepth *= far_plane;
+
+    float currentDepth = length(fragToLight);
+
+    float bias = 0.05;
+    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 texColor) {
     vec3 lightDir = normalize(light.position - fragPos);
 
-    // Diffuse
+
     float diff = max(dot(normal, lightDir), 0.0);
 
-    // Specular (Blinn-Phong)
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 
-    // Attenuation
+
     float distance = length(light.position - fragPos);
     float attenuation = 1.0 / (1.0 + light.linear * distance +
     light.quadratic * (distance * distance));
@@ -78,19 +95,20 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     vec3 diffuse = light.diffuse * diff * texColor;
     vec3 specular = light.specular * spec * texColor;
 
-    return (ambient + diffuse + specular) * attenuation;
+    float shadow = shadows ? ShadowCalculation(FragPos) : 0.0;
+
+    return (ambient + (1 - shadow) * (diffuse + specular)) * attenuation;
 }
 
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 texColor) {
     vec3 lightDir = normalize(light.position - fragPos);
 
-    // Spotlight intenzitet konus
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon = light.cutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
-    // Klasičan Phong
     float diff = max(dot(normal, lightDir), 0.0);
+
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 
