@@ -51,18 +51,15 @@ namespace app {
 
         void end_draw() override;
 
-        void draw_skybox();
+        void render_scene_geometry(const std::string shaderModel);
 
-        void draw_model(std::string modelName, std::string shaderName, glm::vec3 translateModel,
-                        glm::vec3 scaleModel = glm::vec3(1.0f), float rotateModelAngle = 0.0f);
-
-        void draw_models(const std::string shaderModel);
-
-        void render_scene_geometry(std::string modelName, std::string shaderName,
+        void render_model_geometry(std::string modelName, std::string shaderName,
                                    glm::vec3 translateModel,
-                                   glm::vec3 scaleModel, float rotateModelAngle);
+                                   glm::vec3 scaleModel = glm::vec3(1.0f), float rotateModelAngle = 0.0f);
 
-        void setup_lights(std::string shaderName);
+        void setup_scene_lights(std::string shaderName);
+
+        void draw_skybox();
 
     public:
         bool isCursorEnabled() const {
