@@ -98,7 +98,7 @@ namespace engine::graphics {
 
         void draw_using_framebuffer(const resources::Shader *shader);
 
-        void bind_PointShadow(const resources::Shader *shader);
+        void bind_PointShadow(const resources::Shader *shader, glm::vec3 lightPos);
 
         void unbind_PointShadow();
 

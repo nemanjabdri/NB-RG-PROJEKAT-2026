@@ -144,43 +144,16 @@ namespace engine::graphics {
         glEnable(GL_DEPTH_TEST);
     }
 
-    void GraphicsController::bind_PointShadow(const resources::Shader *shader) {
+    void GraphicsController::bind_PointShadow(const resources::Shader *shader, glm::vec3 lightPos) {
         if (m_pointShadow) {
-            m_pointShadow->bind();
-
-            float near_plane = 1.0f;
-            float far_plane  = 25.0f;
-
-            glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-                                                    near_plane, far_plane);
-
-            std::vector<glm::mat4> shadowTransforms;
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0f, 0.0f, 0.0f),
-                                                                glm::vec3(0.0f, -1.0f, 0.0f)));
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0f, 0.0f, 0.0f),
-                                                                glm::vec3(0.0f, -1.0f, 0.0f)));
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 1.0f, 0.0f),
-                                                                glm::vec3(0.0f, 0.0f, 1.0f)));
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f),
-                                                                glm::vec3(0.0f, 0.0f, -1.0f)));
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f),
-                                                                glm::vec3(0.0f, -1.0f, 0.0f)));
-            shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f),
-                                                                glm::vec3(0.0f, -1.0f, 0.0f)));
-
-            shader->use();
-            for (unsigned int i = 0; i < 6; ++i) {
-                shader->set_mat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
-            }
-            shader->set_float("far_plane", far_plane);
-            shader->set_vec3("lightPos", lightPos);
-            // render_scene();
+            m_pointShadow->bind(lightPos);
+            m_pointShadow->applyUniformsToShader(shader, lightPos);
         }
     }
 
     void GraphicsController::unbind_PointShadow() {
         if (m_pointShadow) {
-            m_pointShadow->unbind();
+            m_pointShadow->unbind(1600, 900);
         }
     }
 } // namespace engine::graphics

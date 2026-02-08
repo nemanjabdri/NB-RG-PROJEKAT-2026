@@ -5,6 +5,7 @@
 #ifndef MATF_RG_PROJECT_MAINCONTROLLER_HPP
 #define MATF_RG_PROJECT_MAINCONTROLLER_HPP
 #include <engine/core/Controller.hpp>
+#include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 
 namespace engine::resources {
@@ -56,6 +57,12 @@ namespace app {
                         glm::vec3 scaleModel = glm::vec3(1.0f), float rotateModelAngle = 0.0f);
 
         void draw_models(const std::string shaderModel);
+
+        void render_scene_geometry(std::string modelName, std::string shaderName,
+                                   glm::vec3 translateModel,
+                                   glm::vec3 scaleModel, float rotateModelAngle);
+
+        void setup_lights(std::string shaderName);
 
     public:
         bool isCursorEnabled() const {
