@@ -36,8 +36,9 @@ namespace app {
         bool m_nightVisionMode             = false;
         bool m_greyscaleMode               = false;
 
-        glm::vec3 m_carPos = glm::vec3(-17.0f, -4.0f, 0.0f);
-        float m_carAngle   = 55.0f;
+        glm::vec3 m_carPos           = glm::vec3(-17.0f, -4.0f, 0.0f);
+        glm::vec3 m_campFireLightPos = glm::vec3(-30.0f, 0.4f, -30.0f);
+        float m_carAngle             = 55.0f;
 
         void initialize() override;
 
@@ -164,6 +165,14 @@ namespace app {
 
         void set_m_greyscale_mode(bool m_greyscale_mode) {
             m_greyscaleMode = m_greyscale_mode;
+        }
+
+        glm::vec3 get_car_pos() const {
+            return m_carPos;
+        }
+
+        void set_car_pos(const glm::vec3 &m_car_pos) {
+            m_carPos = m_car_pos;
         }
     };
 } // app

@@ -41,10 +41,11 @@ namespace app {
         bool isGreyscaleModeActive         = mainCtrl->m_greyscale_mode();
         glm::vec3 localRedPos              = mainCtrl->get_m_local_red_pos();
         glm::vec3 localBluePos             = mainCtrl->get_m_local_blue_pos();
+        glm::vec3 carPos                   = mainCtrl->get_car_pos();
 
         ImGui::Begin("Camera info. ");
 
-        ImGui::Text("Camera position: (%f %f %f)", camera->Position.x, camera->Position.y, camera->Position.z);
+        ImGui::Text("Police car position: (%f %f %f)", carPos.x, carPos.y, carPos.z);
 
         if (ImGui::SliderFloat3("Car Red light offset", &localRedPos.x, -20.0f, 20.0f)) {
             mainCtrl->set_m_local_red_pos(localRedPos);

@@ -30,6 +30,36 @@
       },
       "street_light": {
         "path": "street_light/Street_light.obj"
+      },
+      "building": {
+        "path": "building/building.obj"
+      },
+      "bakery": {
+        "path": "bakery/Bakery.obj"
+      },
+      "UFO": {
+        "path": "UFO/UFO.obj"
+      },
+      "cinema": {
+        "path": "cinema/Cinema.obj"
+      },
+      "saloon": {
+        "path": "saloon/Saloon.obj"
+      },
+      "bank": {
+        "path": "bank/Bank.obj"
+      },
+      "campfire": {
+        "path": "campfire/campfire.obj"
+      },
+      "cactus": {
+        "path": "cactus/Saguaro.obj"
+      },
+      "lawn_mower": {
+        "path": "lawn_mower/Lawn_Mower.obj"
+      },
+      "wood_swing": {
+        "path": "wood_swing/SWING.obj"
       }
     }
   },

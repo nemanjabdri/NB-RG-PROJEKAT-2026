@@ -153,7 +153,7 @@ namespace app {
 
         auto shader_depth = resources->shader("shader_point_shadow_depth");
 
-        graphics->bind_PointShadow(shader_depth, m_worldRedPos);
+        graphics->bind_PointShadow(shader_depth, m_campFireLightPos);
         render_scene_geometry(shader_depth);
         graphics->unbind_PointShadow();
 
@@ -177,7 +177,7 @@ namespace app {
         glActiveTexture(GL_TEXTURE5);
         glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->pointShadowTextureId());
         shader_universal->set_int("depthMap", 5);
-        shader_universal->set_float("far_plane", 25.0f);
+        shader_universal->set_float("far_plane", 35.0f);
 
         render_scene_geometry(shader_universal);
         draw_skybox();
@@ -206,7 +206,7 @@ namespace app {
         render_model_geometry("house", shader, glm::vec3(0.0f, -4.0f, -25.0f));
         render_model_geometry("convertible", shader, glm::vec3(-6.0f, -4.0f, -17.0f));
         render_model_geometry("road", shader, glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
-        render_model_geometry("caravan", shader, glm::vec3(-25.0f, -1.0f, -22.0f), glm::vec3(0.04f), 20.0f);
+        render_model_geometry("caravan", shader, glm::vec3(-17.0f, -0.6f, -33.0f), glm::vec3(0.045f), 20.0f);
         render_model_geometry("billboard", shader, glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
         render_model_geometry("police_car", shader, m_carPos, glm::vec3(0.09f), m_carAngle);
         render_model_geometry("farm_house", shader, glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
@@ -216,7 +216,31 @@ namespace app {
                               90.0f);
         render_model_geometry("street_light", shader, glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
                               90.0f);
-        //render_model_geometry("farm_house", shader, m_worldBluePos, glm::vec3(0.008f));
+        render_model_geometry("building", shader, glm::vec3(-30.0f, -4.0f, 12.0f), glm::vec3(1.3f),
+                              180.0f);
+        render_model_geometry("bakery", shader, glm::vec3(-55.0f, -4.0f, -12.0f), glm::vec3(1.0f),
+                              0.0f);
+        render_model_geometry("UFO", shader, glm::vec3(6.0f, -3.5f, -13.0f), glm::vec3(0.1f),
+                              0.0f);
+        render_model_geometry("bank", shader, glm::vec3(66.0f, -4.0f, -17.0f), glm::vec3(0.04f),
+                              -90.0f);
+        render_model_geometry("cinema", shader, glm::vec3(95.0f, -4.0f, -13.0f), glm::vec3(1.0f),
+                              0.0f);
+        render_model_geometry("saloon", shader, glm::vec3(25.0f, -4.0f, 16.0f), glm::vec3(1.0f),
+                              180.0f);
+        render_model_geometry("campfire", shader, glm::vec3(-30.0f, -3.4f, -30.0f), glm::vec3(1.5f),
+                              0.0f);
+        render_model_geometry("cactus", shader, glm::vec3(-30.0f, -4.0f, -40.0f), glm::vec3(0.3f),
+                              0.0f);
+        render_model_geometry("cactus", shader, glm::vec3(-22.0f, -4.0f, -26.0f), glm::vec3(0.25f),
+                              45.0f);
+        render_model_geometry("cactus", shader, glm::vec3(-30.0f, -4.0f, -21.0f), glm::vec3(0.25f),
+                              20.0f);
+        render_model_geometry("lawn_mower", shader, glm::vec3(-38.0f, -4.0f, -24.0f), glm::vec3(0.05f),
+                              45.0f);
+        render_model_geometry("wood_swing", shader, glm::vec3(-37.0f, -4.0f, -40.0f), glm::vec3(0.04f),
+                              45.0f);
+        render_model_geometry("farm_house", shader, m_campFireLightPos, glm::vec3(0.01f));
     }
 
     void MainController::render_model_geometry(std::string modelName, engine::resources::Shader *shader,
@@ -282,14 +306,27 @@ namespace app {
         shader->set_float("pointLights[1].linear", 0.0009f);
         shader->set_float("pointLights[1].quadratic", 0.00032f);
 
+        float fireSpeed     = 2.0f;
+        float fireIntensity = (sin(m_totalTime * fireSpeed) * 0.2f) + (sin(m_totalTime * fireSpeed * 2.1f) * 0.1f) +
+                              0.7f;
+        float baseLinear    = 0.009f;
+        float baseQuadratic = 0.0032f;
+        //Camp fire
+        shader->set_vec3("pointLights[2].position", m_campFireLightPos);
+        shader->set_vec3("pointLights[2].ambient", glm::vec3(0.005f));
+        shader->set_vec3("pointLights[2].diffuse", glm::vec3(1.0f, 0.6f, 0.2f) * 1.5f * fireIntensity);
+        shader->set_vec3("pointLights[2].specular", glm::vec3(0.5f) * fireIntensity);
+        shader->set_float("pointLights[2].linear", baseLinear / fireIntensity);
+        shader->set_float("pointLights[2].quadratic", baseQuadratic / fireIntensity);
+
         // Far Levi
         shader->set_vec3("spotLights[0].position", m_worldFarLPos);
         shader->set_vec3("spotLights[0].direction", worldSpotDir); // Prilagodi smeru auta
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(22.5f)));
-        shader->set_vec3("spotLights[0].ambient", glm::vec3(0.03f) * policeHeadLightsActive);
+        shader->set_vec3("spotLights[0].ambient", glm::vec3(0.01f) * policeHeadLightsActive);
         shader->set_vec3("spotLights[0].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * policeHeadLightsActive);
-        shader->set_vec3("spotLights[0].specular", glm::vec3(0.2f) * policeHeadLightsActive);
+        shader->set_vec3("spotLights[0].specular", glm::vec3(0.5f) * policeHeadLightsActive);
         shader->set_float("spotLights[0].linear", 0.0009f);
         shader->set_float("spotLights[0].quadratic", 0.00032f);
 
@@ -298,41 +335,52 @@ namespace app {
         shader->set_vec3("spotLights[1].direction", worldSpotDir);
         shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[1].outerCutOff", glm::cos(glm::radians(22.5f)));
-        shader->set_vec3("spotLights[1].ambient", glm::vec3(0.03f) * policeHeadLightsActive);
+        shader->set_vec3("spotLights[1].ambient", glm::vec3(0.15f) * policeHeadLightsActive);
         shader->set_vec3("spotLights[1].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * policeHeadLightsActive);
-        shader->set_vec3("spotLights[1].specular", glm::vec3(0.2f) * policeHeadLightsActive);
-        shader->set_float("spotLights[1].linear", 0.0009f);
-        shader->set_float("spotLights[1].quadratic", 0.00032f);
+        shader->set_vec3("spotLights[1].specular", glm::vec3(0.5f) * policeHeadLightsActive);
+        shader->set_float("spotLights[1].linear", 0.009f);
+        shader->set_float("spotLights[1].quadratic", 0.0032f);
 
         //street-light 1
         shader->set_vec3("spotLights[2].position", m_streetLight1Pos);
         shader->set_vec3("spotLights[2].direction", m_streetLightDirection);
         shader->set_float("spotLights[2].cutOff", glm::cos(glm::radians(12.5f)));
-        shader->set_float("spotLights[2].outerCutOff", glm::cos(glm::radians(25.5f)));
-        shader->set_vec3("spotLights[2].ambient", glm::vec3(0.1f));
+        shader->set_float("spotLights[2].outerCutOff", glm::cos(glm::radians(35.5f)));
+        shader->set_vec3("spotLights[2].ambient", glm::vec3(0.15f));
         shader->set_vec3("spotLights[2].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-        shader->set_vec3("spotLights[2].specular", glm::vec3(0.2f));
+        shader->set_vec3("spotLights[2].specular", glm::vec3(0.3f));
         shader->set_float("spotLights[2].linear", 0.009f);
         shader->set_float("spotLights[2].quadratic", 0.0032f);
         //street-light 2
         shader->set_vec3("spotLights[3].position", m_streetLight2Pos);
         shader->set_vec3("spotLights[3].direction", m_streetLightDirection);
         shader->set_float("spotLights[3].cutOff", glm::cos(glm::radians(12.5f)));
-        shader->set_float("spotLights[3].outerCutOff", glm::cos(glm::radians(25.5f)));
-        shader->set_vec3("spotLights[3].ambient", glm::vec3(0.1f));
+        shader->set_float("spotLights[3].outerCutOff", glm::cos(glm::radians(35.5f)));
+        shader->set_vec3("spotLights[3].ambient", glm::vec3(0.15f));
         shader->set_vec3("spotLights[3].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-        shader->set_vec3("spotLights[3].specular", glm::vec3(0.2f));
+        shader->set_vec3("spotLights[3].specular", glm::vec3(0.3f));
         shader->set_float("spotLights[3].linear", 0.009f);
         shader->set_float("spotLights[3].quadratic", 0.0032f);
+
+        float flickerThreshold = 0.85f;
+        float randomVal        = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+        float streetLightFlicker;
+        if (randomVal > flickerThreshold) {
+            // Nagli pad ili potpuni mrak
+            streetLightFlicker = (randomVal > 0.95f) ? 0.0f : 0.2f;
+        } else {
+            // Normalno svetlo sa blagim šumom
+            streetLightFlicker = 0.9f + (randomVal * 0.1f);
+        }
 
         //street-light 3
         shader->set_vec3("spotLights[4].position", m_streetLight3Pos);
         shader->set_vec3("spotLights[4].direction", m_streetLightDirection);
         shader->set_float("spotLights[4].cutOff", glm::cos(glm::radians(12.5f)));
-        shader->set_float("spotLights[4].outerCutOff", glm::cos(glm::radians(25.5f)));
-        shader->set_vec3("spotLights[4].ambient", glm::vec3(0.1f));
-        shader->set_vec3("spotLights[4].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-        shader->set_vec3("spotLights[4].specular", glm::vec3(0.2f));
+        shader->set_float("spotLights[4].outerCutOff", glm::cos(glm::radians(35.5f)));
+        shader->set_vec3("spotLights[4].ambient", glm::vec3(0.01f));
+        shader->set_vec3("spotLights[4].diffuse", glm::vec3(1.0f, 1.0f, 1.0f) * streetLightFlicker);
+        shader->set_vec3("spotLights[4].specular", glm::vec3(0.3f) * streetLightFlicker);
         shader->set_float("spotLights[4].linear", 0.009f);
         shader->set_float("spotLights[4].quadratic", 0.0032f);
     }

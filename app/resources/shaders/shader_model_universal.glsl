@@ -46,7 +46,7 @@ struct SpotLight {
     vec3 ambient, diffuse, specular;
 };
 
-#define NR_POINT_LIGHTS 2
+#define NR_POINT_LIGHTS 3
 #define NR_SPOT_LIGHTS 5
 
 
@@ -64,7 +64,7 @@ uniform SpotLight spotLights[NR_SPOT_LIGHTS];
 
 float ShadowCalculation(vec3 fragPos) {
 
-    vec3 fragToLight = fragPos - pointLights[0].position;
+    vec3 fragToLight = fragPos - pointLights[2].position;
 
     float closestDepth = texture(depthMap, fragToLight).r;
     closestDepth *= far_plane;
@@ -72,8 +72,8 @@ float ShadowCalculation(vec3 fragPos) {
     float currentDepth = length(fragToLight);
 
     float bias = 0.05;
-    // float bias = 0.05 * (1.0 - dot(Normal, normalize(fragToLight)));
-    
+    //float bias = 0.05 * (1.0 - dot(Normal, normalize(fragToLight)));
+
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;
@@ -97,7 +97,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     vec3 diffuse = light.diffuse * diff * texColor;
     vec3 specular = light.specular * spec * texColor;
 
-    float shadow = (i == 0) ? ShadowCalculation(FragPos) : 0.0;
+    float shadow = (i == 2) ? ShadowCalculation(FragPos) : 0.0;
 
     return (ambient + (1 - shadow) * (diffuse + specular)) * attenuation;
 }
