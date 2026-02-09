@@ -62,6 +62,9 @@ namespace engine::graphics {
     */
     class GraphicsController final : public core::Controller {
     public:
+        GraphicsController();
+        ~GraphicsController() override;
+
         std::string_view name() const override;
 
         /**
@@ -101,6 +104,8 @@ namespace engine::graphics {
         void bind_PointShadow(const resources::Shader *shader, glm::vec3 lightPos);
 
         void unbind_PointShadow();
+
+        unsigned int pointShadowTextureId() const;
 
         Camera *camera() {
             return &m_camera;

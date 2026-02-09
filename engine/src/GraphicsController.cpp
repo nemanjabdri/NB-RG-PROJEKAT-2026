@@ -13,6 +13,10 @@
 #include <engine/graphics/PointShadow.hpp>
 
 namespace engine::graphics {
+    GraphicsController::GraphicsController() = default;
+
+    GraphicsController::~GraphicsController() = default;
+
     void GraphicsController::initialize() {
         const int opengl_initialized = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
         RG_GUARANTEE(opengl_initialized, "OpenGL failed to init!");
@@ -146,7 +150,7 @@ namespace engine::graphics {
 
     void GraphicsController::bind_PointShadow(const resources::Shader *shader, glm::vec3 lightPos) {
         if (m_pointShadow) {
-            m_pointShadow->bind(lightPos);
+            m_pointShadow->bind();
             m_pointShadow->applyUniformsToShader(shader, lightPos);
         }
     }
@@ -155,5 +159,11 @@ namespace engine::graphics {
         if (m_pointShadow) {
             m_pointShadow->unbind(1600, 900);
         }
+    }
+
+    unsigned int GraphicsController::pointShadowTextureId() const {
+        if (m_pointShadow)
+            return m_pointShadow->textureId();
+        return 0;
     }
 } // namespace engine::graphics

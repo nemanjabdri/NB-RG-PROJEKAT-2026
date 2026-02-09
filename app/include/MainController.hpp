@@ -27,8 +27,8 @@ namespace app {
         glm::vec3 m_localSpotDir           = glm::vec3(0.0f, -0.2f, 1.0f);
         glm::vec3 m_worldFarLPos           = glm::vec3(-1.395f, 1.395f, 2.8);
         glm::vec3 m_worldFarRPos           = glm::vec3(1.395f, 1.395f, 2.8);
-        glm::vec3 m_worldRedPos            = glm::vec3(0.765f, 3.6f, -1.48f);
-        glm::vec3 m_worldBluePos           = glm::vec3(-0.765f, 3.6f, -1.48f);
+        glm::vec3 m_worldRedPos            = glm::vec3(0.765f, 4.6f, -1.48f);
+        glm::vec3 m_worldBluePos           = glm::vec3(-0.765f, 4.6f, -1.48f);
         bool m_cursorEnabled               = false;
         bool m_policeEmergencyLightsActive = false;
         bool m_policeHeadLightsActive      = false;
@@ -51,13 +51,13 @@ namespace app {
 
         void end_draw() override;
 
-        void render_scene_geometry(const std::string shaderModel);
+        void render_scene_geometry(engine::resources::Shader *shader);
 
-        void render_model_geometry(std::string modelName, std::string shaderName,
+        void render_model_geometry(std::string modelName, engine::resources::Shader *shader,
                                    glm::vec3 translateModel,
                                    glm::vec3 scaleModel = glm::vec3(1.0f), float rotateModelAngle = 0.0f);
 
-        void setup_scene_lights(std::string shaderName);
+        void setup_scene_lights(engine::resources::Shader *shader);
 
         void draw_skybox();
 

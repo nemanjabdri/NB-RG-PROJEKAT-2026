@@ -4,11 +4,11 @@
 
 #include "../include/MainController.hpp"
 
+#include <glad/glad.h>
 #include <engine/graphics/GraphicsController.hpp>
 #include <engine/graphics/OpenGL.hpp>
 #include <engine/platform/PlatformController.hpp>
 #include <engine/resources/ResourcesController.hpp>
-#include <GL/gl.h>
 #include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/chrono.h>
@@ -154,7 +154,7 @@ namespace app {
         auto shader_depth = resources->shader("shader_point_shadow_depth");
 
         graphics->bind_PointShadow(shader_depth, m_worldRedPos);
-        render_scene_geometry("shader_point_shadow_depth");
+        render_scene_geometry(shader_depth);
         graphics->unbind_PointShadow();
 
         if (m_nightVisionMode || m_greyscaleMode) {
@@ -168,8 +168,18 @@ namespace app {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        setup_scene_lights("shader_model_universal");
-        render_scene_geometry("shader_model_universal");
+        auto shader_universal = resources->shader("shader_model_universal");
+        shader_universal->use();
+        shader_universal->set_mat4("projection", graphics->projection_matrix());
+        shader_universal->set_mat4("view", graphics->camera()->view_matrix());
+
+        setup_scene_lights(shader_universal);
+        glActiveTexture(GL_TEXTURE5);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->pointShadowTextureId());
+        shader_universal->set_int("depthMap", 5);
+        shader_universal->set_float("far_plane", 25.0f);
+
+        render_scene_geometry(shader_universal);
         draw_skybox();
 
         if (m_nightVisionMode || m_greyscaleMode) {
@@ -188,7 +198,7 @@ namespace app {
         platform->swap_buffers();
     }
 
-    void MainController::render_scene_geometry(const std::string shader) {
+    void MainController::render_scene_geometry(engine::resources::Shader *shader) {
         render_model_geometry("terrain", shader, glm::vec3(0.0f, -0.55f, -80.0f),
                               glm::vec3(0.0005f, 0.0008f, 0.0008f));
         render_model_geometry("terrain", shader, glm::vec3(0.0f, -0.55f, 60.0f),
@@ -209,19 +219,14 @@ namespace app {
         //render_model_geometry("farm_house", shader, m_worldBluePos, glm::vec3(0.008f));
     }
 
-    void MainController::render_model_geometry(std::string modelName, std::string shaderName,
+    void MainController::render_model_geometry(std::string modelName, engine::resources::Shader *shader,
                                                glm::vec3 translateModel,
                                                glm::vec3 scaleModel, float rotateModelAngle) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        engine::resources::Model *model   = resources->model(modelName);
-        engine::resources::Shader *shader = resources->shader(shaderName);
+        engine::resources::Model *model = resources->model(modelName);
 
-        shader->use();
-
-        shader->set_mat4("projection", graphics->projection_matrix());
-        shader->set_mat4("view", graphics->camera()->view_matrix());
         glm::mat4 modelTransform = glm::mat4(1.0f);
         modelTransform = glm::translate(modelTransform, translateModel);
         modelTransform = glm::rotate(modelTransform, glm::radians(rotateModelAngle), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -231,10 +236,8 @@ namespace app {
         model->draw(shader);
     }
 
-    void MainController::setup_scene_lights(std::string shaderName) {
-        auto resources                    = engine::core::Controller::get<engine::resources::ResourcesController>();
-        auto graphics                     = engine::core::Controller::get<engine::graphics::GraphicsController>();
-        engine::resources::Shader *shader = resources->shader(shaderName);
+    void MainController::setup_scene_lights(engine::resources::Shader *shader) {
+        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
         glm::mat4 carRot = glm::rotate(glm::mat4(1.0f), glm::radians(m_carAngle), glm::vec3(0, 1, 0));
 
