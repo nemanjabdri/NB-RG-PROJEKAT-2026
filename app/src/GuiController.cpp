@@ -31,7 +31,6 @@ namespace app {
     void GuiController::draw() {
         auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
         auto mainCtrl = engine::core::Controller::get<MainController>();
-        auto camera   = graphics->camera();
         graphics->begin_gui();
 
         bool isPoliceEmergencyLightsActive = mainCtrl->isPoliceEmergencyLightsActive();
@@ -39,19 +38,28 @@ namespace app {
         bool isDrivingModeActive           = mainCtrl->isDrivingMode();
         bool isNightVisionModeActive       = mainCtrl->m_night_vision_mode();
         bool isGreyscaleModeActive         = mainCtrl->m_greyscale_mode();
-        glm::vec3 localRedPos              = mainCtrl->get_m_local_red_pos();
-        glm::vec3 localBluePos             = mainCtrl->get_m_local_blue_pos();
         glm::vec3 carPos                   = mainCtrl->get_car_pos();
+
+        float camDistance   = mainCtrl->get_camera_dist();
+        float camHeight     = mainCtrl->get_camera_height();
+        float camPitchAngle = mainCtrl->get_pitch_offset();
 
         ImGui::Begin("Camera info. ");
 
         ImGui::Text("Police car position: (%f %f %f)", carPos.x, carPos.y, carPos.z);
 
-        if (ImGui::SliderFloat3("Car Red light offset", &localRedPos.x, -20.0f, 20.0f)) {
-            mainCtrl->set_m_local_red_pos(localRedPos);
+        if (ImGui::Checkbox("Third Person Driving Mode ('F1' key)", &isDrivingModeActive)) {
+            mainCtrl->setDrivingMode(isDrivingModeActive);
         }
-        if (ImGui::SliderFloat3("Car Blue light offset", &localBluePos.x, -20.0f, 20.0f)) {
-            mainCtrl->set_m_local_blue_pos(localBluePos);
+
+        if (ImGui::SliderFloat("Camera Orbit Radius", &camDistance, 0.0f, 30.0f)) {
+            mainCtrl->set_camera_dist(camDistance);
+        }
+        if (ImGui::SliderFloat("Camera Orbit Height", &camHeight, 0.0f, 20.0f)) {
+            mainCtrl->set_camera_height(camHeight);
+        }
+        if (ImGui::SliderFloat("Camera Pitch Offset", &camPitchAngle, 0.0f, 20.0f)) {
+            mainCtrl->set_pitch_offset(camPitchAngle);
         }
 
         if (ImGui::Checkbox("Police Emergency Lights ('G' key while Driving Mode is Active)",
@@ -61,9 +69,7 @@ namespace app {
         if (ImGui::Checkbox("Police Head Lights ('F' key while Driving Mode is Active)", &isPoliceHeadLightsActive)) {
             mainCtrl->setPoliceHeadLightsActive(isPoliceHeadLightsActive);
         }
-        if (ImGui::Checkbox("Third Person Driving Mode", &isDrivingModeActive)) {
-            mainCtrl->setDrivingMode(isDrivingModeActive);
-        }
+
         if (ImGui::Checkbox("Night Vision Mode", &isNightVisionModeActive)) {
             if (isGreyscaleModeActive) {
                 mainCtrl->set_m_greyscale_mode(false);

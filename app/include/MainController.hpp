@@ -48,12 +48,10 @@ namespace app {
         glm::vec3 m_carPos           = glm::vec3(-17.0f, -4.0f, 0.0f);
         glm::vec3 m_campFireLightPos = glm::vec3(-30.0f, 0.4f, -30.0f);
         float m_carAngle             = 55.0f;
-        float m_targetOrbitAngle     = 0.0f;
-        float m_currentOrbitAngle    = 0.0f;
-        float m_lastMouseX           = 0.0f;
-        bool m_firstMouseInput       = true;
+        float m_cameraOrbitAngle     = 0.0f;
+        bool m_firstEntry            = true;
         float m_cameraDist           = 16.0f;
-        float m_cameraHeight         = 8.0f;
+        float m_cameraHeight         = 7.0f;
         float m_pitch_offset         = 10.0f;
 
         const float UFO_SKY_Y    = 60.0f;
@@ -221,8 +219,28 @@ namespace app {
             return m_ufoRotation;
         }
 
-        void set_first_mouse_input(bool first_mouse_input) {
-            m_firstMouseInput = first_mouse_input;
+        float get_camera_dist() const {
+            return m_cameraDist;
+        }
+
+        void set_camera_dist(float m_camera_dist) {
+            m_cameraDist = m_camera_dist;
+        }
+
+        float get_camera_height() const {
+            return m_cameraHeight;
+        }
+
+        void set_camera_height(float m_camera_height) {
+            m_cameraHeight = m_camera_height;
+        }
+
+        float get_pitch_offset() const {
+            return m_pitch_offset;
+        }
+
+        void set_pitch_offset(float pitch_offset) {
+            m_pitch_offset = pitch_offset;
         }
     };
 } // app

@@ -110,23 +110,19 @@ namespace app {
             float moveSpeed = 15.0f * deltaTime;
             float rotSpeed  = 80.0f * deltaTime;
 
-            if (m_firstMouseInput) {
-                m_lastMouseX        = platform->mouse().x;
-                float startAngle    = glm::radians(m_carAngle) + glm::pi<float>();
-                m_targetOrbitAngle  = startAngle;
-                m_currentOrbitAngle = startAngle;
-                m_firstMouseInput   = false;
+            if (m_firstEntry) {
+                m_cameraOrbitAngle = glm::radians(m_carAngle);
+                m_firstEntry       = false;
             }
-            float currentMouseX = platform->mouse().x;
-            float mouseDeltaX   = currentMouseX - m_lastMouseX;
-            m_lastMouseX        = currentMouseX;
 
-            float mouseSensitivity = 0.007f;
+            float camRotSpeed = 60.0f * deltaTime;
 
-            m_targetOrbitAngle -= mouseDeltaX * mouseSensitivity;
-
-            float smoothFactor  = 10.0f * deltaTime;
-            m_currentOrbitAngle += (m_targetOrbitAngle - m_currentOrbitAngle) * smoothFactor;
+            if (platform->key(engine::platform::KeyId::KEY_LEFT).is_down()) {
+                m_cameraOrbitAngle -= camRotSpeed;
+            }
+            if (platform->key(engine::platform::KeyId::KEY_RIGHT).is_down()) {
+                m_cameraOrbitAngle += camRotSpeed;
+            }
 
             // 1. Skretanje
             if (platform->key(engine::platform::KeyId::KEY_A).is_down())
@@ -148,7 +144,7 @@ namespace app {
             if (platform->key(engine::platform::KeyId::KEY_S).is_down())
                 m_carPos -= forward * moveSpeed;
 
-            rad = glm::radians(m_currentOrbitAngle);
+            rad = glm::radians(m_cameraOrbitAngle);
             glm::vec3 cameraPos;
             cameraPos.x = m_carPos.x - sin(rad) * m_cameraDist;
             cameraPos.z = m_carPos.z - cos(rad) * m_cameraDist;
@@ -181,8 +177,11 @@ namespace app {
             if (platform->key(engine::platform::KeyId::KEY_G).state() == engine::platform::Key::State::JustPressed) {
                 setPoliceEmergencyLightsActive(!m_policeEmergencyLightsActive);
             }
+            if (platform->key(engine::platform::KeyId::KEY_F1).state() == engine::platform::Key::State::JustPressed) {
+                setDrivingMode(false);
+            }
         } else {
-            m_firstMouseInput = true;
+            m_firstEntry = true;
 
             if (platform->key(engine::platform::KeyId::KEY_W).is_down() && !m_cursorEnabled) {
                 camera->move_camera(engine::graphics::Camera::FORWARD, deltaTime);
@@ -201,6 +200,9 @@ namespace app {
             }
             if (platform->key(engine::platform::KeyId::KEY_Q).is_down() && !m_cursorEnabled) {
                 camera->move_camera(engine::graphics::Camera::DOWN, deltaTime);
+            }
+            if (platform->key(engine::platform::KeyId::KEY_F1).state() == engine::platform::Key::State::JustPressed) {
+                setDrivingMode(true);
             }
         }
     }
