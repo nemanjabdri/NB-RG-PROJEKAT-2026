@@ -128,6 +128,10 @@ void main() {
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
+    vec3 fogColor = vec3(0.5, 0.5, 0.5);
+    float fogStart = 20.0;
+    float fogEnd = 99.0;
+
     vec3 result = vec3(0.0);
 
     for (int i = 0; i < NR_POINT_LIGHTS; i++) {
@@ -138,5 +142,12 @@ void main() {
         result += CalcSpotLight(spotLights[i], normal, FragPos, viewDir, color);
     }
 
-    FragColor = vec4(result, 1.0);
+    float distance = length(viewPos - FragPos);
+
+    float fogFactor = (fogEnd - distance) / (fogEnd - fogStart);
+    fogFactor = clamp(fogFactor, 0.0, 1.0);
+
+    vec3 finalColor = mix(fogColor, result, fogFactor);
+
+    FragColor = vec4(finalColor, 1.0);
 }

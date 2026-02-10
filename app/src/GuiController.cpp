@@ -52,10 +52,11 @@ namespace app {
             mainCtrl->setDrivingMode(isDrivingModeActive);
         }
 
-        if (ImGui::SliderFloat("Camera Orbit Radius", &camDistance, 0.0f, 30.0f)) {
+        ImGui::BeginDisabled(!mainCtrl->isDrivingMode());
+        if (ImGui::SliderFloat("Camera Orbit Radius", &camDistance, 8.0f, 30.0f)) {
             mainCtrl->set_camera_dist(camDistance);
         }
-        if (ImGui::SliderFloat("Camera Orbit Height", &camHeight, 0.0f, 20.0f)) {
+        if (ImGui::SliderFloat("Camera Orbit Height", &camHeight, 3.0f, 30.0f)) {
             mainCtrl->set_camera_height(camHeight);
         }
         if (ImGui::SliderFloat("Camera Pitch Offset", &camPitchAngle, 0.0f, 20.0f)) {
@@ -69,6 +70,7 @@ namespace app {
         if (ImGui::Checkbox("Police Head Lights ('F' key while Driving Mode is Active)", &isPoliceHeadLightsActive)) {
             mainCtrl->setPoliceHeadLightsActive(isPoliceHeadLightsActive);
         }
+        ImGui::EndDisabled();
 
         if (ImGui::Checkbox("Night Vision Mode", &isNightVisionModeActive)) {
             if (isGreyscaleModeActive) {

@@ -31,7 +31,7 @@ namespace engine::graphics {
         const unsigned int SHADOW_WIDTH  = 1024;
         const unsigned int SHADOW_HEIGHT = 1024;
         float near_plane                 = 1.0f;
-        float far_plane                  = 35.0f;
+        float far_plane                  = 45.0f;
         glm::mat4 shadowProj;
         std::vector<glm::mat4> shadowTransforms;
     };

@@ -111,7 +111,7 @@ namespace app {
             float rotSpeed  = 80.0f * deltaTime;
 
             if (m_firstEntry) {
-                m_cameraOrbitAngle = glm::radians(m_carAngle);
+                m_cameraOrbitAngle = 0.0f;
                 m_firstEntry       = false;
             }
 
@@ -144,7 +144,8 @@ namespace app {
             if (platform->key(engine::platform::KeyId::KEY_S).is_down())
                 m_carPos -= forward * moveSpeed;
 
-            rad = glm::radians(m_cameraOrbitAngle);
+            float finalAngle = m_carAngle + m_cameraOrbitAngle - glm::pi<float>();
+            rad              = glm::radians(finalAngle);
             glm::vec3 cameraPos;
             cameraPos.x = m_carPos.x - sin(rad) * m_cameraDist;
             cameraPos.z = m_carPos.z - cos(rad) * m_cameraDist;
@@ -237,10 +238,10 @@ namespace app {
         glActiveTexture(GL_TEXTURE5);
         glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->pointShadowTextureId());
         shader_universal->set_int("depthMap", 5);
-        shader_universal->set_float("far_plane", 35.0f);
+        shader_universal->set_float("far_plane", 45.0f);
 
         render_scene_geometry(shader_universal);
-        draw_skybox();
+        //draw_skybox();
 
         if (m_nightVisionMode || m_greyscaleMode) {
             graphics->unbind_frameBuffer();
