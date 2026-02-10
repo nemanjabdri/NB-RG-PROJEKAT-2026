@@ -77,6 +77,14 @@ namespace app {
             mainCtrl->set_m_greyscale_mode(isGreyscaleModeActive);
         }
 
+        if (ImGui::Button("UFO Landing")) {
+            mainCtrl->startUfoLanding();
+        }
+
+        if (ImGui::Button("UFO takeoff")) {
+            mainCtrl->startUfoTakeoff();
+        }
+
         ImGui::End();
 
         graphics->end_gui();

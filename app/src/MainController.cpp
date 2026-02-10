@@ -65,11 +65,70 @@ namespace app {
             platform->set_enable_cursor(m_cursorEnabled);
         }
 
+        if (m_ufoState != UfoState::GROUND_IDLE && m_ufoState != UfoState::WAITING_TO_TAKEOFF) {
+            m_ufoRotation += 200.0f * deltaTime;
+        }
+
+        switch (m_ufoState) {
+        case UfoState::WAITING_TO_LAND: m_stateTimer += deltaTime;
+            if (m_stateTimer >= 2.0f) {
+                m_ufoState = UfoState::DESCENDING;
+            }
+            break;
+
+        case UfoState::DESCENDING:
+            // Smanjujemo Y poziciju
+            m_ufoPos.y -= UFO_SPEED * deltaTime;
+            // Provera da li smo dotakli tlo
+            if (m_ufoPos.y <= UFO_GROUND_Y) {
+                m_ufoPos.y = UFO_GROUND_Y;
+                m_ufoState = UfoState::GROUND_IDLE;
+            }
+            break;
+
+        case UfoState::WAITING_TO_TAKEOFF: m_stateTimer += deltaTime;
+            if (m_stateTimer >= 2.0f) {
+                m_ufoState = UfoState::ASCENDING;
+            }
+            break;
+
+        case UfoState::ASCENDING:
+            // Povećavamo Y poziciju
+            m_ufoPos.y += UFO_SPEED * deltaTime;
+
+            // Provera da li smo stigli na nebo
+            if (m_ufoPos.y >= UFO_SKY_Y) {
+                m_ufoPos.y = UFO_SKY_Y;
+                m_ufoState = UfoState::SKY_IDLE;
+            }
+            break;
+
+        default: break;
+        }
+
         if (m_drivingMode) {
             float moveSpeed = 15.0f * deltaTime;
             float rotSpeed  = 80.0f * deltaTime;
 
-            // 1. Skretanje (Menjamo ugao)
+            if (m_firstMouseInput) {
+                m_lastMouseX        = platform->mouse().x;
+                float startAngle    = glm::radians(m_carAngle) + glm::pi<float>();
+                m_targetOrbitAngle  = startAngle;
+                m_currentOrbitAngle = startAngle;
+                m_firstMouseInput   = false;
+            }
+            float currentMouseX = platform->mouse().x;
+            float mouseDeltaX   = currentMouseX - m_lastMouseX;
+            m_lastMouseX        = currentMouseX;
+
+            float mouseSensitivity = 0.007f;
+
+            m_targetOrbitAngle -= mouseDeltaX * mouseSensitivity;
+
+            float smoothFactor  = 10.0f * deltaTime;
+            m_currentOrbitAngle += (m_targetOrbitAngle - m_currentOrbitAngle) * smoothFactor;
+
+            // 1. Skretanje
             if (platform->key(engine::platform::KeyId::KEY_A).is_down())
                 m_carAngle += rotSpeed;
             if (platform->key(engine::platform::KeyId::KEY_D).is_down())
@@ -89,14 +148,11 @@ namespace app {
             if (platform->key(engine::platform::KeyId::KEY_S).is_down())
                 m_carPos -= forward * moveSpeed;
 
-            float distanceBehind = 16.0f;
-            float heightAbove    = 8.0f;
-
-            rad = glm::radians(m_carAngle);
+            rad = glm::radians(m_currentOrbitAngle);
             glm::vec3 cameraPos;
-            cameraPos.x = m_carPos.x - sin(rad) * distanceBehind;
-            cameraPos.z = m_carPos.z - cos(rad) * distanceBehind;
-            cameraPos.y = m_carPos.y + heightAbove;
+            cameraPos.x = m_carPos.x - sin(rad) * m_cameraDist;
+            cameraPos.z = m_carPos.z - cos(rad) * m_cameraDist;
+            cameraPos.y = m_carPos.y + m_cameraHeight;
 
             camera->Position = cameraPos;
 
@@ -117,7 +173,7 @@ namespace app {
             if (m_carAngle < 0.0f)
                 m_carAngle += 360.0f;
 
-            camera->rotate_camera(xOffset, yOffset + 10.0f);
+            camera->rotate_camera(xOffset, yOffset + m_pitch_offset);
 
             if (platform->key(engine::platform::KeyId::KEY_F).state() == engine::platform::Key::State::JustPressed) {
                 setPoliceHeadLightsActive(!m_policeHeadLightsActive);
@@ -126,6 +182,8 @@ namespace app {
                 setPoliceEmergencyLightsActive(!m_policeEmergencyLightsActive);
             }
         } else {
+            m_firstMouseInput = true;
+
             if (platform->key(engine::platform::KeyId::KEY_W).is_down() && !m_cursorEnabled) {
                 camera->move_camera(engine::graphics::Camera::FORWARD, deltaTime);
             }
@@ -220,8 +278,8 @@ namespace app {
                               180.0f);
         render_model_geometry("bakery", shader, glm::vec3(-55.0f, -4.0f, -12.0f), glm::vec3(1.0f),
                               0.0f);
-        render_model_geometry("UFO", shader, glm::vec3(6.0f, -3.5f, -13.0f), glm::vec3(0.1f),
-                              0.0f);
+        render_model_geometry("UFO", shader, m_ufoPos, glm::vec3(0.1f),
+                              m_ufoRotation);
         render_model_geometry("bank", shader, glm::vec3(66.0f, -4.0f, -17.0f), glm::vec3(0.04f),
                               -90.0f);
         render_model_geometry("cinema", shader, glm::vec3(95.0f, -4.0f, -13.0f), glm::vec3(1.0f),
@@ -240,7 +298,8 @@ namespace app {
                               45.0f);
         render_model_geometry("wood_swing", shader, glm::vec3(-37.0f, -4.0f, -40.0f), glm::vec3(0.04f),
                               45.0f);
-        render_model_geometry("farm_house", shader, m_campFireLightPos, glm::vec3(0.01f));
+        render_model_geometry("farm_house", shader, glm::vec3(m_ufoPos.x, m_ufoPos.y + 6, m_ufoPos.z),
+                              glm::vec3(0.01f));
     }
 
     void MainController::render_model_geometry(std::string modelName, engine::resources::Shader *shader,
@@ -318,6 +377,16 @@ namespace app {
         shader->set_vec3("pointLights[2].specular", glm::vec3(0.5f) * fireIntensity);
         shader->set_float("pointLights[2].linear", baseLinear / fireIntensity);
         shader->set_float("pointLights[2].quadratic", baseQuadratic / fireIntensity);
+
+        glm::vec3 ufoLightPos = glm::vec3(m_ufoPos.x, m_ufoPos.y + 6, m_ufoPos.z);
+
+        //UFO cockpit LIGHT
+        shader->set_vec3("pointLights[3].position", ufoLightPos);
+        shader->set_vec3("pointLights[3].ambient", glm::vec3(0.03f));
+        shader->set_vec3("pointLights[3].diffuse", glm::vec3(0.75f, 0.0f, 1.0f) * 2.5f);
+        shader->set_vec3("pointLights[3].specular", glm::vec3(0.2f));
+        shader->set_float("pointLights[3].linear", 0.09f);
+        shader->set_float("pointLights[3].quadratic", 0.032f);
 
         // Far Levi
         shader->set_vec3("spotLights[0].position", m_worldFarLPos);

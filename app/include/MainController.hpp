@@ -12,6 +12,15 @@ namespace engine::resources {
     class Shader;
 }
 
+enum class UfoState {
+    SKY_IDLE,           // Stoji na nebu
+    WAITING_TO_LAND,    // Odbrojava 2 sek pre kretanja
+    DESCENDING,         // Spušta se na zemlju
+    GROUND_IDLE,        // Sleteo je
+    WAITING_TO_TAKEOFF, // Odbrojava 2 sek pre poletanja
+    ASCENDING           // Penje se nazad na nebo
+};
+
 namespace app {
     class MainController : public engine::core::Controller {
     private:
@@ -39,6 +48,21 @@ namespace app {
         glm::vec3 m_carPos           = glm::vec3(-17.0f, -4.0f, 0.0f);
         glm::vec3 m_campFireLightPos = glm::vec3(-30.0f, 0.4f, -30.0f);
         float m_carAngle             = 55.0f;
+        float m_targetOrbitAngle     = 0.0f;
+        float m_currentOrbitAngle    = 0.0f;
+        float m_lastMouseX           = 0.0f;
+        bool m_firstMouseInput       = true;
+        float m_cameraDist           = 16.0f;
+        float m_cameraHeight         = 8.0f;
+        float m_pitch_offset         = 10.0f;
+
+        const float UFO_SKY_Y    = 60.0f;
+        const float UFO_GROUND_Y = -3.8f;
+        const float UFO_SPEED    = 15.0f;
+        UfoState m_ufoState      = UfoState::SKY_IDLE;
+        glm::vec3 m_ufoPos       = glm::vec3(6.0f, UFO_SKY_Y, -13.0f);
+        float m_ufoRotation      = 0.0f;
+        float m_stateTimer       = 0.0f;
 
         void initialize() override;
 
@@ -173,6 +197,32 @@ namespace app {
 
         void set_car_pos(const glm::vec3 &m_car_pos) {
             m_carPos = m_car_pos;
+        }
+
+        void startUfoLanding() {
+            if (m_ufoState == UfoState::SKY_IDLE) {
+                m_ufoState   = UfoState::WAITING_TO_LAND;
+                m_stateTimer = 0.0f;
+            }
+        }
+
+        void startUfoTakeoff() {
+            if (m_ufoState == UfoState::GROUND_IDLE) {
+                m_ufoState   = UfoState::WAITING_TO_TAKEOFF;
+                m_stateTimer = 0.0f;
+            }
+        }
+
+        glm::vec3 getUfoPos() const {
+            return m_ufoPos;
+        }
+
+        float getUfoRotation() const {
+            return m_ufoRotation;
+        }
+
+        void set_first_mouse_input(bool first_mouse_input) {
+            m_firstMouseInput = first_mouse_input;
         }
     };
 } // app

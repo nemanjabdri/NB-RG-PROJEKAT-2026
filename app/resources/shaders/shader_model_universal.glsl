@@ -46,7 +46,7 @@ struct SpotLight {
     vec3 ambient, diffuse, specular;
 };
 
-#define NR_POINT_LIGHTS 3
+#define NR_POINT_LIGHTS 4
 #define NR_SPOT_LIGHTS 5
 
 
@@ -72,7 +72,6 @@ float ShadowCalculation(vec3 fragPos) {
     float currentDepth = length(fragToLight);
 
     float bias = 0.05;
-    //float bias = 0.05 * (1.0 - dot(Normal, normalize(fragToLight)));
 
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
