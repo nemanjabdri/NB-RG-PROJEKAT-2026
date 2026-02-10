@@ -58,6 +58,10 @@ uniform sampler2D texture_diffuse1;
 uniform samplerCube depthMap;
 uniform vec3 viewPos;
 uniform float far_plane;
+uniform bool fogEnabled;
+uniform vec3 fogColor;
+uniform float fogStart;
+uniform float fogEnd;
 //uniform bool shadows;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
@@ -128,10 +132,6 @@ void main() {
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    vec3 fogColor = vec3(0.5, 0.5, 0.5);
-    float fogStart = 20.0;
-    float fogEnd = 99.0;
-
     vec3 result = vec3(0.0);
 
     for (int i = 0; i < NR_POINT_LIGHTS; i++) {
@@ -142,12 +142,16 @@ void main() {
         result += CalcSpotLight(spotLights[i], normal, FragPos, viewDir, color);
     }
 
-    float distance = length(viewPos - FragPos);
+    if (fogEnabled) {
+        float distance = length(viewPos - FragPos);
 
-    float fogFactor = (fogEnd - distance) / (fogEnd - fogStart);
-    fogFactor = clamp(fogFactor, 0.0, 1.0);
+        float fogFactor = (fogEnd - distance) / (fogEnd - fogStart);
+        fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-    vec3 finalColor = mix(fogColor, result, fogFactor);
+        vec3 finalColor = mix(fogColor, result, fogFactor);
 
-    FragColor = vec4(finalColor, 1.0);
+        FragColor = vec4(finalColor, 1.0);
+    } else {
+        FragColor = vec4(result, 1.0);
+    }
 }

@@ -222,6 +222,7 @@ namespace app {
             graphics->bind_frameBuffer();
         }
 
+        glClearColor(m_fogColor.r, m_fogColor.g, m_fogColor.b, 1.0f);
         engine::graphics::OpenGL::clear_buffers();
     }
 
@@ -239,9 +240,16 @@ namespace app {
         glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->pointShadowTextureId());
         shader_universal->set_int("depthMap", 5);
         shader_universal->set_float("far_plane", 45.0f);
+        shader_universal->set_bool("fogEnabled", m_fogMode);
+        shader_universal->set_vec3("fogColor", m_fogColor);
+        shader_universal->set_float("fogStart", m_fogStart);
+        shader_universal->set_float("fogEnd", m_fogEnd);
 
         render_scene_geometry(shader_universal);
-        //draw_skybox();
+
+        if (!m_fogMode) {
+            draw_skybox();
+        }
 
         if (m_nightVisionMode || m_greyscaleMode) {
             graphics->unbind_frameBuffer();
@@ -289,20 +297,20 @@ namespace app {
                               0.0f);
         render_model_geometry("saloon", shader, glm::vec3(25.0f, -4.0f, 16.0f), glm::vec3(1.0f),
                               180.0f);
-        render_model_geometry("campfire", shader, glm::vec3(-30.0f, -3.4f, -30.0f), glm::vec3(1.5f),
+        render_model_geometry("campfire", shader, glm::vec3(-30.0f, -3.5f, -30.0f), glm::vec3(1.5f),
                               0.0f);
-        render_model_geometry("cactus", shader, glm::vec3(-30.0f, -4.0f, -40.0f), glm::vec3(0.3f),
+        render_model_geometry("cactus", shader, glm::vec3(-30.0f, -4.2f, -40.0f), glm::vec3(0.3f),
                               0.0f);
-        render_model_geometry("cactus", shader, glm::vec3(-22.0f, -4.0f, -26.0f), glm::vec3(0.25f),
+        render_model_geometry("cactus", shader, glm::vec3(-22.0f, -4.2f, -26.0f), glm::vec3(0.25f),
                               45.0f);
-        render_model_geometry("cactus", shader, glm::vec3(-30.0f, -4.0f, -21.0f), glm::vec3(0.25f),
+        render_model_geometry("cactus", shader, glm::vec3(-30.0f, -4.2f, -21.0f), glm::vec3(0.25f),
                               20.0f);
-        render_model_geometry("lawn_mower", shader, glm::vec3(-38.0f, -4.0f, -24.0f), glm::vec3(0.05f),
+        render_model_geometry("lawn_mower", shader, glm::vec3(-38.0f, -4.2f, -24.0f), glm::vec3(0.05f),
                               45.0f);
-        render_model_geometry("wood_swing", shader, glm::vec3(-37.0f, -4.0f, -40.0f), glm::vec3(0.04f),
+        render_model_geometry("wood_swing", shader, glm::vec3(-37.0f, -4.2f, -40.0f), glm::vec3(0.04f),
                               45.0f);
-        render_model_geometry("farm_house", shader, glm::vec3(m_ufoPos.x, m_ufoPos.y + 6, m_ufoPos.z),
-                              glm::vec3(0.01f));
+        /*render_model_geometry("farm_house", shader, glm::vec3(m_ufoPos.x, m_ufoPos.y + 6, m_ufoPos.z),
+                              glm::vec3(0.01f));*/
     }
 
     void MainController::render_model_geometry(std::string modelName, engine::resources::Shader *shader,

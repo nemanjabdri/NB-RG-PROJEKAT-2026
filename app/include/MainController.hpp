@@ -42,6 +42,7 @@ namespace app {
         bool m_policeEmergencyLightsActive = false;
         bool m_policeHeadLightsActive      = false;
         bool m_drivingMode                 = false;
+        bool m_fogMode                     = true;
         bool m_nightVisionMode             = false;
         bool m_greyscaleMode               = false;
 
@@ -54,7 +55,11 @@ namespace app {
         float m_cameraHeight         = 7.0f;
         float m_pitch_offset         = 10.0f;
 
-        const float UFO_SKY_Y    = 60.0f;
+        glm::vec3 m_fogColor = glm::vec3(0.15f, 0.15f, 0.15f);
+        float m_fogStart     = 3.0f;
+        float m_fogEnd       = 95.0f;
+
+        const float UFO_SKY_Y    = 90.0f;
         const float UFO_GROUND_Y = -3.8f;
         const float UFO_SPEED    = 15.0f;
         UfoState m_ufoState      = UfoState::SKY_IDLE;
@@ -211,6 +216,10 @@ namespace app {
             }
         }
 
+        UfoState getUFOState() {
+            return m_ufoState;
+        }
+
         glm::vec3 getUfoPos() const {
             return m_ufoPos;
         }
@@ -241,6 +250,30 @@ namespace app {
 
         void set_pitch_offset(float pitch_offset) {
             m_pitch_offset = pitch_offset;
+        }
+
+        bool isFogModeActive() const {
+            return m_fogMode;
+        }
+
+        void set_fog_mode(bool fog_mode) {
+            m_fogMode = fog_mode;
+        }
+
+        float get_fog_start() const {
+            return m_fogStart;
+        }
+
+        void set_fog_start(float fog_start) {
+            m_fogStart = fog_start;
+        }
+
+        float get_fog_end() const {
+            return m_fogEnd;
+        }
+
+        void set_fog_end(float fog_end) {
+            m_fogEnd = fog_end;
         }
     };
 } // app

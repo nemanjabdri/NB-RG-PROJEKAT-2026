@@ -38,11 +38,15 @@ namespace app {
         bool isDrivingModeActive           = mainCtrl->isDrivingMode();
         bool isNightVisionModeActive       = mainCtrl->m_night_vision_mode();
         bool isGreyscaleModeActive         = mainCtrl->m_greyscale_mode();
+        bool isFogModeActive               = mainCtrl->isFogModeActive();
         glm::vec3 carPos                   = mainCtrl->get_car_pos();
 
         float camDistance   = mainCtrl->get_camera_dist();
         float camHeight     = mainCtrl->get_camera_height();
         float camPitchAngle = mainCtrl->get_pitch_offset();
+
+        float fogStart = mainCtrl->get_fog_start();
+        float fogEnd   = mainCtrl->get_fog_end();
 
         ImGui::Begin("Camera info. ");
 
@@ -85,13 +89,30 @@ namespace app {
             mainCtrl->set_m_greyscale_mode(isGreyscaleModeActive);
         }
 
+        if (ImGui::Checkbox("Fog Mode", &isFogModeActive)) {
+            mainCtrl->set_fog_mode(isFogModeActive);
+        }
+        ImGui::BeginDisabled(!mainCtrl->isFogModeActive());
+        if (ImGui::SliderFloat("Fog start", &fogStart, 0.0f, 40.0f)) {
+            mainCtrl->set_fog_start(fogStart);
+        }
+
+        if (ImGui::SliderFloat("Fog end", &fogEnd, 30.0f, 95.0f)) {
+            mainCtrl->set_fog_end(fogEnd);
+        }
+        ImGui::EndDisabled();
+
+        ImGui::BeginDisabled(!(mainCtrl->getUFOState() == UfoState::SKY_IDLE));
         if (ImGui::Button("UFO Landing")) {
             mainCtrl->startUfoLanding();
         }
+        ImGui::EndDisabled();
 
+        ImGui::BeginDisabled(!(mainCtrl->getUFOState() == UfoState::GROUND_IDLE));
         if (ImGui::Button("UFO takeoff")) {
             mainCtrl->startUfoTakeoff();
         }
+        ImGui::EndDisabled();
 
         ImGui::End();
 
