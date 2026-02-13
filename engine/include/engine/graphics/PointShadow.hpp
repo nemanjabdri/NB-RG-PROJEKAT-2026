@@ -17,23 +17,23 @@ namespace engine::graphics {
 
         void bind();
 
-        void applyUniformsToShader(const engine::resources::Shader *shader, glm::vec3 lightPos);
+        void apply_uniforms_to_shader(const engine::resources::Shader *shader, glm::vec3 light_pos);
 
         void unbind(const unsigned int SCR_WIDTH, const unsigned int SCR_HEIGHT);
 
         unsigned int textureId() const {
-            return m_depthCubeMap;
+            return m_depth_cube_map;
         }
 
     private:
-        unsigned int m_depthCubeMap      = 0;
-        unsigned int m_depthMapFbo       = 0;
+        unsigned int m_depth_cube_map    = 0;
+        unsigned int m_depth_map_fbo     = 0;
         const unsigned int SHADOW_WIDTH  = 1024;
         const unsigned int SHADOW_HEIGHT = 1024;
         float near_plane                 = 1.0f;
         float far_plane                  = 45.0f;
-        glm::mat4 shadowProj;
-        std::vector<glm::mat4> shadowTransforms;
+        glm::mat4 shadow_proj;
+        std::vector<glm::mat4> shadow_transforms;
     };
 }
 

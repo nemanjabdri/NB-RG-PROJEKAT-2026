@@ -13,6 +13,13 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/chrono.h>
 
+namespace {
+    const std::string SHADER_UNIVERSAL = "shader_model_universal";
+    const std::string SHADER_SHADOW    = "shader_point_shadow_depth";
+    const std::string MODEL_TERRAIN    = "terrain";
+    const std::string MODEL_UFO        = "UFO";
+}
+
 namespace app {
     class MainPlatformEventObserver : public engine::platform::PlatformEventObserver {
     public:
@@ -20,10 +27,10 @@ namespace app {
     };
 
     void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition position) {
-        auto camera   = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
-        auto mainCtrl = engine::core::Controller::get<app::MainController>();
+        auto camera          = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
+        auto main_controller = engine::core::Controller::get<app::MainController>();
 
-        if (mainCtrl->isCursorEnabled() || mainCtrl->isDrivingMode()) {
+        if (main_controller->is_cursor_enabled() || main_controller->is_driving_mode_active()) {
             return;
         }
 
@@ -38,8 +45,8 @@ namespace app {
     void MainController::initialize() {
         auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
 
-        m_cursorEnabled = false;
-        platform->set_enable_cursor(m_cursorEnabled);
+        m_cursor_enabled = false;
+        platform->set_enable_cursor(m_cursor_enabled);
 
         platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
 
@@ -54,157 +61,176 @@ namespace app {
         return true;
     }
 
-    void MainController::update() {
-        auto platform  = engine::core::Controller::get<engine::platform::PlatformController>();
-        auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
-        auto camera    = graphics->camera();
-        auto deltaTime = platform->dt();
-        m_totalTime    += deltaTime;
-        if (platform->key(engine::platform::KeyId::KEY_F2).state() == engine::platform::Key::State::JustPressed) {
-            m_cursorEnabled = !m_cursorEnabled;
-            platform->set_enable_cursor(m_cursorEnabled);
+    void MainController::update_ufo(float delta_time) {
+        if (m_ufo_state != UfoState::GROUND_IDLE && m_ufo_state != UfoState::WAITING_TO_TAKEOFF) {
+            m_ufo_rotation += 200.0f * delta_time;
         }
 
-        if (m_ufoState != UfoState::GROUND_IDLE && m_ufoState != UfoState::WAITING_TO_TAKEOFF) {
-            m_ufoRotation += 200.0f * deltaTime;
-        }
-
-        switch (m_ufoState) {
-        case UfoState::WAITING_TO_LAND: m_stateTimer += deltaTime;
-            if (m_stateTimer >= 2.0f) {
-                m_ufoState = UfoState::DESCENDING;
+        switch (m_ufo_state) {
+        case UfoState::WAITING_TO_LAND: m_state_timer += delta_time;
+            if (m_state_timer >= 2.0f) {
+                m_ufo_state = UfoState::DESCENDING;
             }
             break;
 
-        case UfoState::DESCENDING:
-            // Smanjujemo Y poziciju
-            m_ufoPos.y -= UFO_SPEED * deltaTime;
+        case UfoState::DESCENDING: m_ufo_pos.y -= m_UFO_SPEED * delta_time;
             // Provera da li smo dotakli tlo
-            if (m_ufoPos.y <= UFO_GROUND_Y) {
-                m_ufoPos.y = UFO_GROUND_Y;
-                m_ufoState = UfoState::GROUND_IDLE;
+            if (m_ufo_pos.y <= m_UFO_GROUND_Y) {
+                m_ufo_pos.y = m_UFO_GROUND_Y;
+                m_ufo_state = UfoState::GROUND_IDLE;
             }
             break;
 
-        case UfoState::WAITING_TO_TAKEOFF: m_stateTimer += deltaTime;
-            if (m_stateTimer >= 2.0f) {
-                m_ufoState = UfoState::ASCENDING;
+        case UfoState::WAITING_TO_TAKEOFF: m_state_timer += delta_time;
+            if (m_state_timer >= 2.0f) {
+                m_ufo_state = UfoState::ASCENDING;
             }
             break;
 
-        case UfoState::ASCENDING:
-            // Povećavamo Y poziciju
-            m_ufoPos.y += UFO_SPEED * deltaTime;
-
+        case UfoState::ASCENDING: m_ufo_pos.y += m_UFO_SPEED * delta_time;
             // Provera da li smo stigli na nebo
-            if (m_ufoPos.y >= UFO_SKY_Y) {
-                m_ufoPos.y = UFO_SKY_Y;
-                m_ufoState = UfoState::SKY_IDLE;
+            if (m_ufo_pos.y >= m_UFO_SKY_Y) {
+                m_ufo_pos.y = m_UFO_SKY_Y;
+                m_ufo_state = UfoState::SKY_IDLE;
             }
             break;
 
         default: break;
         }
+    }
 
-        if (m_drivingMode) {
-            float moveSpeed = 15.0f * deltaTime;
-            float rotSpeed  = 80.0f * deltaTime;
+    void MainController::update_car_camera_and_driving(float delta_time) {
+        auto platform    = engine::core::Controller::get<engine::platform::PlatformController>();
+        auto graphics    = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto camera      = graphics->camera();
+        float move_speed = 15.0f * delta_time;
+        float rot_speed  = 80.0f * delta_time;
 
-            if (m_firstEntry) {
-                m_cameraOrbitAngle = 0.0f;
-                m_firstEntry       = false;
+        if (m_first_entry) {
+            m_camera_orbit_angle = 0.0f;
+            m_first_entry        = false;
+        }
+
+        float cam_rot_speed = 60.0f * delta_time;
+
+        if (platform->key(engine::platform::KeyId::KEY_LEFT).is_down()) {
+            m_camera_orbit_angle -= cam_rot_speed;
+        }
+        if (platform->key(engine::platform::KeyId::KEY_RIGHT).is_down()) {
+            m_camera_orbit_angle += cam_rot_speed;
+        }
+
+        // 1. Skretanje
+        if (platform->key(engine::platform::KeyId::KEY_A).is_down())
+            m_car_angle += rot_speed;
+        if (platform->key(engine::platform::KeyId::KEY_D).is_down())
+            m_car_angle -= rot_speed;
+
+        // 2. Izračunavanje smera (Forward Vector)
+        float rad = glm::radians(m_car_angle);
+        glm::vec3 forward;
+        forward.x = sin(rad);
+        forward.y = 0.0f;
+        forward.z = cos(rad);
+        forward   = glm::normalize(forward);
+
+        // 3. Kretanje (Napred-Nazad u odnosu na smer auta)
+        if (platform->key(engine::platform::KeyId::KEY_W).is_down())
+            m_car_pos += forward * move_speed;
+        if (platform->key(engine::platform::KeyId::KEY_S).is_down())
+            m_car_pos -= forward * move_speed;
+
+        float final_angle = m_car_angle + m_camera_orbit_angle - glm::pi<float>();
+        rad               = glm::radians(final_angle);
+        glm::vec3 camera_pos;
+        camera_pos.x = m_car_pos.x - sin(rad) * m_camera_dist;
+        camera_pos.z = m_car_pos.z - cos(rad) * m_camera_dist;
+        camera_pos.y = m_car_pos.y + m_camera_height;
+
+        camera->Position = camera_pos;
+
+        glm::vec3 direction = glm::normalize((m_car_pos + glm::vec3(0.0f, 1.0f, 0.0f)) - camera->Position);
+        float target_yaw    = glm::degrees(atan2(direction.z, direction.x));
+        float target_pitch  = glm::degrees(asin(direction.y));
+
+        float x_offset = target_yaw - camera->Yaw;
+        float y_offset = target_pitch - camera->Pitch;
+
+        while (x_offset <= -180.0f)
+            x_offset += 360.0f;
+        while (x_offset > 180.0f)
+            x_offset -= 360.0f;
+
+        if (m_car_angle >= 360.0f)
+            m_car_angle -= 360.0f;
+        if (m_car_angle < 0.0f)
+            m_car_angle += 360.0f;
+
+        camera->rotate_camera(x_offset, y_offset + m_pitch_offset);
+
+        if (platform->key(engine::platform::KeyId::KEY_F).state() == engine::platform::Key::State::JustPressed) {
+            set_police_head_lights(!m_police_head_lights);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_G).state() == engine::platform::Key::State::JustPressed) {
+            set_police_emergency_lights(!m_police_emergency_lights);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_F1).state() == engine::platform::Key::State::JustPressed) {
+            set_driving_mode(false);
+        }
+    }
+
+    void MainController::update_free_fly_camera(float delta_time) {
+        auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        auto camera   = graphics->camera();
+
+        m_first_entry = true;
+
+        if (!m_cursor_enabled) {
+            if (platform->key(engine::platform::KeyId::KEY_W).is_down()) {
+                camera->move_camera(engine::graphics::Camera::FORWARD, delta_time);
             }
-
-            float camRotSpeed = 60.0f * deltaTime;
-
-            if (platform->key(engine::platform::KeyId::KEY_LEFT).is_down()) {
-                m_cameraOrbitAngle -= camRotSpeed;
+            if (platform->key(engine::platform::KeyId::KEY_S).is_down()) {
+                camera->move_camera(engine::graphics::Camera::BACKWARD, delta_time);
             }
-            if (platform->key(engine::platform::KeyId::KEY_RIGHT).is_down()) {
-                m_cameraOrbitAngle += camRotSpeed;
+            if (platform->key(engine::platform::KeyId::KEY_A).is_down()) {
+                camera->move_camera(engine::graphics::Camera::LEFT, delta_time);
             }
-
-            // 1. Skretanje
-            if (platform->key(engine::platform::KeyId::KEY_A).is_down())
-                m_carAngle += rotSpeed;
-            if (platform->key(engine::platform::KeyId::KEY_D).is_down())
-                m_carAngle -= rotSpeed;
-
-            // 2. Izračunavanje smera (Forward Vector)
-            float rad = glm::radians(m_carAngle);
-            glm::vec3 forward;
-            forward.x = sin(rad);
-            forward.y = 0.0f;
-            forward.z = cos(rad);
-            forward   = glm::normalize(forward);
-
-            // 3. Kretanje (Napred-Nazad u odnosu na smer auta)
-            if (platform->key(engine::platform::KeyId::KEY_W).is_down())
-                m_carPos += forward * moveSpeed;
-            if (platform->key(engine::platform::KeyId::KEY_S).is_down())
-                m_carPos -= forward * moveSpeed;
-
-            float finalAngle = m_carAngle + m_cameraOrbitAngle - glm::pi<float>();
-            rad              = glm::radians(finalAngle);
-            glm::vec3 cameraPos;
-            cameraPos.x = m_carPos.x - sin(rad) * m_cameraDist;
-            cameraPos.z = m_carPos.z - cos(rad) * m_cameraDist;
-            cameraPos.y = m_carPos.y + m_cameraHeight;
-
-            camera->Position = cameraPos;
-
-            glm::vec3 direction = glm::normalize((m_carPos + glm::vec3(0.0f, 1.0f, 0.0f)) - camera->Position);
-            float targetYaw     = glm::degrees(atan2(direction.z, direction.x));
-            float targetPitch   = glm::degrees(asin(direction.y));
-
-            float xOffset = targetYaw - camera->Yaw;
-            float yOffset = targetPitch - camera->Pitch;
-
-            while (xOffset <= -180.0f)
-                xOffset += 360.0f;
-            while (xOffset > 180.0f)
-                xOffset -= 360.0f;
-
-            if (m_carAngle >= 360.0f)
-                m_carAngle -= 360.0f;
-            if (m_carAngle < 0.0f)
-                m_carAngle += 360.0f;
-
-            camera->rotate_camera(xOffset, yOffset + m_pitch_offset);
-
-            if (platform->key(engine::platform::KeyId::KEY_F).state() == engine::platform::Key::State::JustPressed) {
-                setPoliceHeadLightsActive(!m_policeHeadLightsActive);
+            if (platform->key(engine::platform::KeyId::KEY_D).is_down()) {
+                camera->move_camera(engine::graphics::Camera::RIGHT, delta_time);
             }
-            if (platform->key(engine::platform::KeyId::KEY_G).state() == engine::platform::Key::State::JustPressed) {
-                setPoliceEmergencyLightsActive(!m_policeEmergencyLightsActive);
+            if (platform->key(engine::platform::KeyId::KEY_E).is_down()) {
+                camera->move_camera(engine::graphics::Camera::UP, delta_time);
             }
-            if (platform->key(engine::platform::KeyId::KEY_F1).state() == engine::platform::Key::State::JustPressed) {
-                setDrivingMode(false);
+            if (platform->key(engine::platform::KeyId::KEY_Q).is_down()) {
+                camera->move_camera(engine::graphics::Camera::DOWN, delta_time);
             }
+        }
+        if (platform->key(engine::platform::KeyId::KEY_F1).state() == engine::platform::Key::State::JustPressed) {
+            set_driving_mode(true);
+        }
+    }
+
+    void MainController::handle_gui_button() {
+        auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+        if (platform->key(engine::platform::KeyId::KEY_F2).state() == engine::platform::Key::State::JustPressed) {
+            m_cursor_enabled = !m_cursor_enabled;
+            platform->set_enable_cursor(m_cursor_enabled);
+        }
+    }
+
+    void MainController::update() {
+        auto platform   = engine::core::Controller::get<engine::platform::PlatformController>();
+        auto delta_time = platform->dt();
+        m_total_time    += delta_time;
+
+        handle_gui_button();
+        update_ufo(delta_time);
+
+        if (m_driving_mode) {
+            update_car_camera_and_driving(delta_time);
         } else {
-            m_firstEntry = true;
-
-            if (platform->key(engine::platform::KeyId::KEY_W).is_down() && !m_cursorEnabled) {
-                camera->move_camera(engine::graphics::Camera::FORWARD, deltaTime);
-            }
-            if (platform->key(engine::platform::KeyId::KEY_S).is_down() && !m_cursorEnabled) {
-                camera->move_camera(engine::graphics::Camera::BACKWARD, deltaTime);
-            }
-            if (platform->key(engine::platform::KeyId::KEY_A).is_down() && !m_cursorEnabled) {
-                camera->move_camera(engine::graphics::Camera::LEFT, deltaTime);
-            }
-            if (platform->key(engine::platform::KeyId::KEY_D).is_down() && !m_cursorEnabled) {
-                camera->move_camera(engine::graphics::Camera::RIGHT, deltaTime);
-            }
-            if (platform->key(engine::platform::KeyId::KEY_E).is_down() && !m_cursorEnabled) {
-                camera->move_camera(engine::graphics::Camera::UP, deltaTime);
-            }
-            if (platform->key(engine::platform::KeyId::KEY_Q).is_down() && !m_cursorEnabled) {
-                camera->move_camera(engine::graphics::Camera::DOWN, deltaTime);
-            }
-            if (platform->key(engine::platform::KeyId::KEY_F1).state() == engine::platform::Key::State::JustPressed) {
-                setDrivingMode(true);
-            }
+            update_free_fly_camera(delta_time);
         }
     }
 
@@ -212,17 +238,17 @@ namespace app {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        auto shader_depth = resources->shader("shader_point_shadow_depth");
+        auto shader_depth = resources->shader(SHADER_SHADOW);
 
-        graphics->bind_PointShadow(shader_depth, m_campFireLightPos);
+        graphics->bind_point_shadow(shader_depth, m_camp_fire_light_pos);
         render_scene_geometry(shader_depth);
-        graphics->unbind_PointShadow();
+        graphics->unbind_point_shadow();
 
-        if (m_nightVisionMode || m_greyscaleMode) {
+        if (m_night_vision_mode || m_greyscale_mode) {
             graphics->bind_frameBuffer();
         }
 
-        glClearColor(m_fogColor.r, m_fogColor.g, m_fogColor.b, 1.0f);
+        glClearColor(m_fog_color.r, m_fog_color.g, m_fog_color.b, 1.0f);
         engine::graphics::OpenGL::clear_buffers();
     }
 
@@ -230,30 +256,30 @@ namespace app {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        auto shader_universal = resources->shader("shader_model_universal");
+        auto shader_universal = resources->shader(SHADER_UNIVERSAL);
         shader_universal->use();
         shader_universal->set_mat4("projection", graphics->projection_matrix());
         shader_universal->set_mat4("view", graphics->camera()->view_matrix());
 
         setup_scene_lights(shader_universal);
         glActiveTexture(GL_TEXTURE5);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->pointShadowTextureId());
+        glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->point_shadow_texture_id());
         shader_universal->set_int("depthMap", 5);
         shader_universal->set_float("far_plane", 45.0f);
-        shader_universal->set_bool("fogEnabled", m_fogMode);
-        shader_universal->set_vec3("fogColor", m_fogColor);
-        shader_universal->set_float("fogStart", m_fogStart);
-        shader_universal->set_float("fogEnd", m_fogEnd);
+        shader_universal->set_bool("fogEnabled", m_fog_mode);
+        shader_universal->set_vec3("fogColor", m_fog_color);
+        shader_universal->set_float("fogStart", m_fog_start);
+        shader_universal->set_float("fogEnd", m_fog_end);
 
         render_scene_geometry(shader_universal);
 
-        if (!m_fogMode) {
+        if (!m_fog_mode) {
             draw_skybox();
         }
 
-        if (m_nightVisionMode || m_greyscaleMode) {
+        if (m_night_vision_mode || m_greyscale_mode) {
             graphics->unbind_frameBuffer();
-            auto shader = m_nightVisionMode
+            auto shader = m_night_vision_mode
                               ? resources->shader("night_vision_framebuffer_effect")
                               : resources->shader("grayscale _framebuffer_effect");
 
@@ -268,16 +294,16 @@ namespace app {
     }
 
     void MainController::render_scene_geometry(engine::resources::Shader *shader) {
-        render_model_geometry("terrain", shader, glm::vec3(0.0f, -0.55f, -80.0f),
+        render_model_geometry(MODEL_TERRAIN, shader, glm::vec3(0.0f, -0.55f, -80.0f),
                               glm::vec3(0.0005f, 0.0008f, 0.0008f));
-        render_model_geometry("terrain", shader, glm::vec3(0.0f, -0.55f, 60.0f),
+        render_model_geometry(MODEL_TERRAIN, shader, glm::vec3(0.0f, -0.55f, 60.0f),
                               glm::vec3(0.0005f, 0.0008f, 0.0008f), 180.0f);
         render_model_geometry("house", shader, glm::vec3(0.0f, -4.0f, -25.0f));
         render_model_geometry("convertible", shader, glm::vec3(-6.0f, -4.0f, -17.0f));
         render_model_geometry("road", shader, glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
         render_model_geometry("caravan", shader, glm::vec3(-17.0f, -0.6f, -33.0f), glm::vec3(0.045f), 20.0f);
         render_model_geometry("billboard", shader, glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
-        render_model_geometry("police_car", shader, m_carPos, glm::vec3(0.09f), m_carAngle);
+        render_model_geometry("police_car", shader, m_car_pos, glm::vec3(0.09f), m_car_angle);
         render_model_geometry("farm_house", shader, glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
         render_model_geometry("tennis_court", shader, glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
         render_model_geometry("street_light", shader, glm::vec3(18.0f, -4.0f, 8.0f), glm::vec3(1.5f), 90.0f);
@@ -289,8 +315,8 @@ namespace app {
                               180.0f);
         render_model_geometry("bakery", shader, glm::vec3(-55.0f, -4.0f, -12.0f), glm::vec3(1.0f),
                               0.0f);
-        render_model_geometry("UFO", shader, m_ufoPos, glm::vec3(0.1f),
-                              m_ufoRotation);
+        render_model_geometry(MODEL_UFO, shader, m_ufo_pos, glm::vec3(0.1f),
+                              m_ufo_rotation);
         render_model_geometry("bank", shader, glm::vec3(66.0f, -4.0f, -17.0f), glm::vec3(0.04f),
                               -90.0f);
         render_model_geometry("cinema", shader, glm::vec3(95.0f, -4.0f, -13.0f), glm::vec3(1.0f),
@@ -313,19 +339,19 @@ namespace app {
                               glm::vec3(0.01f));*/
     }
 
-    void MainController::render_model_geometry(std::string modelName, engine::resources::Shader *shader,
-                                               glm::vec3 translateModel,
-                                               glm::vec3 scaleModel, float rotateModelAngle) {
+    void MainController::render_model_geometry(std::string model_name, engine::resources::Shader *shader,
+                                               glm::vec3 translate_model,
+                                               glm::vec3 scale_model, float rotate_model_angle) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        engine::resources::Model *model = resources->model(modelName);
+        engine::resources::Model *model = resources->model(model_name);
 
-        glm::mat4 modelTransform = glm::mat4(1.0f);
-        modelTransform = glm::translate(modelTransform, translateModel);
-        modelTransform = glm::rotate(modelTransform, glm::radians(rotateModelAngle), glm::vec3(0.0f, 1.0f, 0.0f));
-        modelTransform = glm::scale(modelTransform, scaleModel);
-        shader->set_mat4("model", modelTransform);
+        glm::mat4 model_transform = glm::mat4(1.0f);
+        model_transform = glm::translate(model_transform, translate_model);
+        model_transform = glm::rotate(model_transform, glm::radians(rotate_model_angle), glm::vec3(0.0f, 1.0f, 0.0f));
+        model_transform = glm::scale(model_transform, scale_model);
+        shader->set_mat4("model", model_transform);
 
         model->draw(shader);
     }
@@ -333,66 +359,66 @@ namespace app {
     void MainController::setup_scene_lights(engine::resources::Shader *shader) {
         auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        glm::mat4 carRot = glm::rotate(glm::mat4(1.0f), glm::radians(m_carAngle), glm::vec3(0, 1, 0));
+        glm::mat4 car_rot = glm::rotate(glm::mat4(1.0f), glm::radians(m_car_angle), glm::vec3(0, 1, 0));
 
-        m_worldRedPos  = glm::vec3(carRot * glm::vec4(m_localRedPos, 1.0f)) + m_carPos;
-        m_worldBluePos = glm::vec3(carRot * glm::vec4(m_localBluePos, 1.0f)) + m_carPos;
-        m_worldFarLPos = glm::vec3(carRot * glm::vec4(m_localCarLightLeft, 1.0f)) + m_carPos;
-        m_worldFarRPos = glm::vec3(carRot * glm::vec4(m_localCarLightRight, 1.0f)) + m_carPos;
+        m_world_red_pos   = glm::vec3(car_rot * glm::vec4(m_local_red_pos, 1.0f)) + m_car_pos;
+        m_world_blue_pos  = glm::vec3(car_rot * glm::vec4(m_local_blue_pos, 1.0f)) + m_car_pos;
+        m_world_far_l_pos = glm::vec3(car_rot * glm::vec4(m_local_car_light_left, 1.0f)) + m_car_pos;
+        m_world_far_r_pos = glm::vec3(car_rot * glm::vec4(m_local_car_light_right, 1.0f)) + m_car_pos;
 
-        glm::vec3 worldSpotDir = glm::vec3(carRot * glm::vec4(m_localSpotDir, 0.0f));
+        glm::vec3 world_spot_dir = glm::vec3(car_rot * glm::vec4(m_local_spot_dir, 0.0f));
 
         float speed = 5.0f;
-        float m_redIntensity;
-        float m_blueIntensity;
+        float m_red_intensity;
+        float m_blue_intensity;
 
-        if (m_policeEmergencyLightsActive) {
-            m_redIntensity  = (sin(m_totalTime * speed) + 1.0f) / 2.0f;
-            m_blueIntensity = (cos(m_totalTime * speed) + 1.0f) / 2.0f;
+        if (m_police_emergency_lights) {
+            m_red_intensity  = (sin(m_total_time * speed) + 1.0f) / 2.0f;
+            m_blue_intensity = (cos(m_total_time * speed) + 1.0f) / 2.0f;
         } else {
-            m_redIntensity  = 0.0f;
-            m_blueIntensity = 0.0f;
+            m_red_intensity  = 0.0f;
+            m_blue_intensity = 0.0f;
         }
-        float ambientLightsActive    = m_policeEmergencyLightsActive ? 1.0f : 0.0f;
-        float policeHeadLightsActive = m_policeHeadLightsActive ? 1.0f : 0.0f;
+        float ambient_lights_active     = m_police_emergency_lights ? 1.0f : 0.0f;
+        float police_head_lights_active = m_police_head_lights ? 1.0f : 0.0f;
 
         shader->use();
 
         shader->set_vec3("viewPos", graphics->camera()->Position);
 
         //POLICE RED LIGHT
-        shader->set_vec3("pointLights[0].position", m_worldRedPos);
-        shader->set_vec3("pointLights[0].ambient", glm::vec3(0.02f) * ambientLightsActive);
-        shader->set_vec3("pointLights[0].diffuse", glm::vec3(1.0f, 0.0f, 0.0f) * m_redIntensity);
+        shader->set_vec3("pointLights[0].position", m_world_red_pos);
+        shader->set_vec3("pointLights[0].ambient", glm::vec3(0.02f) * ambient_lights_active);
+        shader->set_vec3("pointLights[0].diffuse", glm::vec3(1.0f, 0.0f, 0.0f) * m_red_intensity);
         shader->set_vec3("pointLights[0].specular", glm::vec3(0.0f));
         shader->set_float("pointLights[0].linear", 0.009f);
         shader->set_float("pointLights[0].quadratic", 0.0032f);
 
         //POLICE BLUE LIGHT
-        shader->set_vec3("pointLights[1].position", m_worldBluePos);
-        shader->set_vec3("pointLights[1].ambient", glm::vec3(0.02f) * ambientLightsActive);
-        shader->set_vec3("pointLights[1].diffuse", glm::vec3(0.0f, 0.0f, 1.0f) * m_blueIntensity);
+        shader->set_vec3("pointLights[1].position", m_world_blue_pos);
+        shader->set_vec3("pointLights[1].ambient", glm::vec3(0.02f) * ambient_lights_active);
+        shader->set_vec3("pointLights[1].diffuse", glm::vec3(0.0f, 0.0f, 1.0f) * m_blue_intensity);
         shader->set_vec3("pointLights[1].specular", glm::vec3(0.0f));
         shader->set_float("pointLights[1].linear", 0.009f);
         shader->set_float("pointLights[1].quadratic", 0.0032f);
 
-        float fireSpeed     = 2.0f;
-        float fireIntensity = (sin(m_totalTime * fireSpeed) * 0.2f) + (sin(m_totalTime * fireSpeed * 2.1f) * 0.1f) +
-                              0.7f;
-        float baseLinear    = 0.009f;
-        float baseQuadratic = 0.0032f;
+        float fire_speed     = 2.0f;
+        float fire_intensity = (sin(m_total_time * fire_speed) * 0.2f) + (sin(m_total_time * fire_speed * 2.1f) * 0.1f)
+                               + 0.7f;
+        float base_linear    = 0.009f;
+        float base_quadratic = 0.0032f;
         //Camp fire
-        shader->set_vec3("pointLights[2].position", m_campFireLightPos);
+        shader->set_vec3("pointLights[2].position", m_camp_fire_light_pos);
         shader->set_vec3("pointLights[2].ambient", glm::vec3(0.005f));
-        shader->set_vec3("pointLights[2].diffuse", glm::vec3(1.0f, 0.6f, 0.2f) * 1.5f * fireIntensity);
-        shader->set_vec3("pointLights[2].specular", glm::vec3(0.5f) * fireIntensity);
-        shader->set_float("pointLights[2].linear", baseLinear / fireIntensity);
-        shader->set_float("pointLights[2].quadratic", baseQuadratic / fireIntensity);
+        shader->set_vec3("pointLights[2].diffuse", glm::vec3(1.0f, 0.6f, 0.2f) * 1.5f * fire_intensity);
+        shader->set_vec3("pointLights[2].specular", glm::vec3(0.5f) * fire_intensity);
+        shader->set_float("pointLights[2].linear", base_linear / fire_intensity);
+        shader->set_float("pointLights[2].quadratic", base_quadratic / fire_intensity);
 
-        glm::vec3 ufoLightPos = glm::vec3(m_ufoPos.x, m_ufoPos.y + 6, m_ufoPos.z);
+        glm::vec3 ufo_light_pos = glm::vec3(m_ufo_pos.x, m_ufo_pos.y + 6, m_ufo_pos.z);
 
         //UFO cockpit LIGHT
-        shader->set_vec3("pointLights[3].position", ufoLightPos);
+        shader->set_vec3("pointLights[3].position", ufo_light_pos);
         shader->set_vec3("pointLights[3].ambient", glm::vec3(0.03f));
         shader->set_vec3("pointLights[3].diffuse", glm::vec3(0.75f, 0.0f, 1.0f) * 2.5f);
         shader->set_vec3("pointLights[3].specular", glm::vec3(0.2f));
@@ -400,30 +426,30 @@ namespace app {
         shader->set_float("pointLights[3].quadratic", 0.032f);
 
         // Far Levi
-        shader->set_vec3("spotLights[0].position", m_worldFarLPos);
-        shader->set_vec3("spotLights[0].direction", worldSpotDir); // Prilagodi smeru auta
+        shader->set_vec3("spotLights[0].position", m_world_far_l_pos);
+        shader->set_vec3("spotLights[0].direction", world_spot_dir); // Prilagodi smeru auta
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(22.5f)));
-        shader->set_vec3("spotLights[0].ambient", glm::vec3(0.001f) * policeHeadLightsActive);
-        shader->set_vec3("spotLights[0].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * policeHeadLightsActive);
-        shader->set_vec3("spotLights[0].specular", glm::vec3(0.5f) * policeHeadLightsActive);
+        shader->set_vec3("spotLights[0].ambient", glm::vec3(0.001f) * police_head_lights_active);
+        shader->set_vec3("spotLights[0].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * police_head_lights_active);
+        shader->set_vec3("spotLights[0].specular", glm::vec3(0.5f) * police_head_lights_active);
         shader->set_float("spotLights[0].linear", 0.0009f);
         shader->set_float("spotLights[0].quadratic", 0.00032f);
 
         // Far Desni
-        shader->set_vec3("spotLights[1].position", m_worldFarRPos);
-        shader->set_vec3("spotLights[1].direction", worldSpotDir);
+        shader->set_vec3("spotLights[1].position", m_world_far_r_pos);
+        shader->set_vec3("spotLights[1].direction", world_spot_dir);
         shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[1].outerCutOff", glm::cos(glm::radians(22.5f)));
-        shader->set_vec3("spotLights[1].ambient", glm::vec3(0.001f) * policeHeadLightsActive);
-        shader->set_vec3("spotLights[1].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * policeHeadLightsActive);
-        shader->set_vec3("spotLights[1].specular", glm::vec3(0.5f) * policeHeadLightsActive);
+        shader->set_vec3("spotLights[1].ambient", glm::vec3(0.001f) * police_head_lights_active);
+        shader->set_vec3("spotLights[1].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * police_head_lights_active);
+        shader->set_vec3("spotLights[1].specular", glm::vec3(0.5f) * police_head_lights_active);
         shader->set_float("spotLights[1].linear", 0.009f);
         shader->set_float("spotLights[1].quadratic", 0.0032f);
 
         //street-light 1
-        shader->set_vec3("spotLights[2].position", m_streetLight1Pos);
-        shader->set_vec3("spotLights[2].direction", m_streetLightDirection);
+        shader->set_vec3("spotLights[2].position", m_street_light1_pos);
+        shader->set_vec3("spotLights[2].direction", m_street_light_direction);
         shader->set_float("spotLights[2].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[2].outerCutOff", glm::cos(glm::radians(35.5f)));
         shader->set_vec3("spotLights[2].ambient", glm::vec3(0.1f));
@@ -432,8 +458,8 @@ namespace app {
         shader->set_float("spotLights[2].linear", 0.009f);
         shader->set_float("spotLights[2].quadratic", 0.0032f);
         //street-light 2
-        shader->set_vec3("spotLights[3].position", m_streetLight2Pos);
-        shader->set_vec3("spotLights[3].direction", m_streetLightDirection);
+        shader->set_vec3("spotLights[3].position", m_street_light2_pos);
+        shader->set_vec3("spotLights[3].direction", m_street_light_direction);
         shader->set_float("spotLights[3].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[3].outerCutOff", glm::cos(glm::radians(35.5f)));
         shader->set_vec3("spotLights[3].ambient", glm::vec3(0.1f));
@@ -442,25 +468,25 @@ namespace app {
         shader->set_float("spotLights[3].linear", 0.009f);
         shader->set_float("spotLights[3].quadratic", 0.0032f);
 
-        float flickerThreshold = 0.85f;
-        float randomVal        = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-        float streetLightFlicker;
-        if (randomVal > flickerThreshold) {
+        float flicker_threshold = 0.85f;
+        float random_val        = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+        float street_light_flicker;
+        if (random_val > flicker_threshold) {
             // Nagli pad ili potpuni mrak
-            streetLightFlicker = (randomVal > 0.95f) ? 0.0f : 0.2f;
+            street_light_flicker = (random_val > 0.95f) ? 0.0f : 0.2f;
         } else {
             // Normalno svetlo sa blagim šumom
-            streetLightFlicker = 0.9f + (randomVal * 0.1f);
+            street_light_flicker = 0.9f + (random_val * 0.1f);
         }
 
         //street-light 3
-        shader->set_vec3("spotLights[4].position", m_streetLight3Pos);
-        shader->set_vec3("spotLights[4].direction", m_streetLightDirection);
+        shader->set_vec3("spotLights[4].position", m_street_light3_pos);
+        shader->set_vec3("spotLights[4].direction", m_street_light_direction);
         shader->set_float("spotLights[4].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[4].outerCutOff", glm::cos(glm::radians(35.5f)));
         shader->set_vec3("spotLights[4].ambient", glm::vec3(0.1f));
-        shader->set_vec3("spotLights[4].diffuse", glm::vec3(1.0f, 1.0f, 1.0f) * streetLightFlicker);
-        shader->set_vec3("spotLights[4].specular", glm::vec3(0.3f) * streetLightFlicker);
+        shader->set_vec3("spotLights[4].diffuse", glm::vec3(1.0f, 1.0f, 1.0f) * street_light_flicker);
+        shader->set_vec3("spotLights[4].specular", glm::vec3(0.3f) * street_light_flicker);
         shader->set_float("spotLights[4].linear", 0.009f);
         shader->set_float("spotLights[4].quadratic", 0.0032f);
     }

@@ -63,6 +63,7 @@ namespace engine::graphics {
     class GraphicsController final : public core::Controller {
     public:
         GraphicsController();
+
         ~GraphicsController() override;
 
         std::string_view name() const override;
@@ -101,11 +102,11 @@ namespace engine::graphics {
 
         void draw_using_framebuffer(const resources::Shader *shader);
 
-        void bind_PointShadow(const resources::Shader *shader, glm::vec3 lightPos);
+        void bind_point_shadow(const resources::Shader *shader, glm::vec3 light_pos);
 
-        void unbind_PointShadow();
+        void unbind_point_shadow();
 
-        unsigned int pointShadowTextureId() const;
+        unsigned int point_shadow_texture_id() const;
 
         Camera *camera() {
             return &m_camera;
@@ -183,8 +184,8 @@ namespace engine::graphics {
         void terminate();
 
         std::unique_ptr<Framebuffer> m_framebuffer;
-        unsigned int m_quadVAO = 0, m_quadVBO = 0;
-        std::unique_ptr<PointShadow> m_pointShadow;
+        unsigned int m_quad_vao = 0, m_quad_vbo = 0;
+        std::unique_ptr<PointShadow> m_point_shadow;
 
         PerspectiveMatrixParams m_perspective_params{};
         OrthographicMatrixParams m_ortho_params{};

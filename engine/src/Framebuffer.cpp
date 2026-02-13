@@ -13,12 +13,12 @@ namespace engine {
         glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
         // 2. Texture
-        glGenTextures(1, &m_textureColorBuffer);
-        glBindTexture(GL_TEXTURE_2D, m_textureColorBuffer);
+        glGenTextures(1, &m_texture_color_buffer);
+        glBindTexture(GL_TEXTURE_2D, m_texture_color_buffer);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1600, 900, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_textureColorBuffer, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_color_buffer, 0);
 
         // 3. RBO (Depth/Stencil)
         glGenRenderbuffers(1, &m_rbo);
@@ -35,7 +35,7 @@ namespace engine {
 
     graphics::Framebuffer::~Framebuffer() {
         glDeleteFramebuffers(1, &m_fbo);
-        glDeleteTextures(1, &m_textureColorBuffer);
+        glDeleteTextures(1, &m_texture_color_buffer);
         glDeleteRenderbuffers(1, &m_rbo);
     }
 

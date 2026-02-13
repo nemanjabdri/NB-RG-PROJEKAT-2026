@@ -17,13 +17,13 @@ namespace engine::graphics {
         void unbind();
 
         unsigned int textureId() const {
-            return m_textureColorBuffer;
+            return m_texture_color_buffer;
         }
 
     private:
-        unsigned int m_textureColorBuffer = 0;
-        unsigned int m_fbo                = 0;
-        unsigned int m_rbo                = 0;
+        unsigned int m_texture_color_buffer = 0;
+        unsigned int m_fbo                  = 0;
+        unsigned int m_rbo                  = 0;
     };
 } // engine
 

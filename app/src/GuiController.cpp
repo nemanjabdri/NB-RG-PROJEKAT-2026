@@ -33,12 +33,12 @@ namespace app {
         auto mainCtrl = engine::core::Controller::get<MainController>();
         graphics->begin_gui();
 
-        bool isPoliceEmergencyLightsActive = mainCtrl->isPoliceEmergencyLightsActive();
-        bool isPoliceHeadLightsActive      = mainCtrl->isPoliceHeadLightsActive();
-        bool isDrivingModeActive           = mainCtrl->isDrivingMode();
-        bool isNightVisionModeActive       = mainCtrl->m_night_vision_mode();
-        bool isGreyscaleModeActive         = mainCtrl->m_greyscale_mode();
-        bool isFogModeActive               = mainCtrl->isFogModeActive();
+        bool isPoliceEmergencyLightsActive = mainCtrl->is_police_emergency_lights_active();
+        bool isPoliceHeadLightsActive      = mainCtrl->is_police_head_lights_active();
+        bool isDrivingModeActive           = mainCtrl->is_driving_mode_active();
+        bool isNightVisionModeActive       = mainCtrl->is_night_vision_mode_active();
+        bool isGreyscaleModeActive         = mainCtrl->is_greyscale_mode_active();
+        bool isFogModeActive               = mainCtrl->is_fog_mode_active();
         glm::vec3 carPos                   = mainCtrl->get_car_pos();
 
         float camDistance   = mainCtrl->get_camera_dist();
@@ -53,10 +53,10 @@ namespace app {
         ImGui::Text("Police car position: (%f %f %f)", carPos.x, carPos.y, carPos.z);
 
         if (ImGui::Checkbox("Third Person Driving Mode ('F1' key)", &isDrivingModeActive)) {
-            mainCtrl->setDrivingMode(isDrivingModeActive);
+            mainCtrl->set_driving_mode(isDrivingModeActive);
         }
 
-        ImGui::BeginDisabled(!mainCtrl->isDrivingMode());
+        ImGui::BeginDisabled(!mainCtrl->is_driving_mode_active());
         if (ImGui::SliderFloat("Camera Orbit Radius", &camDistance, 8.0f, 30.0f)) {
             mainCtrl->set_camera_dist(camDistance);
         }
@@ -69,30 +69,30 @@ namespace app {
 
         if (ImGui::Checkbox("Police Emergency Lights ('G' key while Driving Mode is Active)",
                             &isPoliceEmergencyLightsActive)) {
-            mainCtrl->setPoliceEmergencyLightsActive(isPoliceEmergencyLightsActive);
+            mainCtrl->set_police_emergency_lights(isPoliceEmergencyLightsActive);
         }
         if (ImGui::Checkbox("Police Head Lights ('F' key while Driving Mode is Active)", &isPoliceHeadLightsActive)) {
-            mainCtrl->setPoliceHeadLightsActive(isPoliceHeadLightsActive);
+            mainCtrl->set_police_head_lights(isPoliceHeadLightsActive);
         }
         ImGui::EndDisabled();
 
         if (ImGui::Checkbox("Night Vision Mode", &isNightVisionModeActive)) {
             if (isGreyscaleModeActive) {
-                mainCtrl->set_m_greyscale_mode(false);
+                mainCtrl->set_greyscale_mode(false);
             }
-            mainCtrl->set_m_night_vision_mode(isNightVisionModeActive);
+            mainCtrl->set_night_vision_mode(isNightVisionModeActive);
         }
         if (ImGui::Checkbox("Greyscale vision Mode", &isGreyscaleModeActive)) {
             if (isNightVisionModeActive) {
-                mainCtrl->set_m_night_vision_mode(false);
+                mainCtrl->set_night_vision_mode(false);
             }
-            mainCtrl->set_m_greyscale_mode(isGreyscaleModeActive);
+            mainCtrl->set_greyscale_mode(isGreyscaleModeActive);
         }
 
         if (ImGui::Checkbox("Fog Mode", &isFogModeActive)) {
             mainCtrl->set_fog_mode(isFogModeActive);
         }
-        ImGui::BeginDisabled(!mainCtrl->isFogModeActive());
+        ImGui::BeginDisabled(!mainCtrl->is_fog_mode_active());
         if (ImGui::SliderFloat("Fog start", &fogStart, 0.0f, 40.0f)) {
             mainCtrl->set_fog_start(fogStart);
         }
@@ -102,15 +102,15 @@ namespace app {
         }
         ImGui::EndDisabled();
 
-        ImGui::BeginDisabled(!(mainCtrl->getUFOState() == UfoState::SKY_IDLE));
+        ImGui::BeginDisabled(!(mainCtrl->get_ufo_state() == MainController::UfoState::SKY_IDLE));
         if (ImGui::Button("UFO Landing")) {
-            mainCtrl->startUfoLanding();
+            mainCtrl->start_ufo_landing();
         }
         ImGui::EndDisabled();
 
-        ImGui::BeginDisabled(!(mainCtrl->getUFOState() == UfoState::GROUND_IDLE));
+        ImGui::BeginDisabled(!(mainCtrl->get_ufo_state() == MainController::UfoState::GROUND_IDLE));
         if (ImGui::Button("UFO takeoff")) {
-            mainCtrl->startUfoTakeoff();
+            mainCtrl->start_ufo_takeoff();
         }
         ImGui::EndDisabled();
 

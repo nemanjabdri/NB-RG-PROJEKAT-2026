@@ -45,8 +45,8 @@ namespace engine::graphics {
         RG_GUARANTEE(ImGui_ImplGlfw_InitForOpenGL(handle, true), "ImGUI failed to initialize for OpenGL");
         RG_GUARANTEE(ImGui_ImplOpenGL3_Init("#version 330 core"), "ImGUI failed to initialize for OpenGL");
 
-        m_framebuffer = std::make_unique<Framebuffer>();
-        m_pointShadow = std::make_unique<PointShadow>();
+        m_framebuffer  = std::make_unique<Framebuffer>();
+        m_point_shadow = std::make_unique<PointShadow>();
     }
 
     void GraphicsController::terminate() {
@@ -56,7 +56,7 @@ namespace engine::graphics {
             ImGui::DestroyContext();
         }
         m_framebuffer.reset();
-        m_pointShadow.reset();
+        m_point_shadow.reset();
     }
 
     void GraphicsPlatformEventObserver::on_window_resize(int width, int height) {
@@ -111,8 +111,8 @@ namespace engine::graphics {
     }
 
     void GraphicsController::draw_using_framebuffer(const resources::Shader *shader) {
-        if (m_quadVAO == 0) {
-            float quadVertices[] = {
+        if (m_quad_vao == 0) {
+            float quad_vertices[] = {
                 -1.0, 1.0f, 0.0f, 1.0f,
                 -1.0f, -1.0f, 0.0f, 0.0f,
                 1.0f, -1.0f, 1.0f, 0.0f,
@@ -121,11 +121,11 @@ namespace engine::graphics {
                 1.0f, -1.0f, 1.0f, 0.0f,
                 1.0f, 1.0f, 1.0f, 1.0f,
             };
-            glGenVertexArrays(1, &m_quadVAO);
-            glGenBuffers(1, &m_quadVBO);
-            glBindVertexArray(m_quadVAO);
-            glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+            glGenVertexArrays(1, &m_quad_vao);
+            glGenBuffers(1, &m_quad_vbo);
+            glBindVertexArray(m_quad_vao);
+            glBindBuffer(GL_ARRAY_BUFFER, m_quad_vbo);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(quad_vertices), &quad_vertices, GL_STATIC_DRAW);
 
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *) 0);
@@ -137,7 +137,7 @@ namespace engine::graphics {
         shader->use();
         shader->set_int("screenTexture", 0);
         glActiveTexture(GL_TEXTURE0);
-        glBindVertexArray(m_quadVAO);
+        glBindVertexArray(m_quad_vao);
 
         if (m_framebuffer) {
             glBindTexture(GL_TEXTURE_2D, m_framebuffer->textureId());
@@ -148,22 +148,22 @@ namespace engine::graphics {
         glEnable(GL_DEPTH_TEST);
     }
 
-    void GraphicsController::bind_PointShadow(const resources::Shader *shader, glm::vec3 lightPos) {
-        if (m_pointShadow) {
-            m_pointShadow->bind();
-            m_pointShadow->applyUniformsToShader(shader, lightPos);
+    void GraphicsController::bind_point_shadow(const resources::Shader *shader, glm::vec3 light_pos) {
+        if (m_point_shadow) {
+            m_point_shadow->bind();
+            m_point_shadow->apply_uniforms_to_shader(shader, light_pos);
         }
     }
 
-    void GraphicsController::unbind_PointShadow() {
-        if (m_pointShadow) {
-            m_pointShadow->unbind(1600, 900);
+    void GraphicsController::unbind_point_shadow() {
+        if (m_point_shadow) {
+            m_point_shadow->unbind(1600, 900);
         }
     }
 
-    unsigned int GraphicsController::pointShadowTextureId() const {
-        if (m_pointShadow)
-            return m_pointShadow->textureId();
+    unsigned int GraphicsController::point_shadow_texture_id() const {
+        if (m_point_shadow)
+            return m_point_shadow->textureId();
         return 0;
     }
 } // namespace engine::graphics
