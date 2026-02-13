@@ -12,19 +12,9 @@ namespace engine::resources {
     class Shader;
 }
 
-enum class UfoState {
-    SKY_IDLE,           // Stoji na nebu
-    WAITING_TO_LAND,    // Odbrojava 2 sek pre kretanja
-    DESCENDING,         // Spušta se na zemlju
-    GROUND_IDLE,        // Sleteo je
-    WAITING_TO_TAKEOFF, // Odbrojava 2 sek pre poletanja
-    ASCENDING           // Penje se nazad na nebo
-};
-
 namespace app {
     class MainController : public engine::core::Controller {
     private:
-        float m_totalTime                  = 0.0f;
         glm::vec3 m_streetLight1Pos        = glm::vec3(18.0f, 20.0, 4.0f);
         glm::vec3 m_streetLight2Pos        = glm::vec3(-46.0f, 20.0, 4.0f);
         glm::vec3 m_streetLight3Pos        = glm::vec3(55.0f, 20.0, 4.0f);
@@ -38,6 +28,11 @@ namespace app {
         glm::vec3 m_worldFarRPos           = glm::vec3(1.395f, 1.395f, 2.8);
         glm::vec3 m_worldRedPos            = glm::vec3(0.765f, 4.6f, -1.48f);
         glm::vec3 m_worldBluePos           = glm::vec3(-0.765f, 4.6f, -1.48f);
+        glm::vec3 m_carPos                 = glm::vec3(-17.0f, -4.0f, 0.0f);
+        glm::vec3 m_campFireLightPos       = glm::vec3(-30.0f, 0.4f, -30.0f);
+        glm::vec3 m_fogColor               = glm::vec3(0.15f, 0.15f, 0.15f);
+        glm::vec3 m_ufoPos                 = glm::vec3(6.0f, m_UFO_SKY_Y, -13.0f);
+        UfoState m_ufoState                = UfoState::SKY_IDLE;
         bool m_cursorEnabled               = false;
         bool m_policeEmergencyLightsActive = false;
         bool m_policeHeadLightsActive      = false;
@@ -45,27 +40,20 @@ namespace app {
         bool m_fogMode                     = true;
         bool m_nightVisionMode             = false;
         bool m_greyscaleMode               = false;
-
-        glm::vec3 m_carPos           = glm::vec3(-17.0f, -4.0f, 0.0f);
-        glm::vec3 m_campFireLightPos = glm::vec3(-30.0f, 0.4f, -30.0f);
-        float m_carAngle             = 55.0f;
-        float m_cameraOrbitAngle     = 0.0f;
-        bool m_firstEntry            = true;
-        float m_cameraDist           = 16.0f;
-        float m_cameraHeight         = 7.0f;
-        float m_pitch_offset         = 10.0f;
-
-        glm::vec3 m_fogColor = glm::vec3(0.15f, 0.15f, 0.15f);
-        float m_fogStart     = 3.0f;
-        float m_fogEnd       = 95.0f;
-
-        const float UFO_SKY_Y    = 90.0f;
-        const float UFO_GROUND_Y = -3.8f;
-        const float UFO_SPEED    = 15.0f;
-        UfoState m_ufoState      = UfoState::SKY_IDLE;
-        glm::vec3 m_ufoPos       = glm::vec3(6.0f, UFO_SKY_Y, -13.0f);
-        float m_ufoRotation      = 0.0f;
-        float m_stateTimer       = 0.0f;
+        bool m_firstEntry                  = true;
+        float m_totalTime                  = 0.0f;
+        float m_carAngle                   = 55.0f;
+        float m_cameraOrbitAngle           = 0.0f;
+        float m_cameraDist                 = 16.0f;
+        float m_cameraHeight               = 7.0f;
+        float m_pitch_offset               = 10.0f;
+        float m_fogStart                   = 3.0f;
+        float m_fogEnd                     = 95.0f;
+        const float m_UFO_SKY_Y            = 90.0f;
+        const float m_UFO_GROUND_Y         = -3.8f;
+        const float m_UFO_SPEED            = 15.0f;
+        float m_ufoRotation                = 0.0f;
+        float m_stateTimer                 = 0.0f;
 
         void initialize() override;
 
@@ -90,107 +78,91 @@ namespace app {
         void draw_skybox();
 
     public:
-        bool isCursorEnabled() const {
-            return m_cursorEnabled;
-        }
-
-        bool isPoliceEmergencyLightsActive() {
-            return m_policeEmergencyLightsActive;
-        }
-
-        void setPoliceEmergencyLightsActive(const bool active) {
-            m_policeEmergencyLightsActive = active;
-        }
-
-        bool isPoliceHeadLightsActive() {
-            return m_policeHeadLightsActive;
-        }
-
-        void setPoliceHeadLightsActive(const bool active) {
-            m_policeHeadLightsActive = active;
-        }
-
-        void setStreetLight1Pos(const glm::vec3 &pos) {
-            m_streetLight1Pos = pos;
-        }
-
-        glm::vec3 getStreetLight1Pos() const {
-            return m_streetLight1Pos;
-        }
-
-        void setStreetLight2Pos(const glm::vec3 &pos) {
-            m_streetLight2Pos = pos;
-        }
-
-        glm::vec3 getStreetLight2Pos() const {
-            return m_streetLight2Pos;
-        }
-
-        void setStreetLight3Pos(const glm::vec3 &pos) {
-            m_streetLight3Pos = pos;
-        }
-
-        glm::vec3 getStreetLight3Pos() const {
-            return m_streetLight3Pos;
-        }
+        enum class UfoState {
+            SKY_IDLE,
+            WAITING_TO_LAND,
+            DESCENDING, GROUND_IDLE,
+            WAITING_TO_TAKEOFF,
+            ASCENDING
+        };
 
         std::string_view name() const override {
             return "MainController";
         }
 
-        bool isDrivingMode() const {
+        bool is_cursor_enabled() const {
+            return m_cursorEnabled;
+        }
+
+        bool is_police_emergency_lights_active() {
+            return m_policeEmergencyLightsActive;
+        }
+
+        void set_police_emergency_lights(const bool active) {
+            m_policeEmergencyLightsActive = active;
+        }
+
+        bool is_police_head_lights_active() {
+            return m_policeHeadLightsActive;
+        }
+
+        void set_police_head_lights(const bool active) {
+            m_policeHeadLightsActive = active;
+        }
+
+        bool is_driving_mode_active() const {
             return m_drivingMode;
         }
 
-        void setDrivingMode(bool mode) {
+        void set_driving_mode(bool mode) {
             m_drivingMode = mode;
         }
 
-        glm::vec3 &getLocalFarLeft() {
+        glm::vec3 &get_local_far_left() {
             return m_localCarLightLeft;
         }
 
-        void setLocalFarLeft(const glm::vec3 &pos) {
+        void set_local_far_left(const glm::vec3 &pos) {
             m_localCarLightLeft = pos;
         }
 
-        glm::vec3 &getLocalFarRight() {
+        glm::vec3 &get_local_far_right() {
             return m_localCarLightRight;
         }
 
-        void setLocalFarRight(const glm::vec3 &pos) {
+        void set_local_far_right(const glm::vec3 &pos) {
             m_localCarLightRight = pos;
         }
 
-        glm::vec3 get_m_local_red_pos() const {
+        glm::vec3 get_local_red_pos() const {
             return m_localRedPos;
         }
 
-        void set_m_local_red_pos(const glm::vec3 &m_local_red_pos) {
+        void set_local_red_pos(const glm::vec3 &m_local_red_pos) {
             m_localRedPos = m_local_red_pos;
         }
 
-        glm::vec3 get_m_local_blue_pos() const {
+        glm::vec3 get_local_blue_pos() const {
             return m_localBluePos;
         }
 
-        void set_m_local_blue_pos(const glm::vec3 &m_local_blue_pos) {
+        void set_local_blue_pos(const glm::vec3 &m_local_blue_pos) {
             m_localBluePos = m_local_blue_pos;
         }
 
-        bool m_night_vision_mode() const {
+        bool is_night_vision_mode_active() const {
             return m_nightVisionMode;
         }
 
-        void set_m_night_vision_mode(bool m_night_vision_mode) {
+        void set_night_vision_mode(bool m_night_vision_mode) {
             m_nightVisionMode = m_night_vision_mode;
         }
 
-        bool m_greyscale_mode() const {
+        bool is_greyscale_mode_active() const {
             return m_greyscaleMode;
         }
 
-        void set_m_greyscale_mode(bool m_greyscale_mode) {
+        void set_greyscale_mode(bool m_greyscale_mode) {
             m_greyscaleMode = m_greyscale_mode;
         }
 
@@ -202,29 +174,29 @@ namespace app {
             m_carPos = m_car_pos;
         }
 
-        void startUfoLanding() {
+        void start_ufo_landing() {
             if (m_ufoState == UfoState::SKY_IDLE) {
                 m_ufoState   = UfoState::WAITING_TO_LAND;
                 m_stateTimer = 0.0f;
             }
         }
 
-        void startUfoTakeoff() {
+        void start_ufo_takeoff() {
             if (m_ufoState == UfoState::GROUND_IDLE) {
                 m_ufoState   = UfoState::WAITING_TO_TAKEOFF;
                 m_stateTimer = 0.0f;
             }
         }
 
-        UfoState getUFOState() {
+        UfoState get_ufo_state() {
             return m_ufoState;
         }
 
-        glm::vec3 getUfoPos() const {
+        glm::vec3 get_ufo_pos() const {
             return m_ufoPos;
         }
 
-        float getUfoRotation() const {
+        float get_ufo_rotation() const {
             return m_ufoRotation;
         }
 
@@ -252,7 +224,7 @@ namespace app {
             m_pitch_offset = pitch_offset;
         }
 
-        bool isFogModeActive() const {
+        bool is_fog_mode_active() const {
             return m_fogMode;
         }
 
