@@ -353,8 +353,6 @@ namespace app {
                               45.0f);
         render_model_geometry(MODEL_WOOD_SWING, shader, glm::vec3(-37.0f, -4.2f, -40.0f), glm::vec3(0.04f),
                               45.0f);
-        /*render_model_geometry("farm_house", shader, glm::vec3(m_ufoPos.x, m_ufoPos.y + 6, m_ufoPos.z),
-                              glm::vec3(0.01f));*/
     }
 
     void MainController::render_model_geometry(const std::string &model_name, engine::resources::Shader *shader,

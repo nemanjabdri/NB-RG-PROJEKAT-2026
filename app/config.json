@@ -13,9 +13,6 @@
       "caravan": {
         "path": "caravan/Caravan.obj"
       },
-      "billboard": {
-        "path": "billboard/Billboard.obj"
-      },
       "police_car": {
         "path": "police_car/PoliceCar.obj"
       },
