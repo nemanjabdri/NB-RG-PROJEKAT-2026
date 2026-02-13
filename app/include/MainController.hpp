@@ -71,6 +71,14 @@ namespace app {
 
         void update() override;
 
+        void handle_gui_button();
+
+        void update_ufo(float delta_time);
+
+        void update_car_camera_and_driving(float delta_time);
+
+        void update_free_fly_camera(float delta_time);
+
         void begin_draw() override;
 
         void draw() override;
@@ -79,7 +87,7 @@ namespace app {
 
         void render_scene_geometry(engine::resources::Shader *shader);
 
-        void render_model_geometry(std::string model_name, engine::resources::Shader *shader,
+        void render_model_geometry(const std::string &model_name, engine::resources::Shader *shader,
                                    glm::vec3 translate_model,
                                    glm::vec3 scale_model = glm::vec3(1.0f), float rotate_model_angle = 0.0f);
 
@@ -120,7 +128,7 @@ namespace app {
             m_driving_mode = mode;
         }
 
-        glm::vec3 &get_local_far_left() {
+        glm::vec3 get_local_far_left() {
             return m_local_car_light_left;
         }
 
@@ -128,7 +136,7 @@ namespace app {
             m_local_car_light_left = pos;
         }
 
-        glm::vec3 &get_local_far_right() {
+        glm::vec3 get_local_far_right() {
             return m_local_car_light_right;
         }
 
@@ -249,14 +257,6 @@ namespace app {
         void set_fog_end(float fog_end) {
             m_fog_end = fog_end;
         }
-
-        void handle_gui_button();
-
-        void update_ufo(float delta_time);
-
-        void update_car_camera_and_driving(float delta_time);
-
-        void update_free_fly_camera(float delta_time);
     };
 } // app
 

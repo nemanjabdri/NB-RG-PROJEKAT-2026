@@ -14,10 +14,29 @@
 #include <spdlog/fmt/bundled/chrono.h>
 
 namespace {
-    const std::string SHADER_UNIVERSAL = "shader_model_universal";
-    const std::string SHADER_SHADOW    = "shader_point_shadow_depth";
-    const std::string MODEL_TERRAIN    = "terrain";
-    const std::string MODEL_UFO        = "UFO";
+    const std::string SHADER_UNIVERSAL   = "shader_model_universal";
+    const std::string SHADER_SHADOW      = "shader_point_shadow_depth";
+    const std::string SHADER_SKYBOX      = "shader_skybox";
+    const std::string MODEL_TERRAIN      = "terrain";
+    const std::string SKYBOX             = "skybox";
+    const std::string MODEL_UFO          = "UFO";
+    const std::string MODEL_HOUSE        = "house";
+    const std::string MODEL_CONVERTIBLE  = "convertible";
+    const std::string MODEL_ROAD         = "road";
+    const std::string MODEL_CARAVAN      = "caravan";
+    const std::string MODEL_POLICE_CAR   = "police_car";
+    const std::string MODEL_FARM_HOUSE   = "farm_house";
+    const std::string MODEL_TENNIS_COURT = "tennis_court";
+    const std::string MODEL_STREET_LIGHT = "street_light";
+    const std::string MODEL_BUILDING     = "building";
+    const std::string MODEL_BAKERY       = "bakery";
+    const std::string MODEL_BANK         = "bank";
+    const std::string MODEL_CINEMA       = "cinema";
+    const std::string MODEL_SALOON       = "saloon";
+    const std::string MODEL_CAMPFIRE     = "campfire";
+    const std::string MODEL_CACTUS       = "cactus";
+    const std::string MODEL_LAWN_MOWER   = "lawn_mower";
+    const std::string MODEL_WOOD_SWING   = "wood_swing";
 }
 
 namespace app {
@@ -298,48 +317,47 @@ namespace app {
                               glm::vec3(0.0005f, 0.0008f, 0.0008f));
         render_model_geometry(MODEL_TERRAIN, shader, glm::vec3(0.0f, -0.55f, 60.0f),
                               glm::vec3(0.0005f, 0.0008f, 0.0008f), 180.0f);
-        render_model_geometry("house", shader, glm::vec3(0.0f, -4.0f, -25.0f));
-        render_model_geometry("convertible", shader, glm::vec3(-6.0f, -4.0f, -17.0f));
-        render_model_geometry("road", shader, glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
-        render_model_geometry("caravan", shader, glm::vec3(-17.0f, -0.6f, -33.0f), glm::vec3(0.045f), 20.0f);
-        render_model_geometry("billboard", shader, glm::vec3(40.0f, -4.5f, 8.0f), glm::vec3(0.016f));
-        render_model_geometry("police_car", shader, m_car_pos, glm::vec3(0.09f), m_car_angle);
-        render_model_geometry("farm_house", shader, glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
-        render_model_geometry("tennis_court", shader, glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
-        render_model_geometry("street_light", shader, glm::vec3(18.0f, -4.0f, 8.0f), glm::vec3(1.5f), 90.0f);
-        render_model_geometry("street_light", shader, glm::vec3(-46.0f, -4.0f, 8.0f), glm::vec3(1.5f),
+        render_model_geometry(MODEL_HOUSE, shader, glm::vec3(0.0f, -4.0f, -25.0f));
+        render_model_geometry(MODEL_CONVERTIBLE, shader, glm::vec3(-6.0f, -4.0f, -17.0f));
+        render_model_geometry(MODEL_ROAD, shader, glm::vec3(0.0f, -4.7f, 0.1f), glm::vec3(2.0f, 0.1f, 0.25f));
+        render_model_geometry(MODEL_CARAVAN, shader, glm::vec3(-17.0f, -0.6f, -33.0f), glm::vec3(0.045f), 20.0f);
+        render_model_geometry(MODEL_POLICE_CAR, shader, m_car_pos, glm::vec3(0.09f), m_car_angle);
+        render_model_geometry(MODEL_FARM_HOUSE, shader, glm::vec3(0.0f, -4.4f, 18.0f), glm::vec3(0.8f), 180.0f);
+        render_model_geometry(MODEL_TENNIS_COURT, shader, glm::vec3(36.0f, -4.0f, -22.0f), glm::vec3(1.6f));
+        render_model_geometry(MODEL_STREET_LIGHT, shader, glm::vec3(18.0f, -4.0f, 8.0f), glm::vec3(1.5f), 90.0f);
+        render_model_geometry(MODEL_STREET_LIGHT, shader, glm::vec3(-46.0f, -4.0f, 8.0f), glm::vec3(1.5f),
                               90.0f);
-        render_model_geometry("street_light", shader, glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
+        render_model_geometry(MODEL_STREET_LIGHT, shader, glm::vec3(55.0f, -3.9f, 8.0f), glm::vec3(1.5f),
                               90.0f);
-        render_model_geometry("building", shader, glm::vec3(-30.0f, -4.0f, 12.0f), glm::vec3(1.3f),
+        render_model_geometry(MODEL_BUILDING, shader, glm::vec3(-30.0f, -4.0f, 12.0f), glm::vec3(1.3f),
                               180.0f);
-        render_model_geometry("bakery", shader, glm::vec3(-55.0f, -4.0f, -12.0f), glm::vec3(1.0f),
+        render_model_geometry(MODEL_BAKERY, shader, glm::vec3(-55.0f, -4.0f, -12.0f), glm::vec3(1.0f),
                               0.0f);
         render_model_geometry(MODEL_UFO, shader, m_ufo_pos, glm::vec3(0.1f),
                               m_ufo_rotation);
-        render_model_geometry("bank", shader, glm::vec3(66.0f, -4.0f, -17.0f), glm::vec3(0.04f),
+        render_model_geometry(MODEL_BANK, shader, glm::vec3(66.0f, -4.0f, -17.0f), glm::vec3(0.04f),
                               -90.0f);
-        render_model_geometry("cinema", shader, glm::vec3(95.0f, -4.0f, -13.0f), glm::vec3(1.0f),
+        render_model_geometry(MODEL_CINEMA, shader, glm::vec3(95.0f, -4.0f, -13.0f), glm::vec3(1.0f),
                               0.0f);
-        render_model_geometry("saloon", shader, glm::vec3(25.0f, -4.0f, 16.0f), glm::vec3(1.0f),
+        render_model_geometry(MODEL_SALOON, shader, glm::vec3(25.0f, -4.0f, 16.0f), glm::vec3(1.0f),
                               180.0f);
-        render_model_geometry("campfire", shader, glm::vec3(-30.0f, -3.5f, -30.0f), glm::vec3(1.5f),
+        render_model_geometry(MODEL_CAMPFIRE, shader, glm::vec3(-30.0f, -3.5f, -30.0f), glm::vec3(1.5f),
                               0.0f);
-        render_model_geometry("cactus", shader, glm::vec3(-30.0f, -4.2f, -40.0f), glm::vec3(0.3f),
+        render_model_geometry(MODEL_CACTUS, shader, glm::vec3(-30.0f, -4.2f, -40.0f), glm::vec3(0.3f),
                               0.0f);
-        render_model_geometry("cactus", shader, glm::vec3(-22.0f, -4.2f, -26.0f), glm::vec3(0.25f),
+        render_model_geometry(MODEL_CACTUS, shader, glm::vec3(-22.0f, -4.2f, -26.0f), glm::vec3(0.25f),
                               45.0f);
-        render_model_geometry("cactus", shader, glm::vec3(-30.0f, -4.2f, -21.0f), glm::vec3(0.25f),
+        render_model_geometry(MODEL_CACTUS, shader, glm::vec3(-30.0f, -4.2f, -21.0f), glm::vec3(0.25f),
                               20.0f);
-        render_model_geometry("lawn_mower", shader, glm::vec3(-38.0f, -4.2f, -24.0f), glm::vec3(0.05f),
+        render_model_geometry(MODEL_LAWN_MOWER, shader, glm::vec3(-38.0f, -4.2f, -24.0f), glm::vec3(0.05f),
                               45.0f);
-        render_model_geometry("wood_swing", shader, glm::vec3(-37.0f, -4.2f, -40.0f), glm::vec3(0.04f),
+        render_model_geometry(MODEL_WOOD_SWING, shader, glm::vec3(-37.0f, -4.2f, -40.0f), glm::vec3(0.04f),
                               45.0f);
         /*render_model_geometry("farm_house", shader, glm::vec3(m_ufoPos.x, m_ufoPos.y + 6, m_ufoPos.z),
                               glm::vec3(0.01f));*/
     }
 
-    void MainController::render_model_geometry(std::string model_name, engine::resources::Shader *shader,
+    void MainController::render_model_geometry(const std::string &model_name, engine::resources::Shader *shader,
                                                glm::vec3 translate_model,
                                                glm::vec3 scale_model, float rotate_model_angle) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
@@ -494,8 +512,8 @@ namespace app {
     void MainController::draw_skybox() {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
-        auto skybox    = resources->skybox("skybox");
-        auto shader    = resources->shader("shader_skybox");
+        auto skybox    = resources->skybox(SKYBOX);
+        auto shader    = resources->shader(SHADER_SKYBOX);
         graphics->draw_skybox(shader, skybox);
     }
 } // app
