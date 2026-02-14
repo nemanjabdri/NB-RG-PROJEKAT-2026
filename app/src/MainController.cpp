@@ -145,7 +145,7 @@ namespace app {
             !platform->key(engine::platform::KeyId::KEY_W).is_down()) {
             rotation_direction = -1.0f;
         }
-        // 1. Skretanje
+
         if (platform->key(engine::platform::KeyId::KEY_A).is_down()) {
             m_car_angle += rot_speed * rotation_direction;
         }
@@ -153,7 +153,7 @@ namespace app {
             m_car_angle -= rot_speed * rotation_direction;
         }
 
-        // 2. Izračunavanje smera (Forward Vector)
+        // Izračunavanje smera (Forward Vector)
         float rad = glm::radians(m_car_angle);
         glm::vec3 forward;
         forward.x = sin(rad);
@@ -161,11 +161,12 @@ namespace app {
         forward.z = cos(rad);
         forward   = glm::normalize(forward);
 
-        // 3. Kretanje (Napred-Nazad u odnosu na smer auta)
-        if (platform->key(engine::platform::KeyId::KEY_W).is_down())
+        if (platform->key(engine::platform::KeyId::KEY_W).is_down()) {
             m_car_pos += forward * move_speed;
-        if (platform->key(engine::platform::KeyId::KEY_S).is_down())
+        }
+        if (platform->key(engine::platform::KeyId::KEY_S).is_down()) {
             m_car_pos -= forward * move_speed;
+        }
 
         float final_angle = m_car_angle + m_camera_orbit_angle - glm::pi<float>();
         rad               = glm::radians(final_angle);
@@ -259,6 +260,11 @@ namespace app {
         } else {
             update_free_fly_camera(delta_time);
         }
+
+        float fire_speed = 2.0f;
+        float fire_noise = (sin(m_total_time * fire_speed) * 0.2f) + (sin(m_total_time * fire_speed * 2.1f) * 0.1f);
+        m_animated_fire_pos = m_camp_fire_light_pos;
+        m_animated_fire_pos.y += fire_noise;
     }
 
     void MainController::begin_draw() {
@@ -268,7 +274,7 @@ namespace app {
         auto shader_depth = resources->shader(SHADER_SHADOW);
 
         shader_depth->use();
-        graphics->bind_point_shadow(shader_depth, m_camp_fire_light_pos);
+        graphics->bind_point_shadow(shader_depth, m_animated_fire_pos);
         render_scene_geometry(shader_depth);
         graphics->unbind_point_shadow();
 
@@ -439,12 +445,12 @@ namespace app {
         shader->set_float("pointLights[1].quadratic", 0.0032f);
 
         float fire_speed     = 2.0f;
-        float fire_intensity = (sin(m_total_time * fire_speed) * 0.2f) + (sin(m_total_time * fire_speed * 2.1f) * 0.1f)
-                               + 0.7f;
+        float fire_noise     = (sin(m_total_time * fire_speed) * 0.2f) + (sin(m_total_time * fire_speed * 2.1f) * 0.1f);
+        float fire_intensity = fire_noise + 0.7f;
         float base_linear    = 0.009f;
         float base_quadratic = 0.0032f;
         //Camp fire
-        shader->set_vec3("pointLights[2].position", m_camp_fire_light_pos);
+        shader->set_vec3("pointLights[2].position", m_animated_fire_pos);
         shader->set_vec3("pointLights[2].ambient", glm::vec3(0.005f));
         shader->set_vec3("pointLights[2].diffuse", glm::vec3(1.0f, 0.6f, 0.2f) * 1.5f * fire_intensity);
         shader->set_vec3("pointLights[2].specular", glm::vec3(0.5f) * fire_intensity);

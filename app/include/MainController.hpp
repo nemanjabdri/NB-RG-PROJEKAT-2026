@@ -62,6 +62,7 @@ namespace app {
         glm::vec3 m_world_blue_pos         = glm::vec3(-0.765f, 4.6f, -1.48f);
         glm::vec3 m_car_pos                = glm::vec3(-17.0f, -4.0f, 0.0f);
         glm::vec3 m_camp_fire_light_pos    = glm::vec3(-30.0f, 3.0f, -30.0f);
+        glm::vec3 m_animated_fire_pos      = glm::vec3(-30.0f, 3.0f, -30.0f);
         glm::vec3 m_fog_color              = glm::vec3(0.15f, 0.15f, 0.15f);
         glm::vec3 m_ufo_pos                = glm::vec3(6.0f, m_UFO_SKY_Y, -13.0f);
 
