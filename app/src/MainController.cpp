@@ -139,11 +139,19 @@ namespace app {
             m_camera_orbit_angle += cam_rot_speed;
         }
 
+        float rotation_direction = 1.0f;
+
+        if (platform->key(engine::platform::KeyId::KEY_S).is_down() &&
+            !platform->key(engine::platform::KeyId::KEY_W).is_down()) {
+            rotation_direction = -1.0f;
+        }
         // 1. Skretanje
-        if (platform->key(engine::platform::KeyId::KEY_A).is_down())
-            m_car_angle += rot_speed;
-        if (platform->key(engine::platform::KeyId::KEY_D).is_down())
-            m_car_angle -= rot_speed;
+        if (platform->key(engine::platform::KeyId::KEY_A).is_down()) {
+            m_car_angle += rot_speed * rotation_direction;
+        }
+        if (platform->key(engine::platform::KeyId::KEY_D).is_down()) {
+            m_car_angle -= rot_speed * rotation_direction;
+        }
 
         // 2. Izračunavanje smera (Forward Vector)
         float rad = glm::radians(m_car_angle);
