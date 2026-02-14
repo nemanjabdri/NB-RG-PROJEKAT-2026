@@ -11,29 +11,35 @@
 namespace engine::graphics {
     class PointShadow {
     public:
-        PointShadow();
+        PointShadow(unsigned int width = 1024, unsigned int height = 1024);
 
         ~PointShadow();
 
+        PointShadow(const PointShadow &) = delete;
+
+        PointShadow &operator=(const PointShadow &) = delete;
+
         void bind();
 
-        void apply_uniforms_to_shader(const engine::resources::Shader *shader, glm::vec3 light_pos);
+        void bind_uniforms(const engine::resources::Shader *shader, glm::vec3 light_pos);
 
-        void unbind(const unsigned int SCR_WIDTH, const unsigned int SCR_HEIGHT);
+        void unbind(const unsigned int screen_width, const unsigned int screen_height);
 
-        unsigned int textureId() const {
+        unsigned int texture_id() const {
             return m_depth_cube_map;
         }
 
     private:
-        unsigned int m_depth_cube_map    = 0;
-        unsigned int m_depth_map_fbo     = 0;
-        const unsigned int SHADOW_WIDTH  = 1024;
-        const unsigned int SHADOW_HEIGHT = 1024;
-        float near_plane                 = 1.0f;
-        float far_plane                  = 45.0f;
-        glm::mat4 shadow_proj;
-        std::vector<glm::mat4> shadow_transforms;
+        unsigned int m_depth_cube_map = 0;
+        unsigned int m_depth_map_fbo  = 0;
+
+        unsigned int m_shadow_width;
+        unsigned int m_shadow_height;
+
+        float m_near_plane = 1.0f;
+        float m_far_plane  = 45.0f;
+
+        void cleanup();
     };
 }
 

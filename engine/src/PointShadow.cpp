@@ -10,14 +10,16 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <engine/resources/Shader.hpp>
+#include <spdlog/spdlog.h>
 
 namespace engine {
-    graphics::PointShadow::PointShadow() {
+    graphics::PointShadow::PointShadow(unsigned int width, unsigned int height) : m_shadow_width(width)
+      , m_shadow_height(height) {
         glGenFramebuffers(1, &m_depth_map_fbo);
         glGenTextures(1, &m_depth_cube_map);
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_depth_cube_map);
         for (unsigned int i = 0; i < 6; ++i) {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0,
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, m_shadow_width, m_shadow_height, 0,
                          GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         }
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -30,54 +32,72 @@ namespace engine {
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depth_cube_map, 0);
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            spdlog::error("PointShadow Framebuffer is not complete!");
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            cleanup();
+        }
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     graphics::PointShadow::~PointShadow() {
-        glDeleteFramebuffers(1, &m_depth_map_fbo);
-        glDeleteTextures(1, &m_depth_cube_map);
+        cleanup();
+    }
+
+    void graphics::PointShadow::cleanup() {
+        if (m_depth_map_fbo) {
+            glDeleteFramebuffers(1, &m_depth_map_fbo);
+            m_depth_map_fbo = 0;
+        }
+        if (m_depth_cube_map) {
+            glDeleteTextures(1, &m_depth_cube_map);
+            m_depth_cube_map = 0;
+        }
     }
 
     void graphics::PointShadow::bind() {
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glViewport(0, 0, m_shadow_width, m_shadow_height);
         glBindFramebuffer(GL_FRAMEBUFFER, m_depth_map_fbo);
         glClear(GL_DEPTH_BUFFER_BIT);
     }
 
-    void graphics::PointShadow::apply_uniforms_to_shader(const engine::resources::Shader *shader, glm::vec3 light_pos) {
-        shadow_proj = glm::perspective(glm::radians(90.0f), (float) SHADOW_WIDTH / (float) SHADOW_HEIGHT,
-                                      near_plane, far_plane);
+    void graphics::PointShadow::bind_uniforms(const engine::resources::Shader *shader, glm::vec3 light_pos) {
+        glm::mat4 shadow_proj = glm::perspective(glm::radians(90.0f), (float) m_shadow_width / (float) m_shadow_height,
+                                                 m_near_plane, m_far_plane);
+
+        std::vector<glm::mat4> shadow_transforms;
 
         shadow_transforms.push_back(shadow_proj * glm::lookAt(light_pos,
-                                                            light_pos + glm::vec3(1.0f, 0.0f, 0.0f),
-                                                            glm::vec3(0.0f, -1.0f, 0.0f)));
+                                                              light_pos + glm::vec3(1.0f, 0.0f, 0.0f),
+                                                              glm::vec3(0.0f, -1.0f, 0.0f)));
         shadow_transforms.push_back(shadow_proj * glm::lookAt(light_pos,
-                                                            light_pos + glm::vec3(-1.0f, 0.0f, 0.0f),
-                                                            glm::vec3(0.0f, -1.0f, 0.0f)));
+                                                              light_pos + glm::vec3(-1.0f, 0.0f, 0.0f),
+                                                              glm::vec3(0.0f, -1.0f, 0.0f)));
         shadow_transforms.push_back(shadow_proj * glm::lookAt(light_pos,
-                                                            light_pos + glm::vec3(0.0f, 1.0f, 0.0f),
-                                                            glm::vec3(0.0f, 0.0f, 1.0f)));
+                                                              light_pos + glm::vec3(0.0f, 1.0f, 0.0f),
+                                                              glm::vec3(0.0f, 0.0f, 1.0f)));
         shadow_transforms.push_back(shadow_proj * glm::lookAt(light_pos,
-                                                            light_pos + glm::vec3(0.0f, -1.0f, 0.0f),
-                                                            glm::vec3(0.0f, 0.0f, -1.0f)));
+                                                              light_pos + glm::vec3(0.0f, -1.0f, 0.0f),
+                                                              glm::vec3(0.0f, 0.0f, -1.0f)));
         shadow_transforms.push_back(shadow_proj * glm::lookAt(light_pos,
-                                                            light_pos + glm::vec3(0.0f, 0.0f, 1.0f),
-                                                            glm::vec3(0.0f, -1.0f, 0.0f)));
+                                                              light_pos + glm::vec3(0.0f, 0.0f, 1.0f),
+                                                              glm::vec3(0.0f, -1.0f, 0.0f)));
         shadow_transforms.push_back(shadow_proj * glm::lookAt(light_pos,
-                                                            light_pos + glm::vec3(0.0f, 0.0f, -1.0f),
-                                                            glm::vec3(0.0f, -1.0f, 0.0f)));
+                                                              light_pos + glm::vec3(0.0f, 0.0f, -1.0f),
+                                                              glm::vec3(0.0f, -1.0f, 0.0f)));
 
         shader->use();
         for (unsigned int i = 0; i < 6; ++i) {
             shader->set_mat4("shadowMatrices[" + std::to_string(i) + "]", shadow_transforms[i]);
         }
-        shader->set_float("far_plane", far_plane);
+        shader->set_float("far_plane", m_far_plane);
         shader->set_vec3("lightPos", light_pos);
     }
 
-    void graphics::PointShadow::unbind(const unsigned int SCR_WIDTH, const unsigned int SCR_HEIGHT) {
+    void graphics::PointShadow::unbind(const unsigned int screen_width, const unsigned int screen_height) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glViewport(0, 0, screen_width, screen_height);
     }
 }
 

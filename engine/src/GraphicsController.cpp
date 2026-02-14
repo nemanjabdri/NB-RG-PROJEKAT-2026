@@ -154,19 +154,20 @@ namespace engine::graphics {
     void GraphicsController::bind_point_shadow(const resources::Shader *shader, glm::vec3 light_pos) {
         if (m_point_shadow) {
             m_point_shadow->bind();
-            m_point_shadow->apply_uniforms_to_shader(shader, light_pos);
+            m_point_shadow->bind_uniforms(shader, light_pos);
         }
     }
 
     void GraphicsController::unbind_point_shadow() {
+        auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
         if (m_point_shadow) {
-            m_point_shadow->unbind(1600, 900);
+            m_point_shadow->unbind(platform->window()->width(), platform->window()->height());
         }
     }
 
     unsigned int GraphicsController::point_shadow_texture_id() const {
         if (m_point_shadow)
-            return m_point_shadow->textureId();
+            return m_point_shadow->texture_id();
         return 0;
     }
 } // namespace engine::graphics
