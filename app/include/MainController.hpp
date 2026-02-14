@@ -61,7 +61,7 @@ namespace app {
         glm::vec3 m_world_red_pos          = glm::vec3(0.765f, 4.6f, -1.48f);
         glm::vec3 m_world_blue_pos         = glm::vec3(-0.765f, 4.6f, -1.48f);
         glm::vec3 m_car_pos                = glm::vec3(-17.0f, -4.0f, 0.0f);
-        glm::vec3 m_camp_fire_light_pos    = glm::vec3(-30.0f, 0.4f, -30.0f);
+        glm::vec3 m_camp_fire_light_pos    = glm::vec3(-30.0f, 3.0f, -30.0f);
         glm::vec3 m_fog_color              = glm::vec3(0.15f, 0.15f, 0.15f);
         glm::vec3 m_ufo_pos                = glm::vec3(6.0f, m_UFO_SKY_Y, -13.0f);
 
@@ -90,6 +90,8 @@ namespace app {
         void render_model_geometry(const std::string &model_name, engine::resources::Shader *shader,
                                    glm::vec3 translate_model,
                                    glm::vec3 scale_model = glm::vec3(1.0f), float rotate_model_angle = 0.0f);
+
+        void reset_gl_state();
 
         void setup_scene_lights(engine::resources::Shader *shader);
 

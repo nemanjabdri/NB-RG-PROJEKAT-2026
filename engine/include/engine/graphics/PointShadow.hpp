@@ -11,7 +11,7 @@
 namespace engine::graphics {
     class PointShadow {
     public:
-        PointShadow(unsigned int width = 1024, unsigned int height = 1024);
+        PointShadow(unsigned int width = 2048, unsigned int height = 2048);
 
         ~PointShadow();
 

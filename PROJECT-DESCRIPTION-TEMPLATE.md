@@ -20,14 +20,15 @@
 
 ### Group A:
 
-[ ] Frame-buffers with post-processing   
+[] Frame-buffers with post-processing   
 [ ] Off-screen Anti-Aliasing  
 [ ] Parallax Mapping
 [ ] Bloom with the use of HDR
 
 ### Group B:
+
 [ ] Deferred Shading  
-[ ] Point Shadows  
+[] Point Shadows  
 [ ] SSAO
 
 ### Engine improvement:

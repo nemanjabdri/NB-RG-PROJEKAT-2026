@@ -166,8 +166,9 @@ namespace engine::graphics {
     }
 
     unsigned int GraphicsController::point_shadow_texture_id() const {
-        if (m_point_shadow)
+        if (m_point_shadow) {
             return m_point_shadow->texture_id();
+        }
         return 0;
     }
 } // namespace engine::graphics

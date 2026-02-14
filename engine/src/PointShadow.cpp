@@ -56,9 +56,54 @@ namespace engine {
         }
     }
 
-    void graphics::PointShadow::bind() {
+    /*void graphics::PointShadow::bind() {
         glViewport(0, 0, m_shadow_width, m_shadow_height);
         glBindFramebuffer(GL_FRAMEBUFFER, m_depth_map_fbo);
+
+        glDisable(GL_SCISSOR_TEST);
+        glActiveTexture(GL_TEXTURE5);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+        glClear(GL_DEPTH_BUFFER_BIT);
+    }*/
+
+    void graphics::PointShadow::bind() {
+        // 1. Podesi Viewport na rezoluciju senke (npr. 2048x2048)
+        glViewport(0, 0, m_shadow_width, m_shadow_height);
+
+        // 2. Binduj FBO
+        glBindFramebuffer(GL_FRAMEBUFFER, m_depth_map_fbo);
+
+        // --- FIX 1: Otkacinjanje teksture (Feedback Loop) ---
+        // Ako je tekstura ostala vezana na slotu 5 u draw(), ovo je mora otkačiti
+        // da bi drajver dozvolio pisanje u nju.
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        // ---------------------------------------------------
+
+        // --- FIX 2: Resetovanje Depth Funkcije (Skybox problem) ---
+        // Skybox često postavlja GL_LEQUAL. Ako to ostane, a brišemo bafer na 1.0,
+        // ništa se neće upisati jer 1.0 nije manje od 1.0. Vraćamo na default.
+        glDepthFunc(GL_LESS);
+        // ----------------------------------------------------------
+
+        // --- FIX 3: Resetovanje Depth Maske ---
+        // Skybox gasi pisanje u dubinu. Ovde ga palimo.
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE); // --------------------------------------
+
+        // --- FIX 4: Scissor Test (UI problem) ---
+        // Ako imas UI biblioteke, one cesto seku ekran. Gasimo to.
+        glDisable(GL_SCISSOR_TEST);
+        // ----------------------------------------
+
+        // Opciono: Isključi Face Culling za senke da bi izbegao "Peter Panning"
+        // (Renderuje i prednje i zadnje strane, ili samo prednje ako zelis)
+        // glDisable(GL_CULL_FACE);
+
+        // Konačno brisanje - sada bi moralo da radi
         glClear(GL_DEPTH_BUFFER_BIT);
     }
 
@@ -100,5 +145,3 @@ namespace engine {
         glViewport(0, 0, screen_width, screen_height);
     }
 }
-
-#include "../include/engine/graphics/PointShadow.hpp"

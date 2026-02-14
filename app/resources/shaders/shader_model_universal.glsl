@@ -62,7 +62,7 @@ uniform bool fogEnabled;
 uniform vec3 fogColor;
 uniform float fogStart;
 uniform float fogEnd;
-//uniform bool shadows;
+uniform int shadows;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
 
@@ -75,14 +75,14 @@ float ShadowCalculation(vec3 fragPos) {
 
     float currentDepth = length(fragToLight);
 
-    float bias = 0.05;
+    float bias = 0.4;
 
     float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;
 }
 
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 texColor, int i) {
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 texColor, int shadows) {
     vec3 lightDir = normalize(light.position - fragPos);
 
 
@@ -100,7 +100,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, v
     vec3 diffuse = light.diffuse * diff * texColor;
     vec3 specular = light.specular * spec * texColor;
 
-    float shadow = (i == 2) ? ShadowCalculation(FragPos) : 0.0;
+    float shadow = (shadows == 2) ? ShadowCalculation(FragPos) : 0.0;
 
     return (ambient + (1 - shadow) * (diffuse + specular)) * attenuation;
 }
@@ -135,7 +135,7 @@ void main() {
     vec3 result = vec3(0.0);
 
     for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-        result += CalcPointLight(pointLights[i], normal, FragPos, viewDir, color, i);
+        result += CalcPointLight(pointLights[i], normal, FragPos, viewDir, color, shadows);
     }
 
     for (int i = 0; i < NR_SPOT_LIGHTS; i++) {

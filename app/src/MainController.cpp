@@ -257,11 +257,16 @@ namespace app {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
+        reset_gl_state();
+
         auto shader_depth = resources->shader(SHADER_SHADOW);
 
+        shader_depth->use();
         graphics->bind_point_shadow(shader_depth, m_camp_fire_light_pos);
         render_scene_geometry(shader_depth);
         graphics->unbind_point_shadow();
+
+        glFinish();
 
         if (m_night_vision_mode || m_greyscale_mode) {
             graphics->bind_frameBuffer();
@@ -281,14 +286,15 @@ namespace app {
         shader_universal->set_mat4("view", graphics->camera()->view_matrix());
 
         setup_scene_lights(shader_universal);
-        glActiveTexture(GL_TEXTURE5);
+        glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->point_shadow_texture_id());
-        shader_universal->set_int("depthMap", 5);
+        shader_universal->set_int("depthMap", 10);
         shader_universal->set_float("far_plane", 45.0f);
         shader_universal->set_bool("fogEnabled", m_fog_mode);
         shader_universal->set_vec3("fogColor", m_fog_color);
         shader_universal->set_float("fogStart", m_fog_start);
         shader_universal->set_float("fogEnd", m_fog_end);
+        shader_universal->set_int("shadows", 2);
 
         render_scene_geometry(shader_universal);
 
@@ -304,6 +310,43 @@ namespace app {
 
             graphics->draw_using_framebuffer(shader);
         }
+
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glUseProgram(0);
+        glBindVertexArray(0);
+    }
+
+    void MainController::reset_gl_state() {
+        // 1. Reset Shader & VAO
+        glUseProgram(0);
+        glBindVertexArray(0);
+
+        // 2. Texture Slot Cleanup (OBAVEZNO 10 jer njega koristis u draw)
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        // Za svaki slucaj ocisti i nulti slot
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+        // 3. Reset Render States (OVO JE ONO STO IMGUI RADI)
+        glDisable(GL_SCISSOR_TEST); // Ovo smo imali
+        glDisable(GL_BLEND);        // Ovo smo imali
+        glDisable(GL_STENCIL_TEST); // <--- NOVO (ImGui ovo dira)
+
+        // 4. Depth Config
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+
+        // 5. Geometry Config
+        glDisable(GL_CULL_FACE);                   // Da budemo sigurni da se auto crta sa svih strana
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // <--- NOVO (ImGui ovo forsira)
+
+        // 6. Color Mask
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); // <--- NOVO (Za svaki slucaj)
     }
 
     void MainController::end_draw() {
@@ -359,7 +402,6 @@ namespace app {
                                                glm::vec3 translate_model,
                                                glm::vec3 scale_model, float rotate_model_angle) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
-        auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
         engine::resources::Model *model = resources->model(model_name);
 
