@@ -257,8 +257,6 @@ namespace app {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        reset_gl_state();
-
         auto shader_depth = resources->shader(SHADER_SHADOW);
 
         shader_depth->use();
@@ -297,9 +295,18 @@ namespace app {
         shader_universal->set_int("shadows", 2);
 
         render_scene_geometry(shader_universal);
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        glActiveTexture(GL_TEXTURE0);
 
         if (!m_fog_mode) {
             draw_skybox();
+        } else {
+            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+            glDepthMask(GL_FALSE);
+            draw_skybox();
+            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+            glDepthMask(GL_TRUE);
         }
 
         if (m_night_vision_mode || m_greyscale_mode) {
@@ -310,43 +317,6 @@ namespace app {
 
             graphics->draw_using_framebuffer(shader);
         }
-
-        glActiveTexture(GL_TEXTURE10);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-        glActiveTexture(GL_TEXTURE0);
-        glUseProgram(0);
-        glBindVertexArray(0);
-    }
-
-    void MainController::reset_gl_state() {
-        // 1. Reset Shader & VAO
-        glUseProgram(0);
-        glBindVertexArray(0);
-
-        // 2. Texture Slot Cleanup (OBAVEZNO 10 jer njega koristis u draw)
-        glActiveTexture(GL_TEXTURE10);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-        // Za svaki slucaj ocisti i nulti slot
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-        // 3. Reset Render States (OVO JE ONO STO IMGUI RADI)
-        glDisable(GL_SCISSOR_TEST); // Ovo smo imali
-        glDisable(GL_BLEND);        // Ovo smo imali
-        glDisable(GL_STENCIL_TEST); // <--- NOVO (ImGui ovo dira)
-
-        // 4. Depth Config
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
-        glDepthFunc(GL_LESS);
-
-        // 5. Geometry Config
-        glDisable(GL_CULL_FACE);                   // Da budemo sigurni da se auto crta sa svih strana
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // <--- NOVO (ImGui ovo forsira)
-
-        // 6. Color Mask
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); // <--- NOVO (Za svaki slucaj)
     }
 
     void MainController::end_draw() {

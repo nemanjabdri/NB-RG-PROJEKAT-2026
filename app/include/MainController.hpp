@@ -91,8 +91,6 @@ namespace app {
                                    glm::vec3 translate_model,
                                    glm::vec3 scale_model = glm::vec3(1.0f), float rotate_model_angle = 0.0f);
 
-        void reset_gl_state();
-
         void setup_scene_lights(engine::resources::Shader *shader);
 
         void draw_skybox();
