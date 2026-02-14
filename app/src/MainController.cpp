@@ -55,10 +55,10 @@ namespace app {
 
         float mouse_sensitivity = 0.04f;
 
-        float xOffset = position.dx * mouse_sensitivity;
-        float yOffset = position.dy * mouse_sensitivity;
+        float x_offset = position.dx * mouse_sensitivity;
+        float y_offset = position.dy * mouse_sensitivity;
 
-        camera->rotate_camera(xOffset, yOffset);
+        camera->rotate_camera(x_offset, y_offset);
     }
 
     void MainController::initialize() {
@@ -443,7 +443,7 @@ namespace app {
 
         // Far Levi
         shader->set_vec3("spotLights[0].position", m_world_far_l_pos);
-        shader->set_vec3("spotLights[0].direction", world_spot_dir); // Prilagodi smeru auta
+        shader->set_vec3("spotLights[0].direction", world_spot_dir);
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(22.5f)));
         shader->set_vec3("spotLights[0].ambient", glm::vec3(0.001f) * police_head_lights_active);

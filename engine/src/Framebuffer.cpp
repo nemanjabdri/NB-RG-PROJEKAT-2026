@@ -5,9 +5,19 @@
 #include <engine/graphics/Framebuffer.hpp>
 #include <glad/glad.h>
 #include <cstddef>
+#include <spdlog/spdlog.h>
 
 namespace engine {
-    graphics::Framebuffer::Framebuffer() {
+    graphics::Framebuffer::Framebuffer(int width, int height) : m_width(width)
+                                                            , m_height(height) {
+        create_framebuffer();
+    }
+
+    graphics::Framebuffer::~Framebuffer() {
+        delete_framebuffer();
+    }
+
+    void graphics::Framebuffer::create_framebuffer() {
         // 1. FBO
         glGenFramebuffers(1, &m_fbo);
         glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
@@ -27,16 +37,28 @@ namespace engine {
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            // poruka: sve je ok
+            spdlog::error("Framebuffer is not complete!");
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            delete_framebuffer();
+            throw std::runtime_error("Failed to create Framebuffer");
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    graphics::Framebuffer::~Framebuffer() {
-        glDeleteFramebuffers(1, &m_fbo);
-        glDeleteTextures(1, &m_texture_color_buffer);
-        glDeleteRenderbuffers(1, &m_rbo);
+    void graphics::Framebuffer::delete_framebuffer() {
+        if (m_fbo) {
+            glDeleteFramebuffers(1, &m_fbo);
+            m_fbo = 0;
+        }
+        if (m_texture_color_buffer) {
+            glDeleteTextures(1, &m_texture_color_buffer);
+            m_texture_color_buffer = 0;
+        }
+        if (m_rbo) {
+            glDeleteRenderbuffers(1, &m_rbo);
+            m_rbo = 0;
+        }
     }
 
     void graphics::Framebuffer::bind() {

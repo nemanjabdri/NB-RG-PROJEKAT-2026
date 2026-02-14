@@ -45,7 +45,10 @@ namespace engine::graphics {
         RG_GUARANTEE(ImGui_ImplGlfw_InitForOpenGL(handle, true), "ImGUI failed to initialize for OpenGL");
         RG_GUARANTEE(ImGui_ImplOpenGL3_Init("#version 330 core"), "ImGUI failed to initialize for OpenGL");
 
-        m_framebuffer  = std::make_unique<Framebuffer>();
+        auto window_width  = platform->window()->width();
+        auto window_height = platform->window()->height();
+
+        m_framebuffer  = std::make_unique<Framebuffer>(window_width, window_height);
         m_point_shadow = std::make_unique<PointShadow>();
     }
 
@@ -140,7 +143,7 @@ namespace engine::graphics {
         glBindVertexArray(m_quad_vao);
 
         if (m_framebuffer) {
-            glBindTexture(GL_TEXTURE_2D, m_framebuffer->textureId());
+            glBindTexture(GL_TEXTURE_2D, m_framebuffer->texture_id());
         }
 
         glDrawArrays(GL_TRIANGLES, 0, 6);

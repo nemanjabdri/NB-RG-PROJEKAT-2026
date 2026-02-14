@@ -95,11 +95,19 @@ namespace app {
         }
         ImGui::BeginDisabled(!main_controller->is_fog_mode_active());
         if (ImGui::SliderFloat("Fog start", &fog_start, 0.0f, 40.0f)) {
-            main_controller->set_fog_start(fog_start);
+            if (fog_start >= fog_end) {
+                main_controller->set_fog_start(main_controller->get_fog_end() - 5.0f);
+            } else {
+                main_controller->set_fog_start(fog_start);
+            }
         }
 
         if (ImGui::SliderFloat("Fog end", &fog_end, 30.0f, 95.0f)) {
-            main_controller->set_fog_end(fog_end);
+            if (fog_end <= fog_start) {
+                main_controller->set_fog_end(main_controller->get_fog_start() + 5.0f);
+            } else {
+                main_controller->set_fog_end(fog_end);
+            }
         }
         ImGui::EndDisabled();
 

@@ -25,6 +25,28 @@ namespace app {
         };
 
     private:
+        float m_total_time                 = 0.0f;
+        float m_car_angle                  = 55.0f;
+        float m_camera_orbit_angle         = 0.0f;
+        float m_camera_dist                = 16.0f;
+        float m_camera_height              = 7.0f;
+        float m_pitch_offset               = 10.0f;
+        float m_fog_start                  = 3.0f;
+        float m_fog_end                    = 95.0f;
+        const float m_UFO_SKY_Y            = 90.0f;
+        const float m_UFO_GROUND_Y         = -3.8f;
+        const float m_UFO_SPEED            = 15.0f;
+        float m_ufo_rotation               = 0.0f;
+        float m_state_timer                = 0.0f;
+        bool m_cursor_enabled              = false;
+        bool m_police_emergency_lights     = false;
+        bool m_police_head_lights          = false;
+        bool m_driving_mode                = false;
+        bool m_fog_mode                    = true;
+        bool m_night_vision_mode           = false;
+        bool m_greyscale_mode              = false;
+        bool m_first_entry                 = true;
+        UfoState m_ufo_state               = UfoState::SKY_IDLE;
         glm::vec3 m_street_light1_pos      = glm::vec3(18.0f, 20.0, 4.0f);
         glm::vec3 m_street_light2_pos      = glm::vec3(-46.0f, 20.0, 4.0f);
         glm::vec3 m_street_light3_pos      = glm::vec3(55.0f, 20.0, 4.0f);
@@ -42,28 +64,6 @@ namespace app {
         glm::vec3 m_camp_fire_light_pos    = glm::vec3(-30.0f, 0.4f, -30.0f);
         glm::vec3 m_fog_color              = glm::vec3(0.15f, 0.15f, 0.15f);
         glm::vec3 m_ufo_pos                = glm::vec3(6.0f, m_UFO_SKY_Y, -13.0f);
-        UfoState m_ufo_state               = UfoState::SKY_IDLE;
-        bool m_cursor_enabled              = false;
-        bool m_police_emergency_lights     = false;
-        bool m_police_head_lights          = false;
-        bool m_driving_mode                = false;
-        bool m_fog_mode                    = true;
-        bool m_night_vision_mode           = false;
-        bool m_greyscale_mode              = false;
-        bool m_first_entry                 = true;
-        float m_total_time                 = 0.0f;
-        float m_car_angle                  = 55.0f;
-        float m_camera_orbit_angle         = 0.0f;
-        float m_camera_dist                = 16.0f;
-        float m_camera_height              = 7.0f;
-        float m_pitch_offset               = 10.0f;
-        float m_fog_start                  = 3.0f;
-        float m_fog_end                    = 95.0f;
-        const float m_UFO_SKY_Y            = 90.0f;
-        const float m_UFO_GROUND_Y         = -3.8f;
-        const float m_UFO_SPEED            = 15.0f;
-        float m_ufo_rotation               = 0.0f;
-        float m_state_timer                = 0.0f;
 
         void initialize() override;
 
@@ -104,7 +104,7 @@ namespace app {
             return m_cursor_enabled;
         }
 
-        bool is_police_emergency_lights_active() {
+        bool is_police_emergency_lights_active() const {
             return m_police_emergency_lights;
         }
 
@@ -112,7 +112,7 @@ namespace app {
             m_police_emergency_lights = active;
         }
 
-        bool is_police_head_lights_active() {
+        bool is_police_head_lights_active() const {
             return m_police_head_lights;
         }
 
@@ -128,7 +128,7 @@ namespace app {
             m_driving_mode = mode;
         }
 
-        glm::vec3 get_local_far_left() {
+        glm::vec3 get_local_far_left() const {
             return m_local_car_light_left;
         }
 
@@ -136,7 +136,7 @@ namespace app {
             m_local_car_light_left = pos;
         }
 
-        glm::vec3 get_local_far_right() {
+        glm::vec3 get_local_far_right() const {
             return m_local_car_light_right;
         }
 
@@ -198,7 +198,7 @@ namespace app {
             }
         }
 
-        UfoState get_ufo_state() {
+        UfoState get_ufo_state() const {
             return m_ufo_state;
         }
 

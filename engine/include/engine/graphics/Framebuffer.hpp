@@ -8,15 +8,19 @@
 namespace engine::graphics {
     class Framebuffer {
     public:
-        Framebuffer();
+        Framebuffer(int width, int height);
 
         ~Framebuffer();
+
+        Framebuffer(const Framebuffer &) = delete;
+
+        Framebuffer &operator=(const Framebuffer &) = delete;
 
         void bind();
 
         void unbind();
 
-        unsigned int textureId() const {
+        unsigned int texture_id() const {
             return m_texture_color_buffer;
         }
 
@@ -24,6 +28,12 @@ namespace engine::graphics {
         unsigned int m_texture_color_buffer = 0;
         unsigned int m_fbo                  = 0;
         unsigned int m_rbo                  = 0;
+        int m_width                         = 0;
+        int m_height                        = 0;
+
+        void create_framebuffer();
+
+        void delete_framebuffer();
     };
 } // engine
 
