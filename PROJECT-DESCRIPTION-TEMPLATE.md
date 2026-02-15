@@ -5,20 +5,26 @@ Police driving simulator
 
 ## Controls
 
-'F2' key -> Activate GUI
+'WSAD' → Camera and car movement
 
-'F1' key -> Driving mode
+'Q' and 'E' → Camera vertical ascending and descending
 
-'G' key while driving mode is active -> Police Emergency-lights
+Right and Left Arrow → Rotate camera around car while driving mode is active.
 
-'F' key while driving mode is active -> Police Head-lights
+'F2' key → Activate GUI
 
-'KEY 1' -> Night Vision mode
+'F1' key → Driving mode
 
-'KEY 2' -> Greyscale Vision mode
+'G' key while driving mode is active → Police Emergency lights
+
+'F' key while driving mode is active → Police Head lights
+
+'KEY 1' → Night Vision mode
+
+'KEY 2' → Greyscale Vision mode
 
 UFO LANDING SEQUENCE (Activate in GUI) → after 1 second, UFO starts descending and lands near campfire,
-2 seconds after landing, street-lights and police-headlights start flickering
+2 seconds after landing, street-lights and police-headlights start flickering.
 
 ## Features
 
@@ -43,7 +49,13 @@ UFO LANDING SEQUENCE (Activate in GUI) → after 1 second, UFO starts descending
 
 ### Engine improvement:
 
-[ ] ...
+Framebuffer Post-Processing Architecture: Integrated a modular framebuffer system
+to support full-screen effects. Implemented specific shaders for Night Vision and
+Grayscale modes using post-processing pipelines.
+
+Dynamic Point Shadow System: Developed a point light shadow mapping component.
+Used omnidirectional shadow maps (Cube Maps) to achieve realistic light-shadow interaction,
+specifically demonstrated with the animated campfire.
 
 ## Models:
 
