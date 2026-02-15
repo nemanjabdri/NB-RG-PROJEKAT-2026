@@ -36,8 +36,8 @@ namespace engine::graphics {
         unsigned int m_shadow_width;
         unsigned int m_shadow_height;
 
-        float m_near_plane = 1.0f;
-        float m_far_plane  = 45.0f;
+        float m_shadow_near_plane = 1.0f;
+        float m_shadow_far_plane  = 50.0f;
 
         void cleanup();
     };

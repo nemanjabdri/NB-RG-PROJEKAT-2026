@@ -77,13 +77,13 @@ namespace app {
         }
         ImGui::EndDisabled();
 
-        if (ImGui::Checkbox("Night Vision Mode", &is_night_vision_mode_active)) {
+        if (ImGui::Checkbox("Night Vision Mode ('KEY 1')", &is_night_vision_mode_active)) {
             if (is_greyscale_mode_active) {
                 main_controller->set_greyscale_mode(false);
             }
             main_controller->set_night_vision_mode(is_night_vision_mode_active);
         }
-        if (ImGui::Checkbox("Greyscale vision Mode", &is_greyscale_mode_active)) {
+        if (ImGui::Checkbox("Greyscale vision Mode ('KEY 2')", &is_greyscale_mode_active)) {
             if (is_night_vision_mode_active) {
                 main_controller->set_night_vision_mode(false);
             }

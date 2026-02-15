@@ -71,7 +71,7 @@ namespace engine {
 
     void graphics::PointShadow::bind_uniforms(const engine::resources::Shader *shader, glm::vec3 light_pos) {
         glm::mat4 shadow_proj = glm::perspective(glm::radians(90.0f), (float) m_shadow_width / (float) m_shadow_height,
-                                                 m_near_plane, m_far_plane);
+                                                 m_shadow_near_plane, m_shadow_far_plane);
 
         std::vector<glm::mat4> shadow_transforms;
 
@@ -98,7 +98,7 @@ namespace engine {
         for (unsigned int i = 0; i < 6; ++i) {
             shader->set_mat4("shadowMatrices[" + std::to_string(i) + "]", shadow_transforms[i]);
         }
-        shader->set_float("far_plane", m_far_plane);
+        shader->set_float("far_plane", m_shadow_far_plane);
         shader->set_vec3("lightPos", light_pos);
     }
 

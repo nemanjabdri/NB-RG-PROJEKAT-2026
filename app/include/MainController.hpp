@@ -34,7 +34,7 @@ namespace app {
         float m_fog_start                  = 3.0f;
         float m_fog_end                    = 95.0f;
         const float m_UFO_SKY_Y            = 90.0f;
-        const float m_UFO_GROUND_Y         = -3.8f;
+        const float m_UFO_GROUND_Y         = -4.1f;
         const float m_UFO_SPEED            = 15.0f;
         float m_ufo_rotation               = 0.0f;
         float m_state_timer                = 0.0f;
@@ -61,10 +61,10 @@ namespace app {
         glm::vec3 m_world_red_pos          = glm::vec3(0.765f, 4.6f, -1.48f);
         glm::vec3 m_world_blue_pos         = glm::vec3(-0.765f, 4.6f, -1.48f);
         glm::vec3 m_car_pos                = glm::vec3(-17.0f, -4.0f, 0.0f);
-        glm::vec3 m_camp_fire_light_pos    = glm::vec3(-30.0f, 3.0f, -30.0f);
-        glm::vec3 m_animated_fire_pos      = glm::vec3(-30.0f, 3.0f, -30.0f);
+        glm::vec3 m_camp_fire_light_pos    = glm::vec3(-30.0f, 2.5f, -30.0f);
+        glm::vec3 m_animated_fire_pos      = glm::vec3(-30.0f, 2.5f, -30.0f);
         glm::vec3 m_fog_color              = glm::vec3(0.15f, 0.15f, 0.15f);
-        glm::vec3 m_ufo_pos                = glm::vec3(6.0f, m_UFO_SKY_Y, -13.0f);
+        glm::vec3 m_ufo_pos                = glm::vec3(-19.0f, m_UFO_SKY_Y, -12.5f);
 
         void initialize() override;
 

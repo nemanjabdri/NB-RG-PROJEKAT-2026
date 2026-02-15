@@ -87,7 +87,7 @@ namespace app {
 
         switch (m_ufo_state) {
         case UfoState::WAITING_TO_LAND: m_state_timer += delta_time;
-            if (m_state_timer >= 2.0f) {
+            if (m_state_timer >= 1.0f) {
                 m_ufo_state = UfoState::DESCENDING;
             }
             break;
@@ -101,7 +101,7 @@ namespace app {
             break;
 
         case UfoState::WAITING_TO_TAKEOFF: m_state_timer += delta_time;
-            if (m_state_timer >= 2.0f) {
+            if (m_state_timer >= 1.0f) {
                 m_ufo_state = UfoState::ASCENDING;
             }
             break;
@@ -245,6 +245,18 @@ namespace app {
             m_cursor_enabled = !m_cursor_enabled;
             platform->set_enable_cursor(m_cursor_enabled);
         }
+        if (platform->key(engine::platform::KeyId::KEY_1).state() == engine::platform::Key::State::JustPressed) {
+            if (m_greyscale_mode) {
+                set_greyscale_mode(false);
+            }
+            set_night_vision_mode(!m_night_vision_mode);
+        }
+        if (platform->key(engine::platform::KeyId::KEY_2).state() == engine::platform::Key::State::JustPressed) {
+            if (m_night_vision_mode) {
+                set_night_vision_mode(false);
+            }
+            set_greyscale_mode(!m_greyscale_mode);
+        }
     }
 
     void MainController::update() {
@@ -301,12 +313,11 @@ namespace app {
         glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->point_shadow_texture_id());
         shader_universal->set_int("depthMap", 10);
-        shader_universal->set_float("far_plane", 45.0f);
+        shader_universal->set_float("shadowFarPlane", 50.0f);
         shader_universal->set_bool("fogEnabled", m_fog_mode);
         shader_universal->set_vec3("fogColor", m_fog_color);
         shader_universal->set_float("fogStart", m_fog_start);
         shader_universal->set_float("fogEnd", m_fog_end);
-        shader_universal->set_int("shadows", 2);
 
         render_scene_geometry(shader_universal);
         glActiveTexture(GL_TEXTURE10);
@@ -451,21 +462,21 @@ namespace app {
         float base_quadratic = 0.0032f;
         //Camp fire
         shader->set_vec3("pointLights[2].position", m_animated_fire_pos);
-        shader->set_vec3("pointLights[2].ambient", glm::vec3(0.005f));
+        shader->set_vec3("pointLights[2].ambient", glm::vec3(0.002f));
         shader->set_vec3("pointLights[2].diffuse", glm::vec3(1.0f, 0.6f, 0.2f) * 1.5f * fire_intensity);
         shader->set_vec3("pointLights[2].specular", glm::vec3(0.5f) * fire_intensity);
         shader->set_float("pointLights[2].linear", base_linear / fire_intensity);
         shader->set_float("pointLights[2].quadratic", base_quadratic / fire_intensity);
 
-        glm::vec3 ufo_light_pos = glm::vec3(m_ufo_pos.x, m_ufo_pos.y + 6, m_ufo_pos.z);
+        glm::vec3 ufo_light_pos = glm::vec3(m_ufo_pos.x, m_ufo_pos.y + 5, m_ufo_pos.z);
 
         //UFO cockpit LIGHT
         shader->set_vec3("pointLights[3].position", ufo_light_pos);
-        shader->set_vec3("pointLights[3].ambient", glm::vec3(0.03f));
-        shader->set_vec3("pointLights[3].diffuse", glm::vec3(0.75f, 0.0f, 1.0f) * 2.5f);
-        shader->set_vec3("pointLights[3].specular", glm::vec3(0.2f));
-        shader->set_float("pointLights[3].linear", 0.09f);
-        shader->set_float("pointLights[3].quadratic", 0.032f);
+        shader->set_vec3("pointLights[3].ambient", glm::vec3(0.01f));
+        shader->set_vec3("pointLights[3].diffuse", glm::vec3(0.75f, 0.0f, 1.0f) * 5.0f);
+        shader->set_vec3("pointLights[3].specular", glm::vec3(0.4f));
+        shader->set_float("pointLights[3].linear", 0.9f / fire_intensity);
+        shader->set_float("pointLights[3].quadratic", 0.32f / fire_intensity);
 
         // Far Levi
         shader->set_vec3("spotLights[0].position", m_world_far_l_pos);

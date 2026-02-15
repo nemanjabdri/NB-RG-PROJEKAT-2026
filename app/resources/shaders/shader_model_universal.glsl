@@ -57,12 +57,11 @@ in vec3 FragPos;
 uniform sampler2D texture_diffuse1;
 uniform samplerCube depthMap;
 uniform vec3 viewPos;
-uniform float far_plane;
+uniform float shadowFarPlane;
 uniform bool fogEnabled;
 uniform vec3 fogColor;
 uniform float fogStart;
 uniform float fogEnd;
-uniform int shadows;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
 
@@ -71,7 +70,7 @@ float ShadowCalculation(vec3 fragPos) {
     vec3 fragToLight = fragPos - pointLights[2].position;
 
     float closestDepth = texture(depthMap, fragToLight).r;
-    closestDepth *= far_plane;
+    closestDepth *= shadowFarPlane;
 
     float currentDepth = length(fragToLight);
 
@@ -135,7 +134,7 @@ void main() {
     vec3 result = vec3(0.0);
 
     for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-        result += CalcPointLight(pointLights[i], normal, FragPos, viewDir, color, shadows);
+        result += CalcPointLight(pointLights[i], normal, FragPos, viewDir, color, i);
     }
 
     for (int i = 0; i < NR_SPOT_LIGHTS; i++) {
