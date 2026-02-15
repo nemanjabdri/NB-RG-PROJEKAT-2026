@@ -9,16 +9,16 @@ Police driving simulator
 
 'F1' key -> Driving mode
 
-'G' key while driving mode is active -> Police Emergency lights
+'G' key while driving mode is active -> Police Emergency-lights
 
-'F' key while driving mode is active -> Police Head lights
+'F' key while driving mode is active -> Police Head-lights
 
 'KEY 1' -> Night Vision mode
 
 'KEY 2' -> Greyscale Vision mode
 
-UFO LANDING SEQUENCE (Activate in GUI) → after 1 second, UFO starts descending and lands near campfire.
-2 seconds after landing, street lights and police headlights start flickeringing
+UFO LANDING SEQUENCE (Activate in GUI) → after 1 second, UFO starts descending and lands near campfire,
+2 seconds after landing, street-lights and police-headlights start flickering
 
 ## Features
 
@@ -64,8 +64,8 @@ Saloon - https://poly.pizza/m/82JBTSsWag4,
 Tennis court - https://poly.pizza/m/7cVH1Xt-LYy,
 UFO - https://poly.pizza/m/b0N_HeT_Ttb,
 Wood swing - https://poly.pizza/m/3mFM6lFd9P9,
-Street light - ?
-Skybox - ?
+Street light - https://www.turbosquid.com/3d-models/street-light-2386960,
+Skybox - https://opengameart.org/content/winter-skyboxes
 
 ## Textures
 

@@ -155,7 +155,7 @@ namespace app {
             m_car_angle -= rot_speed * rotation_direction;
         }
 
-        // Izračunavanje smera (Forward Vector)
+        // Izracunavanje smera (Forward Vector)
         float rad = glm::radians(m_car_angle);
         glm::vec3 forward;
         forward.x = sin(rad);
@@ -241,7 +241,7 @@ namespace app {
         }
     }
 
-    void MainController::handle_gui_button() {
+    void MainController::handle_effects_button_controls() {
         auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
         if (platform->key(engine::platform::KeyId::KEY_F2).state() == engine::platform::Key::State::JustPressed) {
             m_cursor_enabled = !m_cursor_enabled;
@@ -266,7 +266,7 @@ namespace app {
         auto delta_time = platform->dt();
         m_total_time    += delta_time;
 
-        handle_gui_button();
+        handle_effects_button_controls();
         update_ufo(delta_time);
 
         if (m_driving_mode) {
@@ -300,26 +300,45 @@ namespace app {
         engine::graphics::OpenGL::clear_buffers();
     }
 
+    void MainController::setup_fog_params(engine::resources::Shader *shader_universal) {
+        if (shader_universal) {
+            shader_universal->set_bool("fogEnabled", m_fog_mode);
+            shader_universal->set_vec3("fogColor", m_fog_color);
+            shader_universal->set_float("fogStart", m_fog_start);
+            shader_universal->set_float("fogEnd", m_fog_end);
+        }
+    }
+
+    void MainController::bind_shadow_maps(engine::resources::Shader *shader_universal) {
+        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+        if (shader_universal) {
+            glActiveTexture(GL_TEXTURE10);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->point_shadow_texture_id());
+            shader_universal->set_int("depthMap", 10);
+            shader_universal->set_float("shadowFarPlane", 50.0f);
+        }
+    }
+
+    void MainController::unbind_shadow_maps() {
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+        glActiveTexture(GL_TEXTURE0);
+    }
+
     void MainController::draw() {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
         auto shader_universal = resources->shader(SHADER_UNIVERSAL);
+
         shader_universal->use();
         shader_universal->set_mat4("projection", graphics->projection_matrix());
         shader_universal->set_mat4("view", graphics->camera()->view_matrix());
-
         setup_scene_lights(shader_universal);
-        glActiveTexture(GL_TEXTURE10);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->point_shadow_texture_id());
-        shader_universal->set_int("depthMap", 10);
-        shader_universal->set_float("shadowFarPlane", 50.0f);
-        shader_universal->set_bool("fogEnabled", m_fog_mode);
-        shader_universal->set_vec3("fogColor", m_fog_color);
-        shader_universal->set_float("fogStart", m_fog_start);
-        shader_universal->set_float("fogEnd", m_fog_end);
-
+        bind_shadow_maps(shader_universal);
+        setup_fog_params(shader_universal);
         render_scene_geometry(shader_universal);
+        unbind_shadow_maps();
 
         if (!m_fog_mode) {
             draw_skybox();
@@ -420,12 +439,12 @@ namespace app {
     glm::vec3 MainController::update_car_light_positions() {
         glm::mat4 car_rot = glm::rotate(glm::mat4(1.0f), glm::radians(m_car_angle), glm::vec3(0, 1, 0));
 
-        m_world_red_pos   = glm::vec3(car_rot * glm::vec4(m_local_red_pos, 1.0f)) + m_car_pos;
-        m_world_blue_pos  = glm::vec3(car_rot * glm::vec4(m_local_blue_pos, 1.0f)) + m_car_pos;
-        m_world_far_l_pos = glm::vec3(car_rot * glm::vec4(m_local_car_light_left, 1.0f)) + m_car_pos;
-        m_world_far_r_pos = glm::vec3(car_rot * glm::vec4(m_local_car_light_right, 1.0f)) + m_car_pos;
+        m_world_car_red_light_pos    = glm::vec3(car_rot * glm::vec4(m_car_red_light_pos, 1.0f)) + m_car_pos;
+        m_world_car_blue_light_pos   = glm::vec3(car_rot * glm::vec4(m_car_blue_light_pos, 1.0f)) + m_car_pos;
+        m_world_car_head_light_l_pos = glm::vec3(car_rot * glm::vec4(m_car_head_light_left_pos, 1.0f)) + m_car_pos;
+        m_world_car_head_light_r_pos = glm::vec3(car_rot * glm::vec4(m_car_head_light_right_pos, 1.0f)) + m_car_pos;
 
-        return glm::vec3(car_rot * glm::vec4(m_local_spot_dir, 0.0f));
+        return glm::vec3(car_rot * glm::vec4(m_car_head_light_dir, 0.0f));
     }
 
     void MainController::update_police_light_intensities() {
@@ -455,7 +474,7 @@ namespace app {
         float flicker_factor = calculate_flicker_factor();
 
         //POLICE RED LIGHT
-        shader->set_vec3("pointLights[0].position", m_world_red_pos);
+        shader->set_vec3("pointLights[0].position", m_world_car_red_light_pos);
         shader->set_vec3("pointLights[0].ambient", glm::vec3(0.02f) * ambient_lights_active);
         shader->set_vec3("pointLights[0].diffuse",
                          glm::vec3(1.0f, 0.0f, 0.0f) * m_red_intensity);
@@ -464,7 +483,7 @@ namespace app {
         shader->set_float("pointLights[0].quadratic", 0.0032f);
 
         //POLICE BLUE LIGHT
-        shader->set_vec3("pointLights[1].position", m_world_blue_pos);
+        shader->set_vec3("pointLights[1].position", m_world_car_blue_light_pos);
         shader->set_vec3("pointLights[1].ambient", glm::vec3(0.02f) * ambient_lights_active);
         shader->set_vec3("pointLights[1].diffuse",
                          glm::vec3(0.0f, 0.0f, 1.0f) * m_blue_intensity);
@@ -495,7 +514,7 @@ namespace app {
         shader->set_float("pointLights[3].quadratic", 0.32f / fire_intensity);
 
         // Far Levi
-        shader->set_vec3("spotLights[0].position", m_world_far_l_pos);
+        shader->set_vec3("spotLights[0].position", m_world_car_head_light_l_pos);
         shader->set_vec3("spotLights[0].direction", world_spot_dir);
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(22.5f)));
@@ -508,7 +527,7 @@ namespace app {
         shader->set_float("spotLights[0].quadratic", 0.00032f);
 
         // Far Desni
-        shader->set_vec3("spotLights[1].position", m_world_far_r_pos);
+        shader->set_vec3("spotLights[1].position", m_world_car_head_light_r_pos);
         shader->set_vec3("spotLights[1].direction", world_spot_dir);
         shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[1].outerCutOff", glm::cos(glm::radians(22.5f)));

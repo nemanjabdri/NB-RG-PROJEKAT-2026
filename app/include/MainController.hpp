@@ -25,49 +25,49 @@ namespace app {
         };
 
     private:
-        float m_total_time                 = 0.0f;
-        float m_car_angle                  = 55.0f;
-        float m_camera_orbit_angle         = 0.0f;
-        float m_camera_dist                = 16.0f;
-        float m_camera_height              = 7.0f;
-        float m_pitch_offset               = 10.0f;
-        float m_fog_start                  = 3.0f;
-        float m_fog_end                    = 95.0f;
-        const float m_UFO_SKY_Y            = 90.0f;
-        const float m_UFO_GROUND_Y         = -4.1f;
-        const float m_UFO_SPEED            = 15.0f;
-        float m_ufo_rotation               = 0.0f;
-        float m_state_timer                = 0.0f;
-        float m_red_intensity              = 0.0f;
-        float m_blue_intensity             = 0.0f;
-        bool m_cursor_enabled              = false;
-        bool m_police_emergency_lights     = false;
-        bool m_police_head_lights          = false;
-        bool m_driving_mode                = false;
-        bool m_fog_mode                    = true;
-        bool m_night_vision_mode           = false;
-        bool m_greyscale_mode              = false;
-        bool m_first_entry                 = true;
-        bool m_flicker_active              = false;
-        UfoState m_ufo_state               = UfoState::SKY_IDLE;
-        glm::vec3 m_street_light1_pos      = glm::vec3(18.0f, 20.0, 4.0f);
-        glm::vec3 m_street_light2_pos      = glm::vec3(-46.0f, 20.0, 4.0f);
-        glm::vec3 m_street_light3_pos      = glm::vec3(55.0f, 20.0, 4.0f);
-        glm::vec3 m_street_light_direction = glm::vec3(0.0f, -1.0f, -0.1f);
-        glm::vec3 m_local_car_light_left   = glm::vec3(-1.395f, 1.395f, 2.8);
-        glm::vec3 m_local_car_light_right  = glm::vec3(1.395f, 1.395f, 2.8);
-        glm::vec3 m_local_red_pos          = glm::vec3(0.765f, 3.6f, -1.48f);
-        glm::vec3 m_local_blue_pos         = glm::vec3(-0.765f, 3.6f, -1.48f);
-        glm::vec3 m_local_spot_dir         = glm::vec3(0.0f, -0.2f, 1.0f);
-        glm::vec3 m_world_far_l_pos        = glm::vec3(-1.395f, 1.395f, 2.8);
-        glm::vec3 m_world_far_r_pos        = glm::vec3(1.395f, 1.395f, 2.8);
-        glm::vec3 m_world_red_pos          = glm::vec3(0.765f, 4.6f, -1.48f);
-        glm::vec3 m_world_blue_pos         = glm::vec3(-0.765f, 4.6f, -1.48f);
-        glm::vec3 m_car_pos                = glm::vec3(-17.0f, -4.0f, 0.0f);
-        glm::vec3 m_camp_fire_light_pos    = glm::vec3(-30.0f, 2.5f, -30.0f);
-        glm::vec3 m_animated_fire_pos      = glm::vec3(-30.0f, 2.5f, -30.0f);
-        glm::vec3 m_fog_color              = glm::vec3(0.15f, 0.15f, 0.15f);
-        glm::vec3 m_ufo_pos                = glm::vec3(-19.0f, m_UFO_SKY_Y, -12.5f);
+        float m_total_time                     = 0.0f;
+        float m_car_angle                      = 55.0f;
+        float m_camera_orbit_angle             = 0.0f;
+        float m_camera_dist                    = 16.0f;
+        float m_camera_height                  = 7.0f;
+        float m_pitch_offset                   = 10.0f;
+        float m_fog_start                      = 3.0f;
+        float m_fog_end                        = 95.0f;
+        const float m_UFO_SKY_Y                = 90.0f;
+        const float m_UFO_GROUND_Y             = -4.1f;
+        const float m_UFO_SPEED                = 15.0f;
+        float m_ufo_rotation                   = 0.0f;
+        float m_state_timer                    = 0.0f;
+        float m_red_intensity                  = 0.0f;
+        float m_blue_intensity                 = 0.0f;
+        bool m_cursor_enabled                  = false;
+        bool m_police_emergency_lights         = false;
+        bool m_police_head_lights              = false;
+        bool m_driving_mode                    = false;
+        bool m_fog_mode                        = true;
+        bool m_night_vision_mode               = false;
+        bool m_greyscale_mode                  = false;
+        bool m_first_entry                     = true;
+        bool m_flicker_active                  = false;
+        UfoState m_ufo_state                   = UfoState::SKY_IDLE;
+        glm::vec3 m_street_light1_pos          = glm::vec3(18.0f, 20.0, 4.0f);
+        glm::vec3 m_street_light2_pos          = glm::vec3(-46.0f, 20.0, 4.0f);
+        glm::vec3 m_street_light3_pos          = glm::vec3(55.0f, 20.0, 4.0f);
+        glm::vec3 m_street_light_direction     = glm::vec3(0.0f, -1.0f, -0.1f);
+        glm::vec3 m_car_head_light_left_pos    = glm::vec3(-1.395f, 1.395f, 2.8);
+        glm::vec3 m_car_head_light_right_pos   = glm::vec3(1.395f, 1.395f, 2.8);
+        glm::vec3 m_car_red_light_pos          = glm::vec3(0.765f, 3.6f, -1.48f);
+        glm::vec3 m_car_blue_light_pos         = glm::vec3(-0.765f, 3.6f, -1.48f);
+        glm::vec3 m_car_head_light_dir         = glm::vec3(0.0f, -0.2f, 1.0f);
+        glm::vec3 m_world_car_head_light_l_pos = glm::vec3(-1.395f, 1.395f, 2.8);
+        glm::vec3 m_world_car_head_light_r_pos = glm::vec3(1.395f, 1.395f, 2.8);
+        glm::vec3 m_world_car_red_light_pos    = glm::vec3(0.765f, 4.6f, -1.48f);
+        glm::vec3 m_world_car_blue_light_pos   = glm::vec3(-0.765f, 4.6f, -1.48f);
+        glm::vec3 m_car_pos                    = glm::vec3(-17.0f, -4.0f, 0.0f);
+        glm::vec3 m_camp_fire_light_pos        = glm::vec3(-30.0f, 2.5f, -30.0f);
+        glm::vec3 m_animated_fire_pos          = glm::vec3(-30.0f, 2.5f, -30.0f);
+        glm::vec3 m_fog_color                  = glm::vec3(0.15f, 0.15f, 0.15f);
+        glm::vec3 m_ufo_pos                    = glm::vec3(-19.0f, m_UFO_SKY_Y, -12.5f);
 
         void initialize() override;
 
@@ -75,7 +75,7 @@ namespace app {
 
         void update() override;
 
-        void handle_gui_button();
+        void handle_effects_button_controls();
 
         void update_ufo(float delta_time);
 
@@ -96,6 +96,12 @@ namespace app {
                                    glm::vec3 scale_model = glm::vec3(1.0f), float rotate_model_angle = 0.0f);
 
         void setup_scene_lights(engine::resources::Shader *shader);
+
+        void setup_fog_params(engine::resources::Shader *shader);
+
+        void bind_shadow_maps(engine::resources::Shader *shader);
+
+        void unbind_shadow_maps();
 
         float calculate_flicker_factor();
 
@@ -139,35 +145,35 @@ namespace app {
         }
 
         glm::vec3 get_local_far_left() const {
-            return m_local_car_light_left;
+            return m_car_head_light_left_pos;
         }
 
         void set_local_far_left(const glm::vec3 &pos) {
-            m_local_car_light_left = pos;
+            m_car_head_light_left_pos = pos;
         }
 
         glm::vec3 get_local_far_right() const {
-            return m_local_car_light_right;
+            return m_car_head_light_right_pos;
         }
 
         void set_local_far_right(const glm::vec3 &pos) {
-            m_local_car_light_right = pos;
+            m_car_head_light_right_pos = pos;
         }
 
         glm::vec3 get_local_red_pos() const {
-            return m_local_red_pos;
+            return m_car_red_light_pos;
         }
 
         void set_local_red_pos(const glm::vec3 &local_red_pos) {
-            m_local_red_pos = local_red_pos;
+            m_car_red_light_pos = local_red_pos;
         }
 
         glm::vec3 get_local_blue_pos() const {
-            return m_local_blue_pos;
+            return m_car_blue_light_pos;
         }
 
         void set_local_blue_pos(const glm::vec3 &local_blue_pos) {
-            m_local_blue_pos = local_blue_pos;
+            m_car_blue_light_pos = local_blue_pos;
         }
 
         bool is_night_vision_mode_active() const {
