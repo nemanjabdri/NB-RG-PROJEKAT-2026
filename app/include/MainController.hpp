@@ -38,6 +38,8 @@ namespace app {
         const float m_UFO_SPEED            = 15.0f;
         float m_ufo_rotation               = 0.0f;
         float m_state_timer                = 0.0f;
+        float m_red_intensity              = 0.0f;
+        float m_blue_intensity             = 0.0f;
         bool m_cursor_enabled              = false;
         bool m_police_emergency_lights     = false;
         bool m_police_head_lights          = false;
@@ -46,6 +48,7 @@ namespace app {
         bool m_night_vision_mode           = false;
         bool m_greyscale_mode              = false;
         bool m_first_entry                 = true;
+        bool m_flicker_active              = false;
         UfoState m_ufo_state               = UfoState::SKY_IDLE;
         glm::vec3 m_street_light1_pos      = glm::vec3(18.0f, 20.0, 4.0f);
         glm::vec3 m_street_light2_pos      = glm::vec3(-46.0f, 20.0, 4.0f);
@@ -93,6 +96,12 @@ namespace app {
                                    glm::vec3 scale_model = glm::vec3(1.0f), float rotate_model_angle = 0.0f);
 
         void setup_scene_lights(engine::resources::Shader *shader);
+
+        float calculate_flicker_factor();
+
+        glm::vec3 update_car_light_positions();
+
+        void update_police_light_intensities();
 
         void draw_skybox();
 
@@ -167,6 +176,10 @@ namespace app {
 
         void set_night_vision_mode(bool night_vision_mode) {
             m_night_vision_mode = night_vision_mode;
+        }
+
+        void set_flicker_active(bool flicker_active) {
+            m_flicker_active = flicker_active;
         }
 
         bool is_greyscale_mode_active() const {

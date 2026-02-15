@@ -97,6 +97,7 @@ namespace app {
             if (m_ufo_pos.y <= m_UFO_GROUND_Y) {
                 m_ufo_pos.y = m_UFO_GROUND_Y;
                 m_ufo_state = UfoState::GROUND_IDLE;
+                set_flicker_active(true);
             }
             break;
 
@@ -111,6 +112,7 @@ namespace app {
             if (m_ufo_pos.y >= m_UFO_SKY_Y) {
                 m_ufo_pos.y = m_UFO_SKY_Y;
                 m_ufo_state = UfoState::SKY_IDLE;
+                set_flicker_active(false);
             }
             break;
 
@@ -290,8 +292,6 @@ namespace app {
         render_scene_geometry(shader_depth);
         graphics->unbind_point_shadow();
 
-        glFinish();
-
         if (m_night_vision_mode || m_greyscale_mode) {
             graphics->bind_frameBuffer();
         }
@@ -320,9 +320,6 @@ namespace app {
         shader_universal->set_float("fogEnd", m_fog_end);
 
         render_scene_geometry(shader_universal);
-        glActiveTexture(GL_TEXTURE10);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-        glActiveTexture(GL_TEXTURE0);
 
         if (!m_fog_mode) {
             draw_skybox();
@@ -346,7 +343,6 @@ namespace app {
 
     void MainController::end_draw() {
         auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
-
         platform->swap_buffers();
     }
 
@@ -399,7 +395,6 @@ namespace app {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
 
         engine::resources::Model *model = resources->model(model_name);
-
         glm::mat4 model_transform = glm::mat4(1.0f);
         model_transform = glm::translate(model_transform, translate_model);
         model_transform = glm::rotate(model_transform, glm::radians(rotate_model_angle), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -409,9 +404,20 @@ namespace app {
         model->draw(shader);
     }
 
-    void MainController::setup_scene_lights(engine::resources::Shader *shader) {
-        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+    float MainController::calculate_flicker_factor() {
+        if (!m_flicker_active)
+            return 1.0f;
 
+        float flicker_threshold = 0.85f;
+        float random_val        = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+
+        if (random_val > flicker_threshold) {
+            return (random_val > 0.95f) ? 0.0f : 0.2f;
+        }
+        return 0.9f + (random_val * 0.1f);
+    }
+
+    glm::vec3 MainController::update_car_light_positions() {
         glm::mat4 car_rot = glm::rotate(glm::mat4(1.0f), glm::radians(m_car_angle), glm::vec3(0, 1, 0));
 
         m_world_red_pos   = glm::vec3(car_rot * glm::vec4(m_local_red_pos, 1.0f)) + m_car_pos;
@@ -419,12 +425,11 @@ namespace app {
         m_world_far_l_pos = glm::vec3(car_rot * glm::vec4(m_local_car_light_left, 1.0f)) + m_car_pos;
         m_world_far_r_pos = glm::vec3(car_rot * glm::vec4(m_local_car_light_right, 1.0f)) + m_car_pos;
 
-        glm::vec3 world_spot_dir = glm::vec3(car_rot * glm::vec4(m_local_spot_dir, 0.0f));
+        return glm::vec3(car_rot * glm::vec4(m_local_spot_dir, 0.0f));
+    }
 
+    void MainController::update_police_light_intensities() {
         float speed = 5.0f;
-        float m_red_intensity;
-        float m_blue_intensity;
-
         if (m_police_emergency_lights) {
             m_red_intensity  = (sin(m_total_time * speed) + 1.0f) / 2.0f;
             m_blue_intensity = (cos(m_total_time * speed) + 1.0f) / 2.0f;
@@ -432,6 +437,14 @@ namespace app {
             m_red_intensity  = 0.0f;
             m_blue_intensity = 0.0f;
         }
+    }
+
+    void MainController::setup_scene_lights(engine::resources::Shader *shader) {
+        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
+
+        glm::vec3 world_spot_dir = update_car_light_positions();
+
+        update_police_light_intensities();
         float ambient_lights_active     = m_police_emergency_lights ? 1.0f : 0.0f;
         float police_head_lights_active = m_police_head_lights ? 1.0f : 0.0f;
 
@@ -439,10 +452,13 @@ namespace app {
 
         shader->set_vec3("viewPos", graphics->camera()->Position);
 
+        float flicker_factor = calculate_flicker_factor();
+
         //POLICE RED LIGHT
         shader->set_vec3("pointLights[0].position", m_world_red_pos);
         shader->set_vec3("pointLights[0].ambient", glm::vec3(0.02f) * ambient_lights_active);
-        shader->set_vec3("pointLights[0].diffuse", glm::vec3(1.0f, 0.0f, 0.0f) * m_red_intensity);
+        shader->set_vec3("pointLights[0].diffuse",
+                         glm::vec3(1.0f, 0.0f, 0.0f) * m_red_intensity);
         shader->set_vec3("pointLights[0].specular", glm::vec3(0.0f));
         shader->set_float("pointLights[0].linear", 0.009f);
         shader->set_float("pointLights[0].quadratic", 0.0032f);
@@ -450,7 +466,8 @@ namespace app {
         //POLICE BLUE LIGHT
         shader->set_vec3("pointLights[1].position", m_world_blue_pos);
         shader->set_vec3("pointLights[1].ambient", glm::vec3(0.02f) * ambient_lights_active);
-        shader->set_vec3("pointLights[1].diffuse", glm::vec3(0.0f, 0.0f, 1.0f) * m_blue_intensity);
+        shader->set_vec3("pointLights[1].diffuse",
+                         glm::vec3(0.0f, 0.0f, 1.0f) * m_blue_intensity);
         shader->set_vec3("pointLights[1].specular", glm::vec3(0.0f));
         shader->set_float("pointLights[1].linear", 0.009f);
         shader->set_float("pointLights[1].quadratic", 0.0032f);
@@ -458,15 +475,14 @@ namespace app {
         float fire_speed     = 2.0f;
         float fire_noise     = (sin(m_total_time * fire_speed) * 0.2f) + (sin(m_total_time * fire_speed * 2.1f) * 0.1f);
         float fire_intensity = fire_noise + 0.7f;
-        float base_linear    = 0.009f;
-        float base_quadratic = 0.0032f;
+
         //Camp fire
         shader->set_vec3("pointLights[2].position", m_animated_fire_pos);
         shader->set_vec3("pointLights[2].ambient", glm::vec3(0.002f));
         shader->set_vec3("pointLights[2].diffuse", glm::vec3(1.0f, 0.6f, 0.2f) * 1.5f * fire_intensity);
         shader->set_vec3("pointLights[2].specular", glm::vec3(0.5f) * fire_intensity);
-        shader->set_float("pointLights[2].linear", base_linear / fire_intensity);
-        shader->set_float("pointLights[2].quadratic", base_quadratic / fire_intensity);
+        shader->set_float("pointLights[2].linear", 0.009f / fire_intensity);
+        shader->set_float("pointLights[2].quadratic", 0.0032f / fire_intensity);
 
         glm::vec3 ufo_light_pos = glm::vec3(m_ufo_pos.x, m_ufo_pos.y + 5, m_ufo_pos.z);
 
@@ -484,8 +500,10 @@ namespace app {
         shader->set_float("spotLights[0].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[0].outerCutOff", glm::cos(glm::radians(22.5f)));
         shader->set_vec3("spotLights[0].ambient", glm::vec3(0.001f) * police_head_lights_active);
-        shader->set_vec3("spotLights[0].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * police_head_lights_active);
-        shader->set_vec3("spotLights[0].specular", glm::vec3(0.5f) * police_head_lights_active);
+        shader->set_vec3("spotLights[0].diffuse",
+                         glm::vec3(1.0f, 1.0f, 0.4f) * police_head_lights_active * flicker_factor);
+        shader->set_vec3("spotLights[0].specular",
+                         glm::vec3(0.5f) * police_head_lights_active);
         shader->set_float("spotLights[0].linear", 0.0009f);
         shader->set_float("spotLights[0].quadratic", 0.00032f);
 
@@ -495,8 +513,10 @@ namespace app {
         shader->set_float("spotLights[1].cutOff", glm::cos(glm::radians(14.5f)));
         shader->set_float("spotLights[1].outerCutOff", glm::cos(glm::radians(22.5f)));
         shader->set_vec3("spotLights[1].ambient", glm::vec3(0.001f) * police_head_lights_active);
-        shader->set_vec3("spotLights[1].diffuse", glm::vec3(1.0f, 1.0f, 0.4f) * police_head_lights_active);
-        shader->set_vec3("spotLights[1].specular", glm::vec3(0.5f) * police_head_lights_active);
+        shader->set_vec3("spotLights[1].diffuse",
+                         glm::vec3(1.0f, 1.0f, 0.4f) * police_head_lights_active * flicker_factor);
+        shader->set_vec3("spotLights[1].specular",
+                         glm::vec3(0.5f) * police_head_lights_active);
         shader->set_float("spotLights[1].linear", 0.009f);
         shader->set_float("spotLights[1].quadratic", 0.0032f);
 
@@ -506,7 +526,7 @@ namespace app {
         shader->set_float("spotLights[2].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[2].outerCutOff", glm::cos(glm::radians(35.5f)));
         shader->set_vec3("spotLights[2].ambient", glm::vec3(0.1f));
-        shader->set_vec3("spotLights[2].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+        shader->set_vec3("spotLights[2].diffuse", glm::vec3(1.0f, 1.0f, 1.0f) * flicker_factor);
         shader->set_vec3("spotLights[2].specular", glm::vec3(0.3f));
         shader->set_float("spotLights[2].linear", 0.009f);
         shader->set_float("spotLights[2].quadratic", 0.0032f);
@@ -516,21 +536,10 @@ namespace app {
         shader->set_float("spotLights[3].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[3].outerCutOff", glm::cos(glm::radians(35.5f)));
         shader->set_vec3("spotLights[3].ambient", glm::vec3(0.1f));
-        shader->set_vec3("spotLights[3].diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+        shader->set_vec3("spotLights[3].diffuse", glm::vec3(1.0f, 1.0f, 1.0f) * flicker_factor);
         shader->set_vec3("spotLights[3].specular", glm::vec3(0.3f));
         shader->set_float("spotLights[3].linear", 0.009f);
         shader->set_float("spotLights[3].quadratic", 0.0032f);
-
-        float flicker_threshold = 0.85f;
-        float random_val        = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-        float street_light_flicker;
-        if (random_val > flicker_threshold) {
-            // Nagli pad ili potpuni mrak
-            street_light_flicker = (random_val > 0.95f) ? 0.0f : 0.2f;
-        } else {
-            // Normalno svetlo sa blagim šumom
-            street_light_flicker = 0.9f + (random_val * 0.1f);
-        }
 
         //street-light 3
         shader->set_vec3("spotLights[4].position", m_street_light3_pos);
@@ -538,8 +547,8 @@ namespace app {
         shader->set_float("spotLights[4].cutOff", glm::cos(glm::radians(12.5f)));
         shader->set_float("spotLights[4].outerCutOff", glm::cos(glm::radians(35.5f)));
         shader->set_vec3("spotLights[4].ambient", glm::vec3(0.1f));
-        shader->set_vec3("spotLights[4].diffuse", glm::vec3(1.0f, 1.0f, 1.0f) * street_light_flicker);
-        shader->set_vec3("spotLights[4].specular", glm::vec3(0.3f) * street_light_flicker);
+        shader->set_vec3("spotLights[4].diffuse", glm::vec3(1.0f, 1.0f, 1.0f) * flicker_factor);
+        shader->set_vec3("spotLights[4].specular", glm::vec3(0.3f));
         shader->set_float("spotLights[4].linear", 0.009f);
         shader->set_float("spotLights[4].quadratic", 0.0032f);
     }
