@@ -2,41 +2,37 @@
 // Created by nemanja on 31.1.26..
 //
 
-#include "../include/MainController.hpp"
+#include "MainController.hpp"
 
-#include <glad/glad.h>
 #include <engine/graphics/GraphicsController.hpp>
-#include <engine/graphics/OpenGL.hpp>
 #include <engine/platform/PlatformController.hpp>
 #include <engine/resources/ResourcesController.hpp>
-#include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
-#include <spdlog/fmt/bundled/chrono.h>
 
 namespace {
-    const std::string SHADER_UNIVERSAL   = "shader_model_universal";
-    const std::string SHADER_SHADOW      = "shader_point_shadow_depth";
-    const std::string SHADER_SKYBOX      = "shader_skybox";
-    const std::string MODEL_TERRAIN      = "terrain";
-    const std::string SKYBOX             = "skybox";
-    const std::string MODEL_UFO          = "UFO";
-    const std::string MODEL_HOUSE        = "house";
-    const std::string MODEL_CONVERTIBLE  = "convertible";
-    const std::string MODEL_ROAD         = "road";
-    const std::string MODEL_CARAVAN      = "caravan";
-    const std::string MODEL_POLICE_CAR   = "police_car";
-    const std::string MODEL_FARM_HOUSE   = "farm_house";
-    const std::string MODEL_TENNIS_COURT = "tennis_court";
-    const std::string MODEL_STREET_LIGHT = "street_light";
-    const std::string MODEL_BUILDING     = "building";
-    const std::string MODEL_BAKERY       = "bakery";
-    const std::string MODEL_BANK         = "bank";
-    const std::string MODEL_CINEMA       = "cinema";
-    const std::string MODEL_SALOON       = "saloon";
-    const std::string MODEL_CAMPFIRE     = "campfire";
-    const std::string MODEL_CACTUS       = "cactus";
-    const std::string MODEL_LAWN_MOWER   = "lawn_mower";
-    const std::string MODEL_WOOD_SWING   = "wood_swing";
+    constexpr std::string_view SHADER_UNIVERSAL   = "shader_model_universal";
+    constexpr std::string_view SHADER_SHADOW      = "shader_point_shadow_depth";
+    constexpr std::string_view SHADER_SKYBOX      = "shader_skybox";
+    constexpr std::string_view MODEL_TERRAIN      = "terrain";
+    constexpr std::string_view SKYBOX             = "skybox";
+    constexpr std::string_view MODEL_UFO          = "UFO";
+    constexpr std::string_view MODEL_HOUSE        = "house";
+    constexpr std::string_view MODEL_CONVERTIBLE  = "convertible";
+    constexpr std::string_view MODEL_ROAD         = "road";
+    constexpr std::string_view MODEL_CARAVAN      = "caravan";
+    constexpr std::string_view MODEL_POLICE_CAR   = "police_car";
+    constexpr std::string_view MODEL_FARM_HOUSE   = "farm_house";
+    constexpr std::string_view MODEL_TENNIS_COURT = "tennis_court";
+    constexpr std::string_view MODEL_STREET_LIGHT = "street_light";
+    constexpr std::string_view MODEL_BUILDING     = "building";
+    constexpr std::string_view MODEL_BAKERY       = "bakery";
+    constexpr std::string_view MODEL_BANK         = "bank";
+    constexpr std::string_view MODEL_CINEMA       = "cinema";
+    constexpr std::string_view MODEL_SALOON       = "saloon";
+    constexpr std::string_view MODEL_CAMPFIRE     = "campfire";
+    constexpr std::string_view MODEL_CACTUS       = "cactus";
+    constexpr std::string_view MODEL_LAWN_MOWER   = "lawn_mower";
+    constexpr std::string_view MODEL_WOOD_SWING   = "wood_swing";
 }
 
 namespace app {
@@ -47,9 +43,10 @@ namespace app {
 
     void MainPlatformEventObserver::on_mouse_move(engine::platform::MousePosition position) {
         auto camera          = engine::core::Controller::get<engine::graphics::GraphicsController>()->camera();
+        auto platform        = engine::core::Controller::get<engine::platform::PlatformController>();
         auto main_controller = engine::core::Controller::get<app::MainController>();
 
-        if (main_controller->is_cursor_enabled() || main_controller->is_driving_mode_active()) {
+        if (platform->is_cursor_enabled() || main_controller->is_driving_mode_active()) {
             return;
         }
 
@@ -63,13 +60,13 @@ namespace app {
 
     void MainController::initialize() {
         auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
+        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        m_cursor_enabled = false;
-        platform->set_enable_cursor(m_cursor_enabled);
+        platform->set_enable_cursor(false);
 
         platform->register_platform_event_observer(std::make_unique<MainPlatformEventObserver>());
 
-        engine::graphics::OpenGL::enable_depth_testing();
+        graphics->enable_depth_testing();
     }
 
     bool MainController::loop() {
@@ -186,9 +183,9 @@ namespace app {
         float x_offset = target_yaw - camera->Yaw;
         float y_offset = target_pitch - camera->Pitch;
 
-        while (x_offset <= -180.0f)
+        if (x_offset <= -180.0f)
             x_offset += 360.0f;
-        while (x_offset > 180.0f)
+        if (x_offset > 180.0f)
             x_offset -= 360.0f;
 
         if (m_car_angle >= 360.0f)
@@ -216,7 +213,7 @@ namespace app {
 
         m_first_entry = true;
 
-        if (!m_cursor_enabled) {
+        if (!platform->is_cursor_enabled()) {
             if (platform->key(engine::platform::KeyId::KEY_W).is_down()) {
                 camera->move_camera(engine::graphics::Camera::FORWARD, delta_time);
             }
@@ -244,8 +241,7 @@ namespace app {
     void MainController::handle_effects_button_controls() {
         auto platform = engine::core::Controller::get<engine::platform::PlatformController>();
         if (platform->key(engine::platform::KeyId::KEY_F2).state() == engine::platform::Key::State::JustPressed) {
-            m_cursor_enabled = !m_cursor_enabled;
-            platform->set_enable_cursor(m_cursor_enabled);
+            platform->set_enable_cursor(!platform->is_cursor_enabled());
         }
         if (platform->key(engine::platform::KeyId::KEY_1).state() == engine::platform::Key::State::JustPressed) {
             if (m_greyscale_mode) {
@@ -285,7 +281,7 @@ namespace app {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        auto shader_depth = resources->shader(SHADER_SHADOW);
+        auto shader_depth = resources->shader(std::string(SHADER_SHADOW));
 
         shader_depth->use();
         graphics->bind_point_shadow(shader_depth, m_animated_fire_pos);
@@ -296,8 +292,7 @@ namespace app {
             graphics->bind_frameBuffer();
         }
 
-        glClearColor(m_fog_color.r, m_fog_color.g, m_fog_color.b, 1.0f);
-        engine::graphics::OpenGL::clear_buffers();
+        graphics->clear_buffers(m_fog_color);
     }
 
     void MainController::setup_fog_params(engine::resources::Shader *shader_universal) {
@@ -309,45 +304,27 @@ namespace app {
         }
     }
 
-    void MainController::bind_shadow_maps(engine::resources::Shader *shader_universal) {
-        auto graphics = engine::core::Controller::get<engine::graphics::GraphicsController>();
-        if (shader_universal) {
-            glActiveTexture(GL_TEXTURE10);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, graphics->point_shadow_texture_id());
-            shader_universal->set_int("depthMap", 10);
-            shader_universal->set_float("shadowFarPlane", 50.0f);
-        }
-    }
-
-    void MainController::unbind_shadow_maps() {
-        glActiveTexture(GL_TEXTURE10);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-        glActiveTexture(GL_TEXTURE0);
-    }
-
     void MainController::draw() {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
 
-        auto shader_universal = resources->shader(SHADER_UNIVERSAL);
+        auto shader_universal = resources->shader(std::string(SHADER_UNIVERSAL));
 
         shader_universal->use();
         shader_universal->set_mat4("projection", graphics->projection_matrix());
         shader_universal->set_mat4("view", graphics->camera()->view_matrix());
         setup_scene_lights(shader_universal);
-        bind_shadow_maps(shader_universal);
+        graphics->bind_point_shadow_map(shader_universal, 50.0f);
         setup_fog_params(shader_universal);
         render_scene_geometry(shader_universal);
-        unbind_shadow_maps();
+        graphics->unbind_point_shadow_map();
 
         if (!m_fog_mode) {
             draw_skybox();
         } else {
-            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-            glDepthMask(GL_FALSE);
+            graphics->disable_color_depth_write();
             draw_skybox();
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-            glDepthMask(GL_TRUE);
+            graphics->enable_color_depth_write();
         }
 
         if (m_night_vision_mode || m_greyscale_mode) {
@@ -408,12 +385,12 @@ namespace app {
                               45.0f);
     }
 
-    void MainController::render_model_geometry(const std::string &model_name, engine::resources::Shader *shader,
+    void MainController::render_model_geometry(std::string_view model_name, engine::resources::Shader *shader,
                                                glm::vec3 translate_model,
                                                glm::vec3 scale_model, float rotate_model_angle) {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
 
-        engine::resources::Model *model = resources->model(model_name);
+        engine::resources::Model *model = resources->model(std::string(model_name));
         glm::mat4 model_transform = glm::mat4(1.0f);
         model_transform = glm::translate(model_transform, translate_model);
         model_transform = glm::rotate(model_transform, glm::radians(rotate_model_angle), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -575,8 +552,8 @@ namespace app {
     void MainController::draw_skybox() {
         auto resources = engine::core::Controller::get<engine::resources::ResourcesController>();
         auto graphics  = engine::core::Controller::get<engine::graphics::GraphicsController>();
-        auto skybox    = resources->skybox(SKYBOX);
-        auto shader    = resources->shader(SHADER_SKYBOX);
+        auto skybox    = resources->skybox(std::string(SKYBOX));
+        auto shader    = resources->shader(std::string(SHADER_SKYBOX));
         graphics->draw_skybox(shader, skybox);
     }
 } // app

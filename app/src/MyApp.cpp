@@ -2,7 +2,7 @@
 // Created by nemanja on 31.1.26..
 //
 
-#include "../include/MyApp.hpp"
+#include "MyApp.hpp"
 
 #include <GuiController.hpp>
 #include <MainController.hpp>

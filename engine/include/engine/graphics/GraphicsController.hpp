@@ -106,6 +106,18 @@ namespace engine::graphics {
 
         void unbind_point_shadow();
 
+        void enable_depth_testing();
+
+        void clear_buffers(glm::vec3 clear_color);
+
+        void bind_point_shadow_map(const resources::Shader *shader, float far_plane);
+
+        void unbind_point_shadow_map();
+
+        void disable_color_depth_write();
+
+        void enable_color_depth_write();
+
         unsigned int point_shadow_texture_id() const;
 
         Camera *camera() {

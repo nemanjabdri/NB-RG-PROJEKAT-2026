@@ -58,7 +58,14 @@ namespace engine::graphics {
             ImGui_ImplGlfw_Shutdown();
             ImGui::DestroyContext();
         }
+        if (m_framebuffer) {
+            m_framebuffer->terminate();
+        }
         m_framebuffer.reset();
+
+        if (m_point_shadow) {
+            m_point_shadow->terminate();
+        }
         m_point_shadow.reset();
     }
 
@@ -170,5 +177,39 @@ namespace engine::graphics {
             return m_point_shadow->texture_id();
         }
         return 0;
+    }
+
+    void GraphicsController::enable_depth_testing() {
+        OpenGL::enable_depth_testing();
+    }
+
+    void GraphicsController::clear_buffers(glm::vec3 clear_color) {
+        CHECKED_GL_CALL(glClearColor, clear_color.r, clear_color.g, clear_color.b, 1.0f);
+        OpenGL::clear_buffers();
+    }
+
+    void GraphicsController::bind_point_shadow_map(const resources::Shader *shader, float far_plane) {
+        if (m_point_shadow) {
+            CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE10);
+            CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_CUBE_MAP, m_point_shadow->texture_id());
+            shader->set_int("depthMap", 10);
+            shader->set_float("shadowFarPlane", far_plane);
+        }
+    }
+
+    void GraphicsController::unbind_point_shadow_map() {
+        CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE10);
+        CHECKED_GL_CALL(glBindTexture, GL_TEXTURE_CUBE_MAP, 0);
+        CHECKED_GL_CALL(glActiveTexture, GL_TEXTURE0);
+    }
+
+    void GraphicsController::disable_color_depth_write() {
+        CHECKED_GL_CALL(glColorMask, GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+        CHECKED_GL_CALL(glDepthMask, GL_FALSE);
+    }
+
+    void GraphicsController::enable_color_depth_write() {
+        CHECKED_GL_CALL(glColorMask, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        CHECKED_GL_CALL(glDepthMask, GL_TRUE);
     }
 } // namespace engine::graphics

@@ -13,11 +13,11 @@ namespace engine::graphics {
     public:
         PointShadow(unsigned int width = 2048, unsigned int height = 2048);
 
-        ~PointShadow();
-
         PointShadow(const PointShadow &) = delete;
 
         PointShadow &operator=(const PointShadow &) = delete;
+
+        void terminate();
 
         void bind();
 

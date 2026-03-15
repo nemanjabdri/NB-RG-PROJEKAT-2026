@@ -5,12 +5,12 @@
 #include <cstddef>
 #include <vector>
 #include <engine/graphics/PointShadow.hpp>
+#include <engine/util/Errors.hpp>
 #include <glad/glad.h>
 #include <glm/vec3.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <engine/resources/Shader.hpp>
-#include <spdlog/spdlog.h>
 
 namespace engine {
     graphics::PointShadow::PointShadow(unsigned int width, unsigned int height) : m_shadow_width(width)
@@ -33,15 +33,18 @@ namespace engine {
         glDrawBuffer(GL_NONE);
         glReadBuffer(GL_NONE);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            spdlog::error("PointShadow Framebuffer is not complete!");
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             cleanup();
+            throw engine::util::EngineError(
+                engine::util::EngineError::Type::OpenGLError,
+                "PointShadow Framebuffer is not complete!"
+            );
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    graphics::PointShadow::~PointShadow() {
+    void graphics::PointShadow::terminate() {
         cleanup();
     }
 
@@ -61,7 +64,7 @@ namespace engine {
         glBindFramebuffer(GL_FRAMEBUFFER, m_depth_map_fbo);
 
         glDisable(GL_SCISSOR_TEST);
-        glActiveTexture(GL_TEXTURE5);
+        glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
         glEnable(GL_DEPTH_TEST);

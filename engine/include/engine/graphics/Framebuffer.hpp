@@ -10,11 +10,11 @@ namespace engine::graphics {
     public:
         Framebuffer(int width, int height);
 
-        ~Framebuffer();
-
         Framebuffer(const Framebuffer &) = delete;
 
         Framebuffer &operator=(const Framebuffer &) = delete;
+
+        void terminate();
 
         void bind();
 

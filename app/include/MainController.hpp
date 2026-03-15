@@ -40,7 +40,6 @@ namespace app {
         float m_state_timer                    = 0.0f;
         float m_red_intensity                  = 0.0f;
         float m_blue_intensity                 = 0.0f;
-        bool m_cursor_enabled                  = false;
         bool m_police_emergency_lights         = false;
         bool m_police_head_lights              = false;
         bool m_driving_mode                    = false;
@@ -91,17 +90,13 @@ namespace app {
 
         void render_scene_geometry(engine::resources::Shader *shader);
 
-        void render_model_geometry(const std::string &model_name, engine::resources::Shader *shader,
+        void render_model_geometry(std::string_view model_name, engine::resources::Shader *shader,
                                    glm::vec3 translate_model,
                                    glm::vec3 scale_model = glm::vec3(1.0f), float rotate_model_angle = 0.0f);
 
         void setup_scene_lights(engine::resources::Shader *shader);
 
         void setup_fog_params(engine::resources::Shader *shader);
-
-        void bind_shadow_maps(engine::resources::Shader *shader);
-
-        void unbind_shadow_maps();
 
         float calculate_flicker_factor();
 
@@ -114,10 +109,6 @@ namespace app {
     public:
         std::string_view name() const override {
             return "MainController";
-        }
-
-        bool is_cursor_enabled() const {
-            return m_cursor_enabled;
         }
 
         bool is_police_emergency_lights_active() const {

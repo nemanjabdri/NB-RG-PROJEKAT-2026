@@ -3,9 +3,9 @@
 //
 
 #include <engine/graphics/Framebuffer.hpp>
+#include <engine/util/Errors.hpp>
 #include <glad/glad.h>
 #include <cstddef>
-#include <spdlog/spdlog.h>
 
 namespace engine {
     graphics::Framebuffer::Framebuffer(int width, int height) : m_width(width)
@@ -13,7 +13,7 @@ namespace engine {
         create_framebuffer();
     }
 
-    graphics::Framebuffer::~Framebuffer() {
+    void graphics::Framebuffer::terminate() {
         delete_framebuffer();
     }
 
@@ -37,10 +37,11 @@ namespace engine {
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_rbo);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            spdlog::error("Framebuffer is not complete!");
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             delete_framebuffer();
-            throw std::runtime_error("Failed to create Framebuffer");
+            throw engine::util::EngineError(
+                engine::util::EngineError::Type::OpenGLError,
+                "Framebuffer is not complete!");
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
