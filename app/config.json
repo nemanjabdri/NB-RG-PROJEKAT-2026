@@ -1,11 +1,68 @@
 {
   "resources": {
     "models": {
+      "house": {
+        "path": "house/HouseWithDriveway.obj"
+      },
+      "convertible": {
+        "path": "convertible/Convertible.obj"
+      },
+      "road": {
+        "path": "road/Road.obj"
+      },
+      "caravan": {
+        "path": "caravan/Caravan.obj"
+      },
+      "police_car": {
+        "path": "police_car/PoliceCar.obj"
+      },
+      "farm_house": {
+        "path": "farm_house/FarmHouse.obj"
+      },
+      "tennis_court": {
+        "path": "tennis_court/TennisCourt.obj"
+      },
+      "terrain": {
+        "path": "terrain/terrain.obj"
+      },
+      "street_light": {
+        "path": "street_light/Street_light.obj"
+      },
+      "building": {
+        "path": "building/building.obj"
+      },
+      "bakery": {
+        "path": "bakery/Bakery.obj"
+      },
+      "UFO": {
+        "path": "UFO/UFO.obj"
+      },
+      "cinema": {
+        "path": "cinema/Cinema.obj"
+      },
+      "saloon": {
+        "path": "saloon/Saloon.obj"
+      },
+      "bank": {
+        "path": "bank/Bank.obj"
+      },
+      "campfire": {
+        "path": "campfire/campfire.obj"
+      },
+      "cactus": {
+        "path": "cactus/Saguaro.obj"
+      },
+      "lawn_mower": {
+        "path": "lawn_mower/Lawn_Mower.obj"
+      },
+      "wood_swing": {
+        "path": "wood_swing/SWING.obj"
+      }
     }
   },
   "window": {
-    "height": 600,
+    "height": 900,
     "title": "Hello, window!",
-    "width": 800
+    "width": 1600
   }
 }
