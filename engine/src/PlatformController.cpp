@@ -110,15 +110,15 @@ int glfw_platform_action(GLFWwindow *window, int glfw_key_code) {
 }
 
 /**
- * @brief Updates the state of a key.
- * Key states are repesented as a state machine with the following states: Released, JustPressed, Pressed, JustReleased.
- * The state machine transitions are as follows:
- * - Released -> JustPressed if the key is pressed.
- * - JustPressed -> Pressed if the key is still pressed.
- * - Pressed -> JustReleased if the key is released.
- * - JustReleased -> Released if the key is released.
- * @param key_data The key to update.
- */
+     * @brief Updates the state of a key.
+     * Key states are repesented as a state machine with the following states: Released, JustPressed, Pressed, JustReleased.
+     * The state machine transitions are as follows:
+     * - Released -> JustPressed if the key is pressed.
+     * - JustPressed -> Pressed if the key is still pressed.
+     * - Pressed -> JustReleased if the key is released.
+     * - JustReleased -> Released if the key is released.
+     * @param key_data The key to update.
+     */
 void PlatformController::update_key(Key &key_data) const {
     int engine_key_code = key_data.id();
     int glfw_key_code = g_engine_to_glfw_key.at(engine_key_code);
@@ -238,14 +238,14 @@ void PlatformController::_platform_on_mouse_button(int button, int action) {
     }
 }
 
-    void PlatformController::set_enable_cursor(bool enabled) {
-        m_cursor_enabled = enabled;
-        if (enabled) {
-            glfwSetInputMode(m_window.handle_(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        } else {
-            glfwSetInputMode(m_window.handle_(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        }
+void PlatformController::set_enable_cursor(bool enabled) {
+    m_cursor_enabled = enabled;
+    if (enabled) {
+        glfwSetInputMode(m_window.handle_(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    } else {
+        glfwSetInputMode(m_window.handle_(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
+}
 
 void initialize_key_maps() {
     // clang-format off
@@ -278,5 +278,4 @@ static void glfw_framebuffer_size_callback(GLFWwindow *window, int width, int he
 void glfw_window_close_callback(GLFWwindow *window) {
     core::Controller::get<PlatformController>()->_platform_on_window_close(window);
 }
-
 }// namespace engine::platform
